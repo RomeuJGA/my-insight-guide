@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import HowItWorks from "@/components/HowItWorks";
 import ExperiencePreview from "@/components/ExperiencePreview";
+import DailyMessage from "@/components/DailyMessage";
 import ValueProps from "@/components/ValueProps";
 import Experience from "@/components/Experience";
 import Pricing from "@/components/Pricing";
@@ -16,6 +17,7 @@ const Index = () => {
       <Hero />
       <HowItWorks />
       <ExperiencePreview />
+      <DailyMessage />
       <ValueProps />
       <Experience />
       <Pricing />

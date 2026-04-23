@@ -41,6 +41,30 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_messages: {
+        Row: {
+          created_at: string
+          id: string
+          message_id: number
+          shown_date: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message_id: number
+          shown_date?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message_id?: number
+          shown_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       message_reveals: {
         Row: {
           id: string
@@ -208,6 +232,13 @@ export type Database = {
       consume_one_credit: {
         Args: { _description?: string; _user_id: string }
         Returns: number
+      }
+      get_or_create_daily_message: {
+        Args: { _user_id: string }
+        Returns: {
+          content: string
+          shown_date: string
+        }[]
       }
       grant_welcome_credit_if_eligible: {
         Args: { _user_id: string }
