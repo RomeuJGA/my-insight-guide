@@ -93,14 +93,21 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
     if (!acceptedTerms) return toast.error("Aceite os Termos para continuar.");
     setCreating(true);
     try {
+      console.log("[Paywall] invoking create-multibanco-payment", { package: selected });
       const { data, error } = await supabase.functions.invoke("create-multibanco-payment", {
         body: { package: selected, acceptedTerms: true },
       });
-      if (error) throw error;
+      console.log("[Paywall] response", { data, error });
+      if (error) {
+        const ctxBody = (error as any)?.context?.body;
+        const msg = typeof ctxBody === "string" ? ctxBody : error.message;
+        throw new Error(msg || "Erro ao contactar o servidor.");
+      }
       if (!data?.entity || !data?.reference) throw new Error("Resposta inválida do gateway.");
       setPayment(data as PaymentRef);
       startPolling(data.orderId);
     } catch (e: any) {
+      console.error("[Paywall] create error", e);
       toast.error(e?.message ?? "Erro ao gerar referência.");
     } finally {
       setCreating(false);
