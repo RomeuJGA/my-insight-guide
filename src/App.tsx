@@ -9,6 +9,9 @@ import Auth from "./pages/Auth.tsx";
 import Admin from "./pages/Admin.tsx";
 import Credits from "./pages/Credits.tsx";
 import MyMessages from "./pages/MyMessages.tsx";
+import Terms from "./pages/legal/Terms.tsx";
+import Privacy from "./pages/legal/Privacy.tsx";
+import Refunds from "./pages/legal/Refunds.tsx";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +27,9 @@ const App = () => (
           <Route path="/admin" element={<Admin />} />
           <Route path="/credits" element={<Credits />} />
           <Route path="/my-messages" element={<MyMessages />} />
+          <Route path="/legal/termos" element={<Terms />} />
+          <Route path="/legal/privacidade" element={<Privacy />} />
+          <Route path="/legal/reembolsos" element={<Refunds />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
