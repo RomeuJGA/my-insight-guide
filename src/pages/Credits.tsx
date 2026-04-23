@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useCredits } from "@/hooks/useCredits";
 import Paywall from "@/components/Paywall";
+import Footer from "@/components/Footer";
 
 type Tx = {
   id: string;
@@ -59,7 +60,8 @@ const Credits = () => {
   if (!user) return <Navigate to="/auth" replace />;
 
   return (
-    <div className="min-h-screen bg-background pt-24 pb-16 px-6">
+    <div className="min-h-screen bg-background flex flex-col">
+      <div className="flex-1 pt-24 pb-16 px-6">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-2">Os seus créditos</p>
@@ -149,6 +151,8 @@ const Credits = () => {
           </Link>
         </div>
       </div>
+      </div>
+      <Footer />
     </div>
   );
 };

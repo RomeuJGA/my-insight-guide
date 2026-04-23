@@ -6,7 +6,7 @@ interface DisclaimerProps {
 }
 
 const TEXT =
-  "Esta é uma ferramenta inspiracional de reflexão pessoal. Não fornece previsões nem aconselhamento profissional (médico, psicológico, financeiro ou legal).";
+  "Esta é uma ferramenta de reflexão e inspiração pessoal. Não fornece previsões nem substitui aconselhamento profissional (médico, psicológico, financeiro ou legal).";
 
 const Disclaimer = ({ variant = "default", className = "" }: DisclaimerProps) => {
   if (variant === "inline") {
