@@ -6,8 +6,14 @@ verify_jwt = true
 [functions.get-credits]
 verify_jwt = true
 
-[functions.buy-credits]
-verify_jwt = true
-
 [functions.admin-credits]
 verify_jwt = true
+
+[functions.create-multibanco-payment]
+verify_jwt = true
+
+[functions.check-payment-status]
+verify_jwt = true
+
+[functions.ifthenpay-callback]
+verify_jwt = false
