@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Quote, Shuffle, Sparkles, History, X, LogIn } from "lucide-react";
+import { Quote, Shuffle, Sparkles, History, X, LogIn, Coins } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useCredits } from "@/hooks/useCredits";
+import Paywall from "./Paywall";
 import { toast } from "sonner";
 
 type HistoryItem = { number: number; message: string; date: string };
@@ -13,11 +15,13 @@ const TOTAL_MESSAGES = 534;
 const Experience = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
+  const { credits, loading: creditsLoading, setLocal: setLocalCredits, refresh: refreshCredits } = useCredits();
   const [input, setInput] = useState<string>("");
   const [revealed, setRevealed] = useState<{ number: number; message: string } | null>(null);
   const [animating, setAnimating] = useState(false);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
 
   useEffect(() => {
     try {
@@ -27,6 +31,7 @@ const Experience = () => {
   }, []);
 
   const reveal = async (n: number) => {
+    if (animating) return;
     if (n < 1 || n > TOTAL_MESSAGES || !Number.isFinite(n)) {
       toast.error(`Escolha um número entre 1 e ${TOTAL_MESSAGES}.`);
       return;
@@ -36,6 +41,10 @@ const Experience = () => {
       navigate("/auth");
       return;
     }
+    if ((credits ?? 0) <= 0) {
+      setShowPaywall(true);
+      return;
+    }
 
     setAnimating(true);
     setRevealed(null);
@@ -43,11 +52,20 @@ const Experience = () => {
       const { data, error } = await supabase.functions.invoke("get-message", {
         body: { id: n },
       });
-      if (error) throw error;
+      if (error) {
+        // 402 from edge → no credits
+        const msg = (error as any)?.context?.body || error.message || "";
+        if (typeof msg === "string" && msg.includes("NO_CREDITS")) {
+          setShowPaywall(true);
+          return;
+        }
+        throw error;
+      }
       if (!data?.content) throw new Error("Sem conteúdo recebido.");
 
-      // Small delay so the shimmer feels intentional
-      await new Promise((r) => setTimeout(r, 400));
+      if (typeof data.credits === "number") setLocalCredits(data.credits);
+
+      await new Promise((r) => setTimeout(r, 300));
 
       const item: HistoryItem = { number: n, message: data.content, date: new Date().toISOString() };
       setRevealed({ number: n, message: data.content });
@@ -57,6 +75,7 @@ const Experience = () => {
     } catch (e: any) {
       console.error(e);
       toast.error(e?.message ?? "Erro ao obter a mensagem.");
+      refreshCredits();
     } finally {
       setAnimating(false);
     }
@@ -108,7 +127,24 @@ const Experience = () => {
             </div>
           )}
 
-          {!revealed ? (
+          {user && !creditsLoading && credits !== null && (
+            <div className="mb-4 flex items-center justify-center gap-2 text-sm text-muted-foreground">
+              <Coins className="w-4 h-4 text-primary" />
+              <span>
+                Saldo: <strong className="text-foreground tabular-nums">{credits}</strong> crédito{credits === 1 ? "" : "s"}
+              </span>
+            </div>
+          )}
+
+          {showPaywall ? (
+            <Paywall
+              onPurchased={(newBalance) => {
+                setLocalCredits(newBalance);
+                setShowPaywall(false);
+                toast.success("Saldo atualizado. Boa exploração.");
+              }}
+            />
+          ) : !revealed ? (
             <form onSubmit={handleSubmit} className="p-8 md:p-10 rounded-3xl bg-card border border-border/60 shadow-elegant animate-fade-in-up">
               <label htmlFor="number" className="block text-sm font-medium text-foreground/80 mb-3">
                 Número entre 1 e {TOTAL_MESSAGES}
@@ -128,8 +164,9 @@ const Experience = () => {
                 <button
                   type="button"
                   onClick={handleShuffle}
+                  disabled={animating}
                   title="Escolher aleatoriamente"
-                  className="px-4 py-4 rounded-2xl bg-secondary text-secondary-foreground hover:bg-accent transition-smooth"
+                  className="px-4 py-4 rounded-2xl bg-secondary text-secondary-foreground hover:bg-accent transition-smooth disabled:opacity-60"
                 >
                   <Shuffle className="w-5 h-5" />
                 </button>
@@ -202,19 +239,14 @@ const Experience = () => {
                       const n = Math.floor(Math.random() * TOTAL_MESSAGES) + 1;
                       reveal(n);
                     }}
-                    className="flex-1 inline-flex items-center justify-center gap-2 py-3 rounded-full bg-primary text-primary-foreground hover:opacity-90 transition-smooth text-sm font-medium"
+                    disabled={animating}
+                    className="flex-1 inline-flex items-center justify-center gap-2 py-3 rounded-full bg-primary text-primary-foreground hover:opacity-90 transition-smooth text-sm font-medium disabled:opacity-60"
                   >
                     <Shuffle className="w-4 h-4" />
                     Mensagem aleatória
                   </button>
                 </div>
               </article>
-
-              {animating && (
-                <p className="text-center text-sm text-muted-foreground mt-4 animate-shimmer">
-                  A revelar a sua mensagem…
-                </p>
-              )}
             </div>
           )}
 

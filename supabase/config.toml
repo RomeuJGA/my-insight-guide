@@ -2,3 +2,12 @@ project_id = "ipabmyxckmlvxffkypro"
 
 [functions.get-message]
 verify_jwt = true
+
+[functions.get-credits]
+verify_jwt = true
+
+[functions.buy-credits]
+verify_jwt = true
+
+[functions.admin-credits]
+verify_jwt = true

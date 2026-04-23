@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      credit_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          id: string
+          type: Database["public"]["Enums"]["credit_tx_type"]
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          type: Database["public"]["Enums"]["credit_tx_type"]
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          type?: Database["public"]["Enums"]["credit_tx_type"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
@@ -29,6 +56,24 @@ export type Database = {
           content?: string
           created_at?: string
           id?: number
+        }
+        Relationships: []
+      }
+      user_credits: {
+        Row: {
+          credits: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          credits?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          credits?: number
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -58,6 +103,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_credits: {
+        Args: {
+          _amount: number
+          _description?: string
+          _type: Database["public"]["Enums"]["credit_tx_type"]
+          _user_id: string
+        }
+        Returns: number
+      }
+      consume_one_credit: {
+        Args: { _description?: string; _user_id: string }
+        Returns: number
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -69,6 +127,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      credit_tx_type: "purchase" | "usage" | "admin" | "welcome"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -197,6 +256,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      credit_tx_type: ["purchase", "usage", "admin", "welcome"],
     },
   },
 } as const
