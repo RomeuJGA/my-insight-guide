@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import AdminCredits from "@/components/AdminCredits";
+import Footer from "@/components/Footer";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -235,7 +236,8 @@ const Admin = () => {
   if (!user) return <Navigate to="/auth" replace />;
   if (!isAdmin) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background px-6">
+      <div className="min-h-screen flex flex-col bg-background">
+        <div className="flex-1 flex items-center justify-center px-6">
         <div className="max-w-md text-center space-y-4">
           <div className="w-12 h-12 rounded-full bg-destructive/10 text-destructive mx-auto flex items-center justify-center">
             <AlertTriangle className="w-6 h-6" />
@@ -251,12 +253,15 @@ const Admin = () => {
             Voltar ao início
           </Link>
         </div>
+        </div>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background pt-24 pb-16 px-6">
+    <div className="min-h-screen bg-background flex flex-col">
+      <div className="flex-1 pt-24 pb-16 px-6">
       <div className="max-w-3xl mx-auto">
         <div className="mb-10">
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-2">
@@ -408,6 +413,8 @@ const Admin = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      </div>
+      <Footer />
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Eye, Quote } from "lucide-react";
+import Disclaimer from "./Disclaimer";
 
 const ExperiencePreview = () => {
   const [revealed, setRevealed] = useState(false);
@@ -27,11 +28,13 @@ const ExperiencePreview = () => {
               }`}
             >
               "Aquilo que procura fora de si já existe, em silêncio, dentro de si.
-              Pare por um instante. Escute. A resposta que precisa nem sempre é nova —
+              Pare por um instante. Escute. A perspetiva que procura nem sempre é nova —
               apenas esteve adormecida à espera do seu olhar."
             </p>
 
-            <div className="mt-8 pt-6 border-t border-border/60 flex items-center justify-between">
+            <Disclaimer variant="inline" className="mt-6" />
+
+            <div className="mt-6 pt-6 border-t border-border/60 flex items-center justify-between">
               <span className="text-xs text-muted-foreground">Mensagem · exemplo</span>
               {!revealed && (
                 <button

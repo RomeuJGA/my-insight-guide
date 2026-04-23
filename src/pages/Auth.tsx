@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Sparkles, MailCheck, RefreshCw, LogOut } from "lucide-react";
+import Footer from "@/components/Footer";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -98,7 +99,8 @@ const Auth = () => {
 
   if (pendingEmail) {
     return (
-      <main className="min-h-screen bg-gradient-soft flex items-center justify-center px-4">
+      <main className="min-h-screen bg-gradient-soft flex flex-col">
+        <div className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
           <Link to="/" className="block text-center mb-8 font-serif text-2xl text-primary">Lumen</Link>
           <div className="p-8 md:p-10 rounded-3xl bg-card border border-border/60 shadow-elegant text-center">
@@ -136,12 +138,15 @@ const Auth = () => {
             </button>
           </div>
         </div>
+        </div>
+        <Footer />
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-gradient-soft flex items-center justify-center px-4">
+    <main className="min-h-screen bg-gradient-soft flex flex-col">
+      <div className="flex-1 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <Link to="/" className="block text-center mb-8 font-serif text-2xl text-primary">Lumen</Link>
 
@@ -211,6 +216,8 @@ const Auth = () => {
           </button>
         </div>
       </div>
+      </div>
+      <Footer />
     </main>
   );
 };

@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import Disclaimer from "@/components/Disclaimer";
 
 type Reveal = { messageId: number; revealedAt: string; content: string };
 
@@ -94,7 +96,8 @@ const MyMessages = () => {
                 <p className="font-serif text-xl md:text-2xl leading-relaxed text-foreground/90">
                   "{active.content}"
                 </p>
-                <p className="mt-8 pt-6 border-t border-border/60 text-xs text-muted-foreground">
+                <Disclaimer variant="inline" className="mt-6" />
+                <p className="mt-6 pt-6 border-t border-border/60 text-xs text-muted-foreground">
                   Revelada a {fmt(active.revealedAt)} · Mensagem já revelada anteriormente
                 </p>
               </article>
@@ -126,6 +129,7 @@ const MyMessages = () => {
           )}
         </div>
       </section>
+      <Footer />
     </main>
   );
 };

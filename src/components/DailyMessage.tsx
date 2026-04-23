@@ -4,6 +4,7 @@ import { Sun, Sparkles, Quote, Loader2, LogIn, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import Disclaimer from "./Disclaimer";
 
 const STORAGE_KEY = "lumen-daily-revealed";
 
@@ -122,7 +123,8 @@ const DailyMessage = () => {
               <p className="font-serif text-xl md:text-2xl leading-relaxed text-foreground/90">
                 "{content}"
               </p>
-              <p className="mt-8 pt-6 border-t border-border/60 text-xs text-muted-foreground">
+              <Disclaimer variant="inline" className="mt-6" />
+              <p className="mt-6 pt-6 border-t border-border/60 text-xs text-muted-foreground">
                 Volte amanhã para uma nova mensagem aleatória.
               </p>
             </article>
