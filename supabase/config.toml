@@ -1,1 +1,4 @@
 project_id = "ipabmyxckmlvxffkypro"
+
+[functions.get-message]
+verify_jwt = true
