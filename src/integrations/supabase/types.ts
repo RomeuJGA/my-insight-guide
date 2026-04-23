@@ -237,7 +237,7 @@ export type Database = {
         Args: { _user_id: string }
         Returns: {
           content: string
-          shown_date: string
+          message_date: string
         }[]
       }
       grant_welcome_credit_if_eligible: {

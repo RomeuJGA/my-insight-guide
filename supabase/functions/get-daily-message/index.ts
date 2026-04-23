@@ -24,5 +24,5 @@ Deno.serve(async (req) => {
   const row = Array.isArray(data) ? data[0] : data;
   if (!row?.content) return jsonResponse({ error: "Mensagem indisponível." }, 500);
 
-  return jsonResponse({ content: row.content, shownDate: row.shown_date });
+  return jsonResponse({ content: row.content, shownDate: row.message_date });
 });
