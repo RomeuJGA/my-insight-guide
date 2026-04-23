@@ -22,8 +22,8 @@ const MAX_ID = 534;
 
 type ParsedRow = { id: number; content: string };
 type ParseResult =
-  | { ok: true; rows: ParsedRow[] }
-  | { ok: false; error: string };
+  | { ok: true; rows: ParsedRow[]; error?: undefined }
+  | { ok: false; error: string; rows?: undefined };
 
 function parseCsv(text: string): ParseResult {
   // Robust CSV parser supporting quoted fields, escaped quotes and newlines in quotes.
