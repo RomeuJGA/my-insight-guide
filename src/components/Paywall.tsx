@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Sparkles, Check, Loader2, Copy, RefreshCw, ArrowLeft, Landmark } from "lucide-react";
+import Disclaimer from "./Disclaimer";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -249,7 +250,9 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
         })}
       </div>
 
-      <label className="mt-6 flex items-start gap-3 p-4 rounded-2xl bg-muted/40 border border-border/60 cursor-pointer">
+      <Disclaimer variant="compact" className="mt-6" />
+
+      <label className="mt-3 flex items-start gap-3 p-4 rounded-2xl bg-muted/40 border border-border/60 cursor-pointer">
         <input
           type="checkbox"
           checked={acceptedTerms}
