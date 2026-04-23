@@ -1,13 +1,18 @@
 import { useEffect, useState } from "react";
-import { Quote, Shuffle, Sparkles, History, X } from "lucide-react";
-import { getMessageForNumber, TOTAL_MESSAGES } from "@/data/messages";
+import { useNavigate } from "react-router-dom";
+import { Quote, Shuffle, Sparkles, History, X, LogIn } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
 type HistoryItem = { number: number; message: string; date: string };
 
 const STORAGE_KEY = "lumen-history";
+const TOTAL_MESSAGES = 534;
 
 const Experience = () => {
+  const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
   const [input, setInput] = useState<string>("");
   const [revealed, setRevealed] = useState<{ number: number; message: string } | null>(null);
   const [animating, setAnimating] = useState(false);
@@ -21,22 +26,40 @@ const Experience = () => {
     } catch {}
   }, []);
 
-  const reveal = (n: number) => {
+  const reveal = async (n: number) => {
     if (n < 1 || n > TOTAL_MESSAGES || !Number.isFinite(n)) {
       toast.error(`Escolha um número entre 1 e ${TOTAL_MESSAGES}.`);
       return;
     }
+    if (!user) {
+      toast.error("Inicie sessão para receber a sua mensagem.");
+      navigate("/auth");
+      return;
+    }
+
     setAnimating(true);
     setRevealed(null);
-    setTimeout(() => {
-      const message = getMessageForNumber(n);
-      const item: HistoryItem = { number: n, message, date: new Date().toISOString() };
-      setRevealed({ number: n, message });
-      setAnimating(false);
+    try {
+      const { data, error } = await supabase.functions.invoke("get-message", {
+        body: { id: n },
+      });
+      if (error) throw error;
+      if (!data?.content) throw new Error("Sem conteúdo recebido.");
+
+      // Small delay so the shimmer feels intentional
+      await new Promise((r) => setTimeout(r, 400));
+
+      const item: HistoryItem = { number: n, message: data.content, date: new Date().toISOString() };
+      setRevealed({ number: n, message: data.content });
       const next = [item, ...history].slice(0, 20);
       setHistory(next);
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {}
-    }, 700);
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e?.message ?? "Erro ao obter a mensagem.");
+    } finally {
+      setAnimating(false);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -70,6 +93,21 @@ const Experience = () => {
         </div>
 
         <div className="max-w-xl mx-auto">
+          {!user && !authLoading && (
+            <div className="mb-6 p-5 rounded-2xl bg-card border border-border/60 text-center">
+              <p className="text-sm text-muted-foreground mb-3">
+                Para receber a sua mensagem, inicie sessão.
+              </p>
+              <button
+                onClick={() => navigate("/auth")}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-smooth"
+              >
+                <LogIn className="w-4 h-4" />
+                Entrar / Criar conta
+              </button>
+            </div>
+          )}
+
           {!revealed ? (
             <form onSubmit={handleSubmit} className="p-8 md:p-10 rounded-3xl bg-card border border-border/60 shadow-elegant animate-fade-in-up">
               <label htmlFor="number" className="block text-sm font-medium text-foreground/80 mb-3">
@@ -86,7 +124,6 @@ const Experience = () => {
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="ex.: 237"
                   className="flex-1 px-5 py-4 rounded-2xl border border-input bg-background font-serif text-2xl focus:outline-none focus:ring-2 focus:ring-ring/40 transition-smooth"
-                  autoFocus
                 />
                 <button
                   type="button"
@@ -104,7 +141,7 @@ const Experience = () => {
                 className="mt-5 w-full inline-flex items-center justify-center gap-2 py-4 rounded-2xl bg-primary text-primary-foreground font-medium shadow-soft hover:shadow-elegant transition-smooth disabled:opacity-60"
               >
                 <Sparkles className="w-4 h-4" />
-                Receber a minha mensagem
+                {animating ? "A revelar…" : "Receber a minha mensagem"}
               </button>
 
               <button
@@ -182,7 +219,7 @@ const Experience = () => {
           )}
 
           <p className="text-center text-xs text-muted-foreground mt-6">
-            Demonstração — em breve disponível com créditos.
+            As mensagens estão guardadas de forma privada e segura. Cada pedido devolve apenas a sua mensagem.
           </p>
         </div>
       </div>
