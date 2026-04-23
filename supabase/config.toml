@@ -17,3 +17,9 @@ verify_jwt = true
 
 [functions.ifthenpay-callback]
 verify_jwt = false
+
+[functions.grant-welcome-credit]
+verify_jwt = true
+
+[functions.list-reveals]
+verify_jwt = true

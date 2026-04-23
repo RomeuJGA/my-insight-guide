@@ -1,15 +1,13 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Quote, Shuffle, Sparkles, History, X, LogIn, Coins } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { Quote, Shuffle, Sparkles, X, LogIn, Coins, MailCheck, BookMarked } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useCredits } from "@/hooks/useCredits";
+import { useWelcomeCredit } from "@/hooks/useWelcomeCredit";
 import Paywall from "./Paywall";
 import { toast } from "sonner";
 
-type HistoryItem = { number: number; message: string; date: string };
-
-const STORAGE_KEY = "lumen-history";
 const TOTAL_MESSAGES = 534;
 
 const Experience = () => {
@@ -17,18 +15,14 @@ const Experience = () => {
   const { user, loading: authLoading } = useAuth();
   const { credits, loading: creditsLoading, setLocal: setLocalCredits, refresh: refreshCredits } = useCredits();
   const [input, setInput] = useState<string>("");
-  const [revealed, setRevealed] = useState<{ number: number; message: string } | null>(null);
+  const [revealed, setRevealed] = useState<{ number: number; message: string; alreadyRevealed?: boolean } | null>(null);
   const [animating, setAnimating] = useState(false);
-  const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [showHistory, setShowHistory] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
 
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setHistory(JSON.parse(raw));
-    } catch {}
-  }, []);
+  // Auto-grant welcome credit if email verified
+  useWelcomeCredit((newBalance) => setLocalCredits(newBalance));
+
+  const emailUnverified = !!user && !user.email_confirmed_at;
 
   const reveal = async (n: number) => {
     if (animating) return;
@@ -41,7 +35,13 @@ const Experience = () => {
       navigate("/auth");
       return;
     }
+    if (emailUnverified) {
+      toast.error("Confirme o seu email para continuar.");
+      navigate("/auth");
+      return;
+    }
     if ((credits ?? 0) <= 0) {
+      // Could be NO_CREDITS — paywall, but server is the source of truth
       setShowPaywall(true);
       return;
     }
@@ -53,7 +53,6 @@ const Experience = () => {
         body: { id: n },
       });
       if (error) {
-        // 402 from edge → no credits
         const msg = (error as any)?.context?.body || error.message || "";
         if (typeof msg === "string" && msg.includes("NO_CREDITS")) {
           setShowPaywall(true);
@@ -67,11 +66,15 @@ const Experience = () => {
 
       await new Promise((r) => setTimeout(r, 300));
 
-      const item: HistoryItem = { number: n, message: data.content, date: new Date().toISOString() };
-      setRevealed({ number: n, message: data.content });
-      const next = [item, ...history].slice(0, 20);
-      setHistory(next);
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {}
+      setRevealed({
+        number: n,
+        message: data.content,
+        alreadyRevealed: data.alreadyRevealed === true,
+      });
+
+      if (data.alreadyRevealed) {
+        toast.message("Mensagem já revelada anteriormente — sem custo.");
+      }
     } catch (e: any) {
       console.error(e);
       toast.error(e?.message ?? "Erro ao obter a mensagem.");
@@ -127,7 +130,22 @@ const Experience = () => {
             </div>
           )}
 
-          {user && !creditsLoading && credits !== null && (
+          {emailUnverified && (
+            <div className="mb-6 p-5 rounded-2xl bg-primary/5 border border-primary/30 text-center">
+              <MailCheck className="w-6 h-6 text-primary mx-auto mb-2" />
+              <p className="text-sm text-foreground mb-3">
+                Confirme o seu email para receber o seu crédito gratuito.
+              </p>
+              <button
+                onClick={() => navigate("/auth")}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-smooth"
+              >
+                Reenviar email de confirmação
+              </button>
+            </div>
+          )}
+
+          {user && !creditsLoading && credits !== null && !emailUnverified && (
             <div className="mb-4 flex items-center justify-center gap-2 text-sm text-muted-foreground">
               <Coins className="w-4 h-4 text-primary" />
               <span>
@@ -181,32 +199,14 @@ const Experience = () => {
                 {animating ? "A revelar…" : "Receber a minha mensagem"}
               </button>
 
-              <button
-                type="button"
-                onClick={() => setShowHistory((s) => !s)}
-                className="mt-5 w-full inline-flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-smooth"
-              >
-                <History className="w-4 h-4" />
-                {showHistory ? "Ocultar histórico" : `Histórico (${history.length})`}
-              </button>
-
-              {showHistory && history.length > 0 && (
-                <div className="mt-5 space-y-2 max-h-64 overflow-y-auto pr-1">
-                  {history.map((h, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={() => reveal(h.number)}
-                      className="w-full text-left p-3 rounded-xl bg-muted/60 hover:bg-muted transition-smooth flex items-center gap-3"
-                    >
-                      <span className="font-serif text-lg text-primary w-10 shrink-0">{h.number}</span>
-                      <span className="text-sm text-muted-foreground line-clamp-1">{h.message}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-              {showHistory && history.length === 0 && (
-                <p className="mt-4 text-sm text-muted-foreground text-center">Ainda sem mensagens guardadas.</p>
+              {user && !emailUnverified && (
+                <Link
+                  to="/my-messages"
+                  className="mt-5 w-full inline-flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-smooth"
+                >
+                  <BookMarked className="w-4 h-4" />
+                  Ver as minhas mensagens reveladas
+                </Link>
               )}
             </form>
           ) : (
@@ -227,6 +227,11 @@ const Experience = () => {
                 <p className="font-serif text-xl md:text-2xl leading-relaxed text-foreground/90">
                   "{revealed.message}"
                 </p>
+                {revealed.alreadyRevealed && (
+                  <p className="mt-6 text-xs text-muted-foreground italic">
+                    Mensagem já revelada anteriormente — não foi consumido crédito.
+                  </p>
+                )}
                 <div className="mt-10 pt-6 border-t border-border/60 flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={handleReset}
