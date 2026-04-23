@@ -127,8 +127,8 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
             Use os dados abaixo no seu homebanking ou numa caixa Multibanco.
           </p>
           {payment.sandbox && (
-            <p className="mt-3 text-[11px] uppercase tracking-wider text-amber-600 dark:text-amber-400">
-              Modo de testes (sandbox) — não há cobrança real
+            <p className="mt-3 inline-block px-2 py-0.5 rounded-full bg-muted text-[11px] uppercase tracking-wider text-muted-foreground">
+              Modo de testes — sem cobrança real
             </p>
           )}
         </div>
