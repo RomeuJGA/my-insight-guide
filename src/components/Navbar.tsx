@@ -1,10 +1,11 @@
-import { Sparkles, LogOut, Shield, Coins, History } from "lucide-react";
+import { LogOut, Shield, Coins } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useCredits } from "@/hooks/useCredits";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import logo from "@/assets/logo.png";
 
 const Navbar = () => {
   const { user } = useAuth();
@@ -19,11 +20,8 @@ const Navbar = () => {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/70 backdrop-blur-xl border-b border-border/40">
       <nav className="container flex items-center justify-between h-16">
-        <a href="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center shadow-soft">
-            <Sparkles className="w-4 h-4 text-primary-foreground" strokeWidth={2} />
-          </div>
-          <span className="font-serif text-xl tracking-tight">Lumen</span>
+        <a href="/" className="flex items-center group" aria-label="Um Avatar">
+          <img src={logo} alt="Um Avatar" className="h-8 md:h-9 w-auto" />
         </a>
         <div className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
           <a href="/#how" className="hover:text-foreground transition-smooth">Como funciona</a>
