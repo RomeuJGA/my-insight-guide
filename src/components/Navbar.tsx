@@ -1,11 +1,13 @@
-import { Sparkles, LogOut } from "lucide-react";
+import { Sparkles, LogOut, Shield } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const Navbar = () => {
   const { user } = useAuth();
+  const { isAdmin } = useIsAdmin();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -32,6 +34,15 @@ const Navbar = () => {
             <span className="hidden sm:inline text-xs text-muted-foreground truncate max-w-[140px]">
               {user.email}
             </span>
+            {isAdmin && (
+              <Link
+                to="/admin"
+                className="inline-flex items-center gap-1.5 text-sm font-medium px-4 py-2 rounded-full border border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 transition-smooth"
+              >
+                <Shield className="w-4 h-4" />
+                Admin
+              </Link>
+            )}
             <button
               onClick={handleSignOut}
               className="inline-flex items-center gap-1.5 text-sm font-medium px-4 py-2 rounded-full border border-border hover:bg-muted transition-smooth"
