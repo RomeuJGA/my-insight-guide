@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Quote, Shuffle, Sparkles, X, LogIn, Coins, MailCheck, BookMarked } from "lucide-react";
+import Disclaimer from "./Disclaimer";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useCredits } from "@/hooks/useCredits";
@@ -232,6 +233,7 @@ const Experience = () => {
                     Mensagem já revelada anteriormente — não foi consumido crédito.
                   </p>
                 )}
+                <Disclaimer variant="inline" className="mt-6" />
                 <div className="mt-10 pt-6 border-t border-border/60 flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={handleReset}
