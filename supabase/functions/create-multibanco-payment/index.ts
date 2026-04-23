@@ -81,11 +81,19 @@ Deno.serve(async (req) => {
     return jsonResponse({ error: "Erro de comunicação com o gateway." }, 502);
   }
 
-  const mbData = await mbRes.json().catch(() => null);
+  const rawText = await mbRes.text();
+  let mbData: any = null;
+  try { mbData = JSON.parse(rawText); } catch { /* not JSON */ }
+
   if (!mbRes.ok || !mbData || String(mbData.Status) !== "0") {
-    console.error("ifthenpay non-success:", mbRes.status, mbData);
+    console.error("ifthenpay non-success:", mbRes.status, "sandbox=", sandbox, "body=", rawText?.slice(0, 500));
     await admin.from("payment_orders").update({ status: "failed" }).eq("order_id", orderId);
-    return jsonResponse({ error: mbData?.Message || "Não foi possível gerar a referência." }, 502);
+    const detail =
+      mbData?.Message ||
+      (mbRes.status === 403
+        ? `MB Key inválida ou não autorizada para o ambiente ${sandbox ? "sandbox" : "produção"}.`
+        : `Gateway respondeu ${mbRes.status}.`);
+    return jsonResponse({ error: detail }, 502);
   }
 
   // 3) Persist returned reference details
