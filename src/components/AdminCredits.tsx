@@ -46,13 +46,15 @@ const AdminCredits = () => {
 
       <div className="space-y-3">
         <div>
-          <label className="block text-xs font-medium text-muted-foreground mb-1">User ID</label>
+          <label className="block text-xs font-medium text-muted-foreground mb-1">
+            Utilizador (UUID ou email)
+          </label>
           <input
             type="text"
             value={userId}
             onChange={(e) => setUserId(e.target.value)}
-            placeholder="uuid do utilizador"
-            className="w-full px-3 py-2 rounded-lg border border-input bg-background text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring/40"
+            placeholder="email@exemplo.com ou uuid"
+            className="w-full px-3 py-2 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
         </div>
         <div className="grid grid-cols-2 gap-3">
