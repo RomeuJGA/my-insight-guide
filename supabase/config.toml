@@ -23,3 +23,6 @@ verify_jwt = true
 
 [functions.list-reveals]
 verify_jwt = true
+
+[functions.get-daily-message]
+verify_jwt = true
