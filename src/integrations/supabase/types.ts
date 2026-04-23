@@ -59,6 +59,60 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_orders: {
+        Row: {
+          amount: number
+          created_at: string
+          credits: number
+          id: string
+          ifthenpay_entity: string | null
+          ifthenpay_payment_url: string | null
+          ifthenpay_reference: string | null
+          ifthenpay_request_id: string | null
+          mbway_phone: string | null
+          order_id: string
+          package: string
+          paid_at: string | null
+          payment_method: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          credits: number
+          id?: string
+          ifthenpay_entity?: string | null
+          ifthenpay_payment_url?: string | null
+          ifthenpay_reference?: string | null
+          ifthenpay_request_id?: string | null
+          mbway_phone?: string | null
+          order_id: string
+          package: string
+          paid_at?: string | null
+          payment_method: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          credits?: number
+          id?: string
+          ifthenpay_entity?: string | null
+          ifthenpay_payment_url?: string | null
+          ifthenpay_reference?: string | null
+          ifthenpay_request_id?: string | null
+          mbway_phone?: string | null
+          order_id?: string
+          package?: string
+          paid_at?: string | null
+          payment_method?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_credits: {
         Row: {
           credits: number
@@ -122,6 +176,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      mark_order_paid_and_credit: {
+        Args: { _ifthenpay_request_id?: string; _order_id: string }
+        Returns: number
       }
       replace_all_messages: { Args: { _rows: Json }; Returns: number }
     }
