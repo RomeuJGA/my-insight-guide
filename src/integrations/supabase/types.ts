@@ -41,6 +41,27 @@ export type Database = {
         }
         Relationships: []
       }
+      message_reveals: {
+        Row: {
+          id: string
+          message_id: number
+          revealed_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          message_id: number
+          revealed_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          message_id?: number
+          revealed_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
@@ -152,6 +173,24 @@ export type Database = {
         }
         Relationships: []
       }
+      welcome_credit_grants: {
+        Row: {
+          granted_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          granted_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          granted_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -170,6 +209,14 @@ export type Database = {
         Args: { _description?: string; _user_id: string }
         Returns: number
       }
+      grant_welcome_credit_if_eligible: {
+        Args: { _user_id: string }
+        Returns: {
+          credits: number
+          granted: boolean
+          reason: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -182,6 +229,15 @@ export type Database = {
         Returns: number
       }
       replace_all_messages: { Args: { _rows: Json }; Returns: number }
+      reveal_message: {
+        Args: { _message_id: number; _user_id: string }
+        Returns: {
+          already_revealed: boolean
+          content: string
+          credits: number
+          status: string
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "user"
