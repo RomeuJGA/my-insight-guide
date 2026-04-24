@@ -1,6 +1,8 @@
 import { ArrowRight } from "lucide-react";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 const Hero = () => {
+  const { track } = useAnalytics();
   return (
     <section className="relative pt-32 pb-24 md:pt-44 md:pb-32 overflow-hidden bg-gradient-hero">
       {/* Soft animated orbs */}
