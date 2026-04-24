@@ -20,6 +20,7 @@ const Index = () => {
       <Hero />
       <Authority />
       <HowItWorks />
+      <RealExamples />
       <ExperiencePreview />
       <DailyMessage />
       <Experience />
