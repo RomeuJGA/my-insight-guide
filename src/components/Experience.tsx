@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useCredits } from "@/hooks/useCredits";
 import { useWelcomeCredit } from "@/hooks/useWelcomeCredit";
 import Paywall from "./Paywall";
+import ReflectionGuide from "./ReflectionGuide";
 import { toast } from "sonner";
 
 const TOTAL_MESSAGES = 534;
