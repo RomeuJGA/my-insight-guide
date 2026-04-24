@@ -252,49 +252,102 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
 
   // ---- View: Package selection ----
   return (
-    <div className="p-8 md:p-10 rounded-3xl bg-card border border-border/60 shadow-elegant animate-fade-in-up">
+    <div className="p-6 sm:p-8 md:p-10 rounded-3xl bg-card border border-border/60 shadow-elegant animate-fade-in-up">
+      {/* Header */}
       <div className="text-center mb-8">
         <div className="w-12 h-12 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
           <Sparkles className="w-5 h-5 text-primary" />
         </div>
-        <h3 className="font-serif text-2xl md:text-3xl mb-2">Sem créditos disponíveis</h3>
-        <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-          Escolha um pacote e pague de forma segura por Multibanco.
+        <h3 className="font-serif text-2xl md:text-3xl mb-2 tracking-tight">
+          Receba a sua mensagem agora
+        </h3>
+        <p className="text-sm md:text-[15px] text-muted-foreground max-w-md mx-auto leading-relaxed">
+          Não precisa de todas as respostas. Precisa da certa — no momento certo.
+        </p>
+        <p className="mt-3 inline-block px-3 py-1 rounded-full bg-primary/10 text-[11px] font-medium uppercase tracking-wider text-primary">
+          Menos de 1 € por mensagem
         </p>
       </div>
 
-      <div className="grid sm:grid-cols-3 gap-3">
+      {/* Packages */}
+      <div className="grid sm:grid-cols-3 gap-3 sm:gap-4">
         {PACKAGES.map((pkg) => {
           const active = selected === pkg.id;
+          const isPopular = pkg.badge === "popular";
           return (
             <button
               key={pkg.id}
               type="button"
               onClick={() => setSelected(pkg.id)}
-              className={`relative text-left rounded-2xl border p-5 transition-smooth ${
+              className={`relative text-left rounded-2xl border p-5 transition-smooth flex flex-col ${
+                isPopular ? "sm:scale-[1.03] sm:py-6" : ""
+              } ${
                 active
-                  ? "border-primary bg-primary/10 ring-2 ring-primary/30"
-                  : pkg.popular
-                  ? "border-primary/50 bg-primary/5 hover:bg-primary/10"
+                  ? "border-primary bg-primary/10 ring-2 ring-primary/30 shadow-elegant"
+                  : isPopular
+                  ? "border-primary/60 bg-primary/5 hover:bg-primary/10 shadow-soft"
                   : "border-border bg-background hover:bg-muted"
               }`}
             >
-              {pkg.popular && (
-                <span className="absolute -top-2.5 left-5 px-2 py-0.5 rounded-full bg-primary text-primary-foreground text-[10px] font-medium uppercase tracking-wider">
-                  Mais popular
+              {pkg.badge && (
+                <span
+                  className={`absolute -top-2.5 left-5 px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-wider ${
+                    pkg.badge === "popular"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-foreground text-background"
+                  }`}
+                >
+                  {BADGE_LABEL[pkg.badge]}
                 </span>
               )}
-              <div className="flex items-baseline justify-between mb-1">
-                <span className="font-serif text-2xl">{pkg.credits}</span>
-                <span className="text-sm font-medium">{pkg.price}</span>
+              <div className="flex items-baseline justify-between mb-1.5">
+                <span className="font-serif text-3xl leading-none">{pkg.credits}</span>
+                <span className="text-sm font-medium tabular-nums">{pkg.price}</span>
               </div>
-              <p className="text-xs text-muted-foreground">{pkg.label}</p>
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2">
+                {pkg.label}
+              </p>
+              <p className="text-xs text-foreground/75 leading-relaxed mt-auto">
+                {pkg.tagline}
+              </p>
+              {active && (
+                <span className="absolute top-3 right-3 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                  <Check className="w-3 h-3" strokeWidth={3} />
+                </span>
+              )}
             </button>
           );
         })}
       </div>
 
-      <Disclaimer variant="compact" className="mt-6" />
+      {/* Subtle urgency */}
+      <p className="mt-5 flex items-start gap-2 text-xs text-muted-foreground leading-relaxed">
+        <Clock className="w-3.5 h-3.5 shrink-0 mt-0.5 text-primary/70" />
+        <span>
+          Pode esperar pela mensagem gratuita de amanhã… ou receber já a orientação que procura.
+        </span>
+      </p>
+
+      {/* What to expect */}
+      <div className="mt-6 p-5 rounded-2xl bg-muted/50 border border-border/60">
+        <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground mb-3">
+          O que esperar
+        </p>
+        <ul className="space-y-2.5">
+          {[
+            "Mensagens diretas e honestas",
+            "Sem respostas prontas — apenas clareza",
+            "Cada mensagem pode trazer uma nova perspetiva",
+          ].map((item) => (
+            <li key={item} className="flex gap-2.5 text-sm text-foreground/85 leading-relaxed">
+              <Check className="w-4 h-4 text-primary shrink-0 mt-0.5" strokeWidth={2.25} />
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <Disclaimer variant="compact" className="mt-5" />
 
       <label className="mt-3 flex items-start gap-3 p-4 rounded-2xl bg-muted/40 border border-border/60 cursor-pointer">
         <input
@@ -326,13 +379,14 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
         ) : (
           <>
             <Landmark className="w-4 h-4" />
-            Pagar por Multibanco
+            Receber a minha mensagem agora
           </>
         )}
       </button>
 
-      <p className="text-center text-xs text-muted-foreground mt-6">
-        Pagamento processado pela IfthenPay. Os créditos são adicionados após confirmação do banco.
+      <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+        <ShieldCheck className="w-3.5 h-3.5 text-primary/70" />
+        Pagamento seguro por Multibanco · IfthenPay
       </p>
     </div>
   );
