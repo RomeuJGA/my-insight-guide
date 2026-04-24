@@ -8,7 +8,7 @@ const Privacy = () => (
     <section>
       <h2 className="font-serif text-2xl mt-2 mb-3">1. Responsável pelo Tratamento</h2>
       <p>
-        A Lumen é a entidade responsável pelo tratamento dos dados pessoais recolhidos
+        A Intus é a entidade responsável pelo tratamento dos dados pessoais recolhidos
         através do Serviço, em conformidade com o Regulamento Geral de Proteção de Dados
         (RGPD).
       </p>
