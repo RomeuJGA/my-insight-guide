@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import Disclaimer from "./Disclaimer";
 import { supabase } from "@/integrations/supabase/client";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { toast } from "sonner";
 
 type PkgId = "five" | "ten" | "twenty";
@@ -78,6 +79,18 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
   const [checking, setChecking] = useState(false);
   const pollRef = useRef<number | null>(null);
   const pollCountRef = useRef(0);
+  const { track } = useAnalytics();
+
+  // Track paywall view once per mount
+  useEffect(() => {
+    track("paywall_view");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleSelect = (id: PkgId) => {
+    setSelected(id);
+    track("package_selected", { package: id });
+  };
 
   const stopPolling = () => {
     if (pollRef.current) {
@@ -110,6 +123,7 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
       if (data?.status === "paid") {
         stopPolling();
         toast.success("Pagamento confirmado. Os seus créditos foram adicionados.");
+        track("purchase_success", { package: selected, metadata: { order_id: orderId } });
         if (typeof data.balance === "number") onPurchased(data.balance);
         return true;
       }
@@ -136,6 +150,7 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
   const create = async () => {
     if (!selected) return toast.error("Escolha um pacote.");
     if (!acceptedTerms) return toast.error("Aceite os Termos para continuar.");
+    track("purchase_attempt", { package: selected });
     setCreating(true);
     try {
       console.log("[Paywall] invoking create-multibanco-payment", { package: selected });
@@ -278,7 +293,7 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
             <button
               key={pkg.id}
               type="button"
-              onClick={() => setSelected(pkg.id)}
+              onClick={() => handleSelect(pkg.id)}
               className={`relative text-left rounded-2xl border p-5 transition-smooth flex flex-col ${
                 isPopular ? "sm:scale-[1.03] sm:py-6" : ""
               } ${

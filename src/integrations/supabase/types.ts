@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      analytics_events: {
+        Row: {
+          created_at: string
+          event_name: Database["public"]["Enums"]["analytics_event_name"]
+          id: string
+          metadata: Json | null
+          package: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_name: Database["public"]["Enums"]["analytics_event_name"]
+          id?: string
+          metadata?: Json | null
+          package?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_name?: Database["public"]["Enums"]["analytics_event_name"]
+          id?: string
+          metadata?: Json | null
+          package?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       credit_transactions: {
         Row: {
           amount: number
@@ -233,6 +260,21 @@ export type Database = {
         Args: { _description?: string; _user_id: string }
         Returns: number
       }
+      get_funnel_stats: {
+        Args: { _since?: string }
+        Returns: {
+          click_receive_message: number
+          landing_views: number
+          package_selected: number
+          paywall_views: number
+          purchase_attempts: number
+          purchase_success: number
+          reveal_attempts: number
+          top_package: string
+          top_package_count: number
+          total_users: number
+        }[]
+      }
       get_or_create_daily_message: {
         Args: { _user_id: string }
         Returns: {
@@ -271,6 +313,14 @@ export type Database = {
       }
     }
     Enums: {
+      analytics_event_name:
+        | "landing_view"
+        | "click_receive_message"
+        | "reveal_attempt"
+        | "paywall_view"
+        | "package_selected"
+        | "purchase_attempt"
+        | "purchase_success"
       app_role: "admin" | "user"
       credit_tx_type: "purchase" | "usage" | "admin" | "welcome"
     }
@@ -400,6 +450,15 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      analytics_event_name: [
+        "landing_view",
+        "click_receive_message",
+        "reveal_attempt",
+        "paywall_view",
+        "package_selected",
+        "purchase_attempt",
+        "purchase_success",
+      ],
       app_role: ["admin", "user"],
       credit_tx_type: ["purchase", "usage", "admin", "welcome"],
     },

@@ -8,6 +8,7 @@ import { useCredits } from "@/hooks/useCredits";
 import { useWelcomeCredit } from "@/hooks/useWelcomeCredit";
 import Paywall from "./Paywall";
 import ReflectionGuide from "./ReflectionGuide";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { toast } from "sonner";
 
 const TOTAL_MESSAGES = 534;
@@ -20,6 +21,7 @@ const Experience = () => {
   const [revealed, setRevealed] = useState<{ number: number; message: string; alreadyRevealed?: boolean } | null>(null);
   const [animating, setAnimating] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
+  const { track } = useAnalytics();
 
   // Auto-grant welcome credit if email verified
   useWelcomeCredit((newBalance) => setLocalCredits(newBalance));
@@ -28,6 +30,7 @@ const Experience = () => {
 
   const reveal = async (n: number) => {
     if (animating) return;
+    track("reveal_attempt", { metadata: { number: n, has_user: !!user } });
     if (n < 1 || n > TOTAL_MESSAGES || !Number.isFinite(n)) {
       toast.error(`Escolha um número entre 1 e ${TOTAL_MESSAGES}.`);
       return;
@@ -44,6 +47,7 @@ const Experience = () => {
     }
     if ((credits ?? 0) <= 0) {
       // Could be NO_CREDITS — paywall, but server is the source of truth
+      track("paywall_view", { metadata: { trigger: "no_credits_pre" } });
       setShowPaywall(true);
       return;
     }
@@ -57,6 +61,7 @@ const Experience = () => {
       if (error) {
         const msg = (error as any)?.context?.body || error.message || "";
         if (typeof msg === "string" && msg.includes("NO_CREDITS")) {
+          track("paywall_view", { metadata: { trigger: "no_credits_server" } });
           setShowPaywall(true);
           return;
         }

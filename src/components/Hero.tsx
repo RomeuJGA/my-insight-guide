@@ -1,6 +1,8 @@
 import { ArrowRight } from "lucide-react";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 const Hero = () => {
+  const { track } = useAnalytics();
   return (
     <section className="relative pt-32 pb-24 md:pt-44 md:pb-32 overflow-hidden bg-gradient-hero">
       {/* Soft animated orbs */}
@@ -36,6 +38,7 @@ const Hero = () => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
             <a
               href="#experience"
+              onClick={() => track("click_receive_message", { metadata: { source: "hero" } })}
               className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-primary text-primary-foreground font-medium shadow-elegant hover:shadow-glow transition-smooth"
             >
               Receber uma mensagem
