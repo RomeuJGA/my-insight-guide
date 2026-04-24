@@ -122,6 +122,11 @@
   .shadow-glow { box-shadow: var(--shadow-glow); }
   .transition-smooth { transition: var(--transition-smooth); }
   .text-balance { text-wrap: balance; }
+
+  /* A/B variant A — sage hero gradient (legacy palette, brand "Intus") */
+  .ab-a-hero {
+    background: radial-gradient(ellipse at top, hsl(158 40% 92%) 0%, hsl(40 30% 98%) 55%, hsl(38 30% 96%) 100%);
+  }
 }
 
 @keyframes fade-in-up {
