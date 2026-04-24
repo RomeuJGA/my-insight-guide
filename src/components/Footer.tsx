@@ -12,13 +12,10 @@ const Footer = () => {
 
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-full bg-gradient-primary flex items-center justify-center">
-              <Sparkles className="w-3.5 h-3.5 text-primary-foreground" />
-            </div>
-            <span className="font-serif text-lg">Lumen</span>
+            <span className="font-serif text-xl tracking-tight">intus</span>
           </div>
           <p className="text-xs text-muted-foreground text-center">
-            © {new Date().getFullYear()} Lumen · Ferramenta de reflexão pessoal
+            © {new Date().getFullYear()} Intus · Ver com mais clareza por dentro
           </p>
           <div className="flex gap-6 text-xs text-muted-foreground">
             <Link to="/legal/termos" className="hover:text-foreground transition-smooth">

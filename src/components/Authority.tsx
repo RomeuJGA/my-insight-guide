@@ -20,6 +20,9 @@ const Authority = () => {
               Precisa de clareza.
             </p>
           </div>
+          <p className="mt-10 text-xs italic text-muted-foreground/80">
+            Baseado no livro <span className="text-foreground/70">"Eu Sei o que Estás a Pensar"</span>
+          </p>
         </div>
       </div>
     </section>
