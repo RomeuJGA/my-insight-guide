@@ -12,7 +12,7 @@ const ValueProps = () => {
     <section className="py-24 md:py-32">
       <div className="container">
         <div className="max-w-2xl mx-auto text-center mb-16">
-          <p className="text-sm font-medium text-primary mb-3 uppercase tracking-wider">Por que Lumen</p>
+          <p className="text-sm font-medium text-primary mb-3 uppercase tracking-wider">Por que Intus</p>
           <h2 className="font-serif text-3xl md:text-5xl text-balance">
             Uma ferramenta de reflexão construída com cuidado
           </h2>

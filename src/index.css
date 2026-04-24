@@ -2,60 +2,61 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Lumen — Design System
-   Premium, calm, minimalistic. Inspired by Headspace / Calm / Apple.
+/* Intus — Design System
+   Premium, calm, introspective, therapeutic.
+   Minimal palette: deep charcoal, warm off-white, deep teal accent.
    All colors MUST be HSL.
 */
 
 @layer base {
   :root {
     /* Base surfaces — warm off-white, soft cream */
-    --background: 40 30% 98%;
-    --foreground: 170 25% 12%;
+    --background: 36 25% 97%;
+    --foreground: 0 0% 4%;
 
     --card: 0 0% 100%;
-    --card-foreground: 170 25% 12%;
+    --card-foreground: 0 0% 4%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 170 25% 12%;
+    --popover-foreground: 0 0% 4%;
 
-    /* Primary — deep sage green, calm and trustworthy */
-    --primary: 165 35% 28%;
-    --primary-foreground: 40 30% 98%;
-    --primary-glow: 158 40% 55%;
+    /* Primary — deep charcoal (Intus #0B0B0B), grounded and serious */
+    --primary: 0 0% 4%;
+    --primary-foreground: 36 25% 97%;
+    --primary-glow: 165 30% 22%;
 
     /* Secondary — soft warm sand */
-    --secondary: 38 30% 94%;
-    --secondary-foreground: 170 25% 18%;
+    --secondary: 36 20% 93%;
+    --secondary-foreground: 0 0% 8%;
 
-    --muted: 40 20% 95%;
-    --muted-foreground: 170 10% 42%;
+    --muted: 36 18% 94%;
+    --muted-foreground: 0 0% 38%;
 
-    /* Accent — warm gold for highlights */
-    --accent: 38 55% 88%;
-    --accent-foreground: 170 25% 18%;
-    --accent-gold: 38 60% 55%;
+    /* Accent — deep teal (#1E3A34) for subtle highlights */
+    --accent: 165 30% 17%;
+    --accent-foreground: 36 25% 97%;
+    --accent-gold: 38 35% 55%;
 
-    --destructive: 0 70% 50%;
-    --destructive-foreground: 40 30% 98%;
+    --destructive: 0 65% 45%;
+    --destructive-foreground: 36 25% 97%;
 
-    --border: 40 20% 90%;
-    --input: 40 20% 90%;
-    --ring: 165 35% 28%;
+    --border: 36 15% 88%;
+    --input: 36 15% 88%;
+    --ring: 0 0% 4%;
 
     --radius: 1rem;
 
-    /* Gradients */
-    --gradient-hero: radial-gradient(ellipse at top, hsl(158 40% 92%) 0%, hsl(40 30% 98%) 55%, hsl(38 30% 96%) 100%);
-    --gradient-soft: linear-gradient(180deg, hsl(40 30% 98%) 0%, hsl(38 30% 95%) 100%);
-    --gradient-primary: linear-gradient(135deg, hsl(165 35% 28%) 0%, hsl(165 40% 38%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(40 30% 98%) 100%);
-    --gradient-message: linear-gradient(135deg, hsl(40 35% 97%) 0%, hsl(38 40% 92%) 100%);
+    /* Gradients — restrained, premium */
+    --gradient-hero: radial-gradient(ellipse at top, hsl(36 30% 95%) 0%, hsl(36 25% 97%) 55%, hsl(36 20% 96%) 100%);
+    --gradient-soft: linear-gradient(180deg, hsl(36 25% 97%) 0%, hsl(36 22% 95%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(0 0% 4%) 0%, hsl(0 0% 12%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(36 25% 97%) 100%);
+    --gradient-message: linear-gradient(135deg, hsl(36 28% 96%) 0%, hsl(36 25% 92%) 100%);
 
-    /* Shadows — soft, layered */
-    --shadow-soft: 0 1px 2px hsl(170 25% 12% / 0.04), 0 4px 12px hsl(170 25% 12% / 0.04);
-    --shadow-elegant: 0 8px 30px -8px hsl(165 35% 28% / 0.15), 0 2px 6px hsl(170 25% 12% / 0.04);
-    --shadow-glow: 0 0 60px hsl(158 40% 55% / 0.25);
+    /* Shadows — soft, layered, refined */
+    --shadow-soft: 0 1px 2px hsl(0 0% 4% / 0.04), 0 4px 12px hsl(0 0% 4% / 0.04);
+    --shadow-elegant: 0 8px 30px -8px hsl(0 0% 4% / 0.18), 0 2px 6px hsl(0 0% 4% / 0.04);
+    --shadow-glow: 0 0 60px hsl(165 30% 22% / 0.18);
 
     /* Transitions */
     --transition-smooth: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
@@ -71,26 +72,26 @@
   }
 
   .dark {
-    --background: 170 25% 8%;
-    --foreground: 40 30% 96%;
-    --card: 170 25% 11%;
-    --card-foreground: 40 30% 96%;
-    --popover: 170 25% 11%;
-    --popover-foreground: 40 30% 96%;
-    --primary: 158 40% 65%;
-    --primary-foreground: 170 25% 8%;
-    --primary-glow: 158 40% 55%;
-    --secondary: 170 20% 16%;
-    --secondary-foreground: 40 30% 96%;
-    --muted: 170 20% 14%;
-    --muted-foreground: 40 10% 65%;
-    --accent: 170 20% 18%;
-    --accent-foreground: 40 30% 96%;
+    --background: 0 0% 5%;
+    --foreground: 36 25% 95%;
+    --card: 0 0% 8%;
+    --card-foreground: 36 25% 95%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 36 25% 95%;
+    --primary: 36 25% 95%;
+    --primary-foreground: 0 0% 5%;
+    --primary-glow: 165 30% 45%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 36 25% 95%;
+    --muted: 0 0% 11%;
+    --muted-foreground: 36 10% 65%;
+    --accent: 165 30% 25%;
+    --accent-foreground: 36 25% 95%;
     --destructive: 0 60% 45%;
-    --destructive-foreground: 40 30% 96%;
-    --border: 170 20% 18%;
-    --input: 170 20% 18%;
-    --ring: 158 40% 65%;
+    --destructive-foreground: 36 25% 95%;
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 36 25% 95%;
   }
 }
 

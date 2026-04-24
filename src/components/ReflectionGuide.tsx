@@ -80,8 +80,7 @@ const ReflectionGuide = ({ seed, questionCount = 3, className = "" }: Reflection
       </header>
 
       <p className="text-sm md:text-[15px] leading-relaxed text-foreground/85">
-        Esta mensagem não pretende dar uma resposta direta. Pode estar a apontar para um padrão,
-        comportamento ou forma de ver que influencia a sua situação.
+        Esta mensagem pode não dar uma resposta direta — mas pode estar a mostrar algo importante.
       </p>
 
       <p className="mt-4 text-sm leading-relaxed text-muted-foreground italic">
@@ -110,6 +109,10 @@ const ReflectionGuide = ({ seed, questionCount = 3, className = "" }: Reflection
             </li>
           ))}
         </ul>
+
+        <p className="mt-6 text-xs italic text-muted-foreground leading-relaxed">
+          Não precisa de compreender tudo agora. Às vezes, o mais importante é aquilo que fica a ecoar.
+        </p>
       </div>
 
       {/* Future feature — intentionally hidden for now.

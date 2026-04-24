@@ -8,7 +8,7 @@ const steps = [
   },
   {
     icon: Hash,
-    title: "Escolha um número entre 1 e 534",
+    title: "Escolha um número",
     description: "Confie na sua intuição. Não existe escolha certa ou errada.",
   },
   {

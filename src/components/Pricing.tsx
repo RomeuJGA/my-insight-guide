@@ -34,13 +34,13 @@ const Pricing = () => {
     <section id="pricing" className="py-24 md:py-32">
       <div className="container">
         <div className="max-w-2xl mx-auto text-center mb-16">
-          <p className="text-sm font-medium text-primary mb-3 uppercase tracking-wider">Créditos</p>
+          <p className="text-sm font-medium text-foreground mb-3 uppercase tracking-wider">Créditos</p>
           <h2 className="font-serif text-3xl md:text-5xl text-balance mb-4 leading-[1.1]">
             Não precisa de todas as respostas.
             <br />
-            <span className="italic text-primary">Precisa da certa.</span>
+            <span className="italic">Precisa da certa.</span>
           </h2>
-          <p className="text-muted-foreground">Pague apenas pelo que precisa. Sem subscrições.</p>
+          <p className="text-muted-foreground">Menos de 1 € por mensagem. Sem subscrições.</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
