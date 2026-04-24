@@ -21,13 +21,13 @@ Deno.serve(async (req) => {
   // Accept both query-string and POST body (IfthenPay typically sends GET callbacks)
   const get = (k: string) => params.get(k) ?? params.get(k.toLowerCase()) ?? params.get(k.toUpperCase());
 
-  const key = get("key");
-  const orderId = get("orderId") ?? get("order_id");
-  const amount = get("amount");
+  const key = get("key") ?? get("chave");
+  const orderId = get("orderId") ?? get("order_id") ?? get("id");
+  const amount = get("amount") ?? get("valor");
   const requestId = get("requestId") ?? get("request_id");
-  const entity = get("entity");
-  const reference = get("reference");
-  const paymentDatetime = get("payment_datetime") ?? get("paymentDatetime");
+  const entity = get("entity") ?? get("entidade");
+  const reference = get("reference") ?? get("referencia");
+  const paymentDatetime = get("payment_datetime") ?? get("paymentDatetime") ?? get("dataHoraPagamento");
 
   const expectedKey = Deno.env.get("IFTHENPAY_ANTI_PHISHING_KEY");
   if (!expectedKey || key !== expectedKey) {
