@@ -1,17 +1,61 @@
 import { useEffect, useRef, useState } from "react";
-import { Sparkles, Check, Loader2, Copy, RefreshCw, ArrowLeft, Landmark } from "lucide-react";
+import {
+  Sparkles,
+  Loader2,
+  Copy,
+  RefreshCw,
+  ArrowLeft,
+  Landmark,
+  ShieldCheck,
+  Check,
+  Clock,
+} from "lucide-react";
 import Disclaimer from "./Disclaimer";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 type PkgId = "five" | "ten" | "twenty";
-type Pkg = { id: PkgId; credits: number; label: string; price: string; popular?: boolean };
+type Badge = "popular" | "value";
+type Pkg = {
+  id: PkgId;
+  credits: number;
+  label: string;
+  price: string;
+  tagline: string;
+  badge?: Badge;
+};
 
+// Order matters: 10 first (most popular), then 20 (best value), then 5.
 const PACKAGES: Pkg[] = [
-  { id: "five", credits: 5, label: "5 créditos", price: "4,90 €" },
-  { id: "ten", credits: 10, label: "10 créditos", price: "8,90 €", popular: true },
-  { id: "twenty", credits: 20, label: "20 créditos", price: "14,90 €" },
+  {
+    id: "ten",
+    credits: 10,
+    label: "10 créditos",
+    price: "8,90 €",
+    tagline: "Para quem quer aprofundar",
+    badge: "popular",
+  },
+  {
+    id: "twenty",
+    credits: 20,
+    label: "20 créditos",
+    price: "14,90 €",
+    tagline: "Para integrar com consistência",
+    badge: "value",
+  },
+  {
+    id: "five",
+    credits: 5,
+    label: "5 créditos",
+    price: "4,90 €",
+    tagline: "Para experimentar com intenção",
+  },
 ];
+
+const BADGE_LABEL: Record<Badge, string> = {
+  popular: "Mais escolhido",
+  value: "Melhor valor",
+};
 
 type PaymentRef = {
   orderId: string;
