@@ -260,7 +260,38 @@ export type Database = {
         Args: { _description?: string; _user_id: string }
         Returns: number
       }
-      get_funnel_stats: {
+      get_funnel_stats:
+        | {
+            Args: { _since?: string }
+            Returns: {
+              click_receive_message: number
+              landing_views: number
+              package_selected: number
+              paywall_views: number
+              purchase_attempts: number
+              purchase_success: number
+              reveal_attempts: number
+              top_package: string
+              top_package_count: number
+              total_users: number
+            }[]
+          }
+        | {
+            Args: { _since?: string; _variant?: string }
+            Returns: {
+              click_receive_message: number
+              landing_views: number
+              package_selected: number
+              paywall_views: number
+              purchase_attempts: number
+              purchase_success: number
+              reveal_attempts: number
+              top_package: string
+              top_package_count: number
+              total_users: number
+            }[]
+          }
+      get_funnel_stats_by_variant: {
         Args: { _since?: string }
         Returns: {
           click_receive_message: number
@@ -273,6 +304,7 @@ export type Database = {
           top_package: string
           top_package_count: number
           total_users: number
+          variant: string
         }[]
       }
       get_or_create_daily_message: {
