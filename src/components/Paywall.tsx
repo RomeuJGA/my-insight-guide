@@ -293,7 +293,7 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
             <button
               key={pkg.id}
               type="button"
-              onClick={() => setSelected(pkg.id)}
+              onClick={() => handleSelect(pkg.id)}
               className={`relative text-left rounded-2xl border p-5 transition-smooth flex flex-col ${
                 isPopular ? "sm:scale-[1.03] sm:py-6" : ""
               } ${
