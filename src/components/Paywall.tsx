@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import Disclaimer from "./Disclaimer";
 import { supabase } from "@/integrations/supabase/client";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { toast } from "sonner";
 
 type PkgId = "five" | "ten" | "twenty";
