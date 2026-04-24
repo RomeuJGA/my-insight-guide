@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import Disclaimer from "./Disclaimer";
+import ReflectionGuide from "./ReflectionGuide";
 
 const STORAGE_KEY = "lumen-daily-revealed";
 
@@ -124,6 +125,7 @@ const DailyMessage = () => {
                 "{content}"
               </p>
               <Disclaimer variant="inline" className="mt-6" />
+              <ReflectionGuide seed={shownDate ?? content ?? "daily"} questionCount={3} />
               <p className="mt-6 pt-6 border-t border-border/60 text-xs text-muted-foreground">
                 Volte amanhã para uma nova mensagem aleatória.
               </p>

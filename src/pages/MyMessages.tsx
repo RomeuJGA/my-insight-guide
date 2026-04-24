@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Disclaimer from "@/components/Disclaimer";
+import ReflectionGuide from "@/components/ReflectionGuide";
 
 type Reveal = { messageId: number; revealedAt: string; content: string };
 
@@ -101,6 +102,7 @@ const MyMessages = () => {
                   Revelada a {fmt(active.revealedAt)} · Mensagem já revelada anteriormente
                 </p>
               </article>
+              <ReflectionGuide seed={active.messageId} questionCount={3} />
             </div>
           ) : (
             <ul className="space-y-3">

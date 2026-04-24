@@ -235,6 +235,7 @@ const Experience = () => {
                   </p>
                 )}
                 <Disclaimer variant="inline" className="mt-6" />
+                <ReflectionGuide seed={revealed.number} questionCount={3} />
                 <div className="mt-10 pt-6 border-t border-border/60 flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={handleReset}
