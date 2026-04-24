@@ -27,7 +27,9 @@ export function useAnalytics() {
   const track = useCallback(
     async (event: AnalyticsEvent, opts: TrackOptions = {}) => {
       try {
-        await supabase.from("analytics_events").insert({
+        // Cast: analytics_events is fresh in the schema and may not yet be in
+        // the auto-generated Supabase types when this file first builds.
+        await (supabase.from("analytics_events" as never) as any).insert({
           event_name: event,
           user_id: user?.id ?? null,
           package: opts.package ?? null,
