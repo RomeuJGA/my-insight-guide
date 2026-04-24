@@ -3,18 +3,18 @@ import { Brain, Hash, Sparkles } from "lucide-react";
 const steps = [
   {
     icon: Brain,
-    title: "Pense numa questão",
-    description: "Centre-se numa situação, decisão ou pergunta que precise de explorar.",
+    title: "Pense numa situação da sua vida",
+    description: "Centre-se naquilo que está a viver, a evitar ou a tentar compreender.",
   },
   {
     icon: Hash,
-    title: "Escolha um número",
-    description: "Entre 1 e 564. Confie na sua intuição — não existe escolha certa ou errada.",
+    title: "Escolha um número entre 1 e 534",
+    description: "Confie na sua intuição. Não existe escolha certa ou errada.",
   },
   {
     icon: Sparkles,
-    title: "Receba a sua mensagem",
-    description: "Uma reflexão única para o ajudar a observar a situação com nova perspetiva.",
+    title: "Receba uma mensagem",
+    description: "Leia com calma. Deixe-a assentar antes de tirar conclusões.",
   },
 ];
 
@@ -41,11 +41,15 @@ const HowItWorks = () => {
               <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/15 transition-smooth">
                 <step.icon className="w-5 h-5 text-primary" strokeWidth={1.75} />
               </div>
-              <h3 className="font-serif text-2xl mb-3">{step.title}</h3>
+              <h3 className="font-serif text-2xl mb-3 leading-snug">{step.title}</h3>
               <p className="text-muted-foreground leading-relaxed">{step.description}</p>
             </div>
           ))}
         </div>
+
+        <p className="text-center font-serif italic text-lg text-muted-foreground mt-12">
+          Não é uma resposta direta. É um espelho.
+        </p>
       </div>
     </section>
   );

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Eye, Quote } from "lucide-react";
+import { ArrowRight, Eye, Quote } from "lucide-react";
 import Disclaimer from "./Disclaimer";
 
 const ExperiencePreview = () => {
@@ -10,9 +10,12 @@ const ExperiencePreview = () => {
       <div className="container">
         <div className="max-w-2xl mx-auto text-center mb-12">
           <p className="text-sm font-medium text-primary mb-3 uppercase tracking-wider">Experiência</p>
-          <h2 className="font-serif text-3xl md:text-5xl text-balance">
-            Veja como uma mensagem se apresenta
+          <h2 className="font-serif text-3xl md:text-5xl text-balance mb-4 leading-[1.1]">
+            Uma mensagem pode mudar a forma como vê tudo.
           </h2>
+          <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
+            Leia com atenção. Não procure concordar ou discordar de imediato.
+          </p>
         </div>
 
         <div className="max-w-xl mx-auto">
@@ -27,9 +30,8 @@ const ExperiencePreview = () => {
                 revealed ? "blur-0 opacity-100" : "blur-md opacity-70 select-none"
               }`}
             >
-              "Aquilo que procura fora de si já existe, em silêncio, dentro de si.
-              Pare por um instante. Escute. A perspetiva que procura nem sempre é nova —
-              apenas esteve adormecida à espera do seu olhar."
+              "A perspetiva que procura nem sempre é nova — apenas esteve adormecida à espera do seu olhar.
+              Pare por um instante. Escute o que tem evitado ouvir."
             </p>
 
             <Disclaimer variant="inline" className="mt-6" />
@@ -46,6 +48,16 @@ const ExperiencePreview = () => {
                 </button>
               )}
             </div>
+          </div>
+
+          <div className="mt-8 text-center">
+            <a
+              href="#experience"
+              className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-primary text-primary-foreground font-medium shadow-elegant hover:shadow-glow transition-smooth"
+            >
+              Receber a minha mensagem
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-smooth" />
+            </a>
           </div>
         </div>
       </div>

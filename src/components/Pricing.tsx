@@ -4,26 +4,26 @@ const plans = [
   {
     name: "1 Mensagem",
     price: "1,99",
-    perCredit: "1,99 € por mensagem",
+    perCredit: "Para começar",
     features: ["Acesso imediato", "Uma reflexão única", "Sem subscrição"],
-    cta: "Começar agora",
+    cta: "Começar",
     highlight: false,
   },
   {
     name: "5 Créditos",
     price: "7,99",
-    perCredit: "1,60 € por mensagem",
+    perCredit: "Menos de 1,60 € por mensagem",
     features: ["5 mensagens à sua escolha", "Histórico guardado", "Sem validade"],
-    cta: "Começar agora",
+    cta: "Escolher",
     highlight: false,
     badge: "Popular",
   },
   {
     name: "20 Créditos",
     price: "24,99",
-    perCredit: "1,25 € por mensagem",
+    perCredit: "Menos de 1 € por mensagem",
     features: ["20 mensagens à sua escolha", "Histórico guardado", "Sem validade", "Melhor valor"],
-    cta: "Começar agora",
+    cta: "Escolher",
     highlight: true,
     badge: "Melhor valor",
   },
@@ -31,12 +31,14 @@ const plans = [
 
 const Pricing = () => {
   return (
-    <section id="pricing" className="py-24 md:py-32 bg-gradient-soft">
+    <section id="pricing" className="py-24 md:py-32">
       <div className="container">
         <div className="max-w-2xl mx-auto text-center mb-16">
-          <p className="text-sm font-medium text-primary mb-3 uppercase tracking-wider">Preços</p>
-          <h2 className="font-serif text-3xl md:text-5xl text-balance mb-4">
-            Comece pelo que faz sentido para si
+          <p className="text-sm font-medium text-primary mb-3 uppercase tracking-wider">Créditos</p>
+          <h2 className="font-serif text-3xl md:text-5xl text-balance mb-4 leading-[1.1]">
+            Não precisa de todas as respostas.
+            <br />
+            <span className="italic text-primary">Precisa da certa.</span>
           </h2>
           <p className="text-muted-foreground">Pague apenas pelo que precisa. Sem subscrições.</p>
         </div>

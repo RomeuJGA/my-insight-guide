@@ -9,16 +9,16 @@ const FinalCta = () => {
       <div className="container relative">
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="font-serif text-4xl md:text-6xl text-balance mb-6 leading-[1.05]">
-            Está pronto para receber uma <span className="italic text-primary">nova perspetiva</span>?
+            Pronto para ver com mais <span className="italic text-primary">clareza</span>?
           </h2>
-          <p className="text-lg text-muted-foreground mb-10">
-            Pause. Respire. Escolha o seu número.
+          <p className="text-lg text-muted-foreground mb-10 leading-relaxed">
+            Pause. Respire. Escolha um número.
           </p>
           <a
             href="#experience"
             className="group inline-flex items-center gap-2 px-8 py-4 rounded-full bg-primary text-primary-foreground font-medium shadow-elegant hover:shadow-glow transition-smooth"
           >
-            Escolher o meu número
+            Receber a minha mensagem
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-smooth" />
           </a>
         </div>
