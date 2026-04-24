@@ -12,8 +12,10 @@ import Pricing from "@/components/Pricing";
 import Trust from "@/components/Trust";
 import FinalCta from "@/components/FinalCta";
 import Footer from "@/components/Footer";
+import { useTrackOnce } from "@/hooks/useAnalytics";
 
 const Index = () => {
+  useTrackOnce("landing_view");
   return (
     <main className="min-h-screen bg-background">
       <Navbar />

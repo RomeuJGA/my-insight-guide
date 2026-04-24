@@ -36,6 +36,7 @@ const Hero = () => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
             <a
               href="#experience"
+              onClick={() => track("click_receive_message", { metadata: { source: "hero" } })}
               className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-primary text-primary-foreground font-medium shadow-elegant hover:shadow-glow transition-smooth"
             >
               Receber uma mensagem
