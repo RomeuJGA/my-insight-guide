@@ -11,7 +11,7 @@ const Refunds = () => (
       <div>
         <p className="font-medium text-foreground mb-1">Resumo</p>
         <p className="text-sm text-muted-foreground">
-          A Intus é um produto digital. Os créditos são consumidos no momento da
+          A Ponto Cego é um produto digital. Os créditos são consumidos no momento da
           utilização. <strong className="text-foreground">Não são efetuados reembolsos
           após a revelação de uma mensagem.</strong>
         </p>
@@ -21,7 +21,7 @@ const Refunds = () => (
     <section>
       <h2 className="font-serif text-2xl mt-6 mb-3">1. Natureza Digital do Produto</h2>
       <p>
-        Os créditos adquiridos na Intus destinam-se ao acesso imediato a conteúdo
+        Os créditos adquiridos na Ponto Cego destinam-se ao acesso imediato a conteúdo
         digital (mensagens). Trata-se de um produto digital, fornecido em formato
         imaterial e não em suporte físico.
       </p>

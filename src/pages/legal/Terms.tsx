@@ -8,7 +8,7 @@ const Terms = () => (
     <section>
       <h2 className="font-serif text-2xl mt-2 mb-3">1. Aceitação dos Termos</h2>
       <p>
-        Ao aceder e utilizar a Intus ("Serviço"), o utilizador aceita estes Termos e
+        Ao aceder e utilizar a Ponto Cego ("Serviço"), o utilizador aceita estes Termos e
         Condições. Se não concordar, não deve utilizar o Serviço.
       </p>
     </section>
@@ -16,7 +16,7 @@ const Terms = () => (
     <section>
       <h2 className="font-serif text-2xl mt-6 mb-3">2. Natureza do Serviço</h2>
       <p>
-        A Intus é uma ferramenta digital de reflexão pessoal que disponibiliza mensagens
+        A Ponto Cego é uma ferramenta digital de reflexão pessoal que disponibiliza mensagens
         inspiracionais. O Serviço{" "}
         <strong>não constitui aconselhamento médico, psicológico, financeiro ou legal</strong>,
         nem oferece previsões ou diagnósticos. As mensagens devem ser interpretadas
@@ -73,7 +73,7 @@ const Terms = () => (
     <section>
       <h2 className="font-serif text-2xl mt-6 mb-3">7. Propriedade Intelectual</h2>
       <p>
-        Todos os conteúdos, incluindo textos, design e marcas, são propriedade da Intus
+        Todos os conteúdos, incluindo textos, design e marcas, são propriedade da Ponto Cego
         ou dos seus licenciadores. É proibida a reprodução não autorizada.
       </p>
     </section>
@@ -81,7 +81,7 @@ const Terms = () => (
     <section>
       <h2 className="font-serif text-2xl mt-6 mb-3">8. Limitação de Responsabilidade</h2>
       <p>
-        Na máxima extensão permitida por lei, a Intus não se responsabiliza por
+        Na máxima extensão permitida por lei, a Ponto Cego não se responsabiliza por
         decisões tomadas pelo utilizador com base nos conteúdos disponibilizados. O
         Serviço é fornecido "tal como está", sem garantias de qualquer natureza.
       </p>
