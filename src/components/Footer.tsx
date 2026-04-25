@@ -12,10 +12,10 @@ const Footer = () => {
 
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
-            <span className="font-serif text-xl tracking-tight">intus</span>
+            <span className="font-serif text-xl tracking-tight">Ponto Cego</span>
           </div>
           <p className="text-xs text-muted-foreground text-center">
-            © {new Date().getFullYear()} Intus · Ver com mais clareza por dentro
+            © {new Date().getFullYear()} Ponto Cego · Ver com mais clareza por dentro
           </p>
           <div className="flex gap-6 text-xs text-muted-foreground">
             <Link to="/legal/termos" className="hover:text-foreground transition-smooth">
