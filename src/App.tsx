@@ -12,6 +12,7 @@ import MyMessages from "./pages/MyMessages.tsx";
 import Terms from "./pages/legal/Terms.tsx";
 import Privacy from "./pages/legal/Privacy.tsx";
 import Refunds from "./pages/legal/Refunds.tsx";
+import PrivateGate from "./components/PrivateGate";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +21,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <PrivateGate>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
@@ -34,6 +36,7 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
+      </PrivateGate>
     </TooltipProvider>
   </QueryClientProvider>
 );
