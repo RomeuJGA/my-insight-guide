@@ -20,8 +20,8 @@ const Navbar = () => {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/70 backdrop-blur-xl border-b border-border/40">
       <nav className="container flex items-center justify-between h-16">
-        <a href="/" className="flex items-center group" aria-label="Intus">
-          <img src={logo} alt="Intus" className="h-7 md:h-8 w-auto" />
+        <a href="/" className="flex items-center group" aria-label="Ponto Cego">
+          <img src={logo} alt="Ponto Cego" className="h-7 md:h-8 w-auto" />
         </a>
         <div className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
           <a href="/#how" className="hover:text-foreground transition-smooth">Como funciona</a>

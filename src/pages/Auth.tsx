@@ -102,7 +102,7 @@ const Auth = () => {
       <main className="min-h-screen bg-gradient-soft flex flex-col">
         <div className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
-          <Link to="/" className="block text-center mb-8 font-serif text-3xl tracking-tight text-foreground">intus</Link>
+          <Link to="/" className="block text-center mb-8 font-serif text-3xl tracking-tight text-foreground">Ponto Cego</Link>
           <div className="p-8 md:p-10 rounded-3xl bg-card border border-border/60 shadow-elegant text-center">
             <div className="w-14 h-14 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-5">
               <MailCheck className="w-6 h-6 text-primary" />
@@ -148,7 +148,7 @@ const Auth = () => {
     <main className="min-h-screen bg-gradient-soft flex flex-col">
       <div className="flex-1 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
-        <Link to="/" className="block text-center mb-8 font-serif text-3xl tracking-tight text-foreground">intus</Link>
+        <Link to="/" className="block text-center mb-8 font-serif text-3xl tracking-tight text-foreground">Ponto Cego</Link>
 
         <div className="p-8 md:p-10 rounded-3xl bg-card border border-border/60 shadow-elegant">
           <h1 className="font-serif text-3xl text-center mb-2">
