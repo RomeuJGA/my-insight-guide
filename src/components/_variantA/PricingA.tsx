@@ -78,8 +78,8 @@ const PricingA = () => {
                 ))}
               </ul>
 
-              <a
-                href="#experience"
+              <Link
+                to="/credits?buy=1"
                 className={`block text-center w-full py-3 rounded-full font-medium transition-smooth ${
                   plan.highlight
                     ? "bg-[hsl(40_30%_98%)] text-[hsl(165_35%_28%)] hover:opacity-90"
@@ -87,7 +87,7 @@ const PricingA = () => {
                 }`}
               >
                 {plan.cta}
-              </a>
+              </Link>
             </div>
           ))}
         </div>
