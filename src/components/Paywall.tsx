@@ -9,54 +9,14 @@ import {
   ShieldCheck,
   Check,
   Clock,
+  Ticket,
+  X,
 } from "lucide-react";
 import Disclaimer from "./Disclaimer";
 import { supabase } from "@/integrations/supabase/client";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { toast } from "sonner";
-
-type PkgId = "five" | "ten" | "twenty";
-type Badge = "popular" | "value";
-type Pkg = {
-  id: PkgId;
-  credits: number;
-  label: string;
-  price: string;
-  tagline: string;
-  badge?: Badge;
-};
-
-// Order matters: 10 first (most popular), then 20 (best value), then 5.
-const PACKAGES: Pkg[] = [
-  {
-    id: "ten",
-    credits: 10,
-    label: "10 créditos",
-    price: "8,90 €",
-    tagline: "Para quem quer aprofundar",
-    badge: "popular",
-  },
-  {
-    id: "twenty",
-    credits: 20,
-    label: "20 créditos",
-    price: "14,90 €",
-    tagline: "Para integrar com consistência",
-    badge: "value",
-  },
-  {
-    id: "five",
-    credits: 5,
-    label: "5 créditos",
-    price: "4,90 €",
-    tagline: "Para experimentar com intenção",
-  },
-];
-
-const BADGE_LABEL: Record<Badge, string> = {
-  popular: "Mais escolhido",
-  value: "Melhor valor",
-};
+import { useCreditPackages, formatEur } from "@/hooks/useCreditPackages";
 
 type PaymentRef = {
   orderId: string;
@@ -67,28 +27,45 @@ type PaymentRef = {
   sandbox?: boolean;
 };
 
+type AppliedCoupon = {
+  code: string;
+  couponId: string;
+  discountType: "percent" | "fixed";
+  discountValue: number;
+  finalPrice: number;
+};
+
 interface PaywallProps {
   onPurchased: (newBalance: number) => void;
 }
 
 const Paywall = ({ onPurchased }: PaywallProps) => {
-  const [selected, setSelected] = useState<PkgId | null>(null);
+  const { packages, loading: loadingPkgs } = useCreditPackages({ onlyActive: true });
+  const [selected, setSelected] = useState<string | null>(null);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [creating, setCreating] = useState(false);
   const [payment, setPayment] = useState<PaymentRef | null>(null);
   const [checking, setChecking] = useState(false);
+
+  // Coupon
+  const [couponCode, setCouponCode] = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [coupon, setCoupon] = useState<AppliedCoupon | null>(null);
+
   const pollRef = useRef<number | null>(null);
   const pollCountRef = useRef(0);
   const { track } = useAnalytics();
 
-  // Track paywall view once per mount
   useEffect(() => {
     track("paywall_view");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleSelect = (id: PkgId) => {
+  const selectedPkg = packages.find((p) => p.id === selected) ?? null;
+
+  const handleSelect = (id: string) => {
     setSelected(id);
+    setCoupon(null); // reset coupon when changing pack
     track("package_selected", { package: id });
   };
 
@@ -111,6 +88,53 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
     } catch {
       toast.error("Não foi possível copiar.");
     }
+  };
+
+  const applyCoupon = async () => {
+    const code = couponCode.trim();
+    if (!code) return;
+    if (!selected) return toast.error("Escolha primeiro um pack.");
+    setCouponLoading(true);
+    try {
+      const { data, error } = await supabase.rpc("validate_coupon", {
+        _code: code,
+        _user_id: (await supabase.auth.getUser()).data.user?.id ?? "",
+        _package_id: selected,
+      });
+      if (error) throw error;
+      const row = Array.isArray(data) ? data[0] : data;
+      if (!row?.valid) {
+        const reasonMap: Record<string, string> = {
+          invalid: "Cupão inválido.",
+          expired: "Cupão expirado.",
+          not_yet_valid: "Cupão ainda não está ativo.",
+          exhausted: "Cupão esgotado.",
+          user_limit: "Já usou este cupão o número máximo de vezes.",
+          not_applicable: "Este cupão não se aplica ao pack escolhido.",
+          package_invalid: "Pack inválido.",
+        };
+        toast.error(reasonMap[row?.reason ?? ""] ?? "Cupão não aplicável.");
+        setCoupon(null);
+        return;
+      }
+      setCoupon({
+        code: code.toUpperCase(),
+        couponId: row.coupon_id,
+        discountType: row.discount_type,
+        discountValue: Number(row.discount_value),
+        finalPrice: Number(row.final_price),
+      });
+      toast.success("Cupão aplicado.");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Erro ao validar cupão.");
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setCoupon(null);
+    setCouponCode("");
   };
 
   const checkStatus = async (orderId: string, silent = false) => {
@@ -143,7 +167,7 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
     pollRef.current = window.setInterval(async () => {
       pollCountRef.current += 1;
       const done = await checkStatus(orderId, true);
-      if (done || pollCountRef.current >= 12) stopPolling(); // 12 × 10s = 2min
+      if (done || pollCountRef.current >= 12) stopPolling();
     }, 10000);
   };
 
@@ -153,11 +177,13 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
     track("purchase_attempt", { package: selected });
     setCreating(true);
     try {
-      console.log("[Paywall] invoking create-multibanco-payment", { package: selected });
       const { data, error } = await supabase.functions.invoke("create-multibanco-payment", {
-        body: { package: selected, acceptedTerms: true },
+        body: {
+          packageId: selected,
+          acceptedTerms: true,
+          couponCode: coupon?.code ?? null,
+        },
       });
-      console.log("[Paywall] response", { data, error });
       if (error) {
         const ctxBody = (error as any)?.context?.body;
         const msg = typeof ctxBody === "string" ? ctxBody : error.message;
@@ -167,7 +193,6 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
       setPayment(data as PaymentRef);
       startPolling(data.orderId);
     } catch (e: any) {
-      console.error("[Paywall] create error", e);
       toast.error(e?.message ?? "Erro ao gerar referência.");
     } finally {
       setCreating(false);
@@ -179,9 +204,11 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
     setPayment(null);
     setSelected(null);
     setAcceptedTerms(false);
+    setCoupon(null);
+    setCouponCode("");
   };
 
-  // ---- View: Multibanco reference details ----
+  // ---- Multibanco reference details ----
   if (payment) {
     return (
       <div className="p-8 md:p-10 rounded-3xl bg-card border border-border/60 shadow-elegant animate-fade-in-up">
@@ -265,10 +292,9 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
     );
   }
 
-  // ---- View: Package selection ----
+  // ---- Package selection ----
   return (
     <div className="p-6 sm:p-8 md:p-10 rounded-3xl bg-card border border-border/60 shadow-elegant animate-fade-in-up">
-      {/* Header */}
       <div className="text-center mb-8">
         <div className="w-12 h-12 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
           <Sparkles className="w-5 h-5 text-primary" />
@@ -279,88 +305,124 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
         <p className="text-sm md:text-[15px] text-muted-foreground max-w-md mx-auto leading-relaxed">
           Não precisa de todas as respostas. Precisa da certa — no momento certo.
         </p>
-        <p className="mt-3 inline-block px-3 py-1 rounded-full bg-primary/10 text-[11px] font-medium uppercase tracking-wider text-primary">
-          Menos de 1 € por mensagem
-        </p>
       </div>
 
       {/* Packages */}
-      <div className="grid sm:grid-cols-3 gap-3 sm:gap-4">
-        {PACKAGES.map((pkg) => {
-          const active = selected === pkg.id;
-          const isPopular = pkg.badge === "popular";
-          return (
-            <button
-              key={pkg.id}
-              type="button"
-              onClick={() => handleSelect(pkg.id)}
-              className={`relative text-left rounded-2xl border p-5 transition-smooth flex flex-col ${
-                isPopular ? "sm:scale-[1.03] sm:py-6" : ""
-              } ${
-                active
-                  ? "border-primary bg-primary/10 ring-2 ring-primary/30 shadow-elegant"
-                  : isPopular
-                  ? "border-primary/60 bg-primary/5 hover:bg-primary/10 shadow-soft"
-                  : "border-border bg-background hover:bg-muted"
-              }`}
-            >
-              {pkg.badge && (
-                <span
-                  className={`absolute -top-2.5 left-5 px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-wider ${
-                    pkg.badge === "popular"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-foreground text-background"
-                  }`}
-                >
-                  {BADGE_LABEL[pkg.badge]}
-                </span>
-              )}
-              <div className="flex items-baseline justify-between mb-1.5">
-                <span className="font-serif text-3xl leading-none">{pkg.credits}</span>
-                <span className="text-sm font-medium tabular-nums">{pkg.price}</span>
-              </div>
-              <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2">
-                {pkg.label}
-              </p>
-              <p className="text-xs text-foreground/75 leading-relaxed mt-auto">
-                {pkg.tagline}
-              </p>
-              {active && (
-                <span className="absolute top-3 right-3 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
-                  <Check className="w-3 h-3" strokeWidth={3} />
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
+      {loadingPkgs ? (
+        <div className="flex items-center justify-center py-10">
+          <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+        </div>
+      ) : packages.length === 0 ? (
+        <p className="text-sm text-muted-foreground text-center py-8">
+          De momento não há packs disponíveis. Volte mais tarde.
+        </p>
+      ) : (
+        <div className={`grid gap-3 sm:gap-4 ${packages.length >= 3 ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}>
+          {packages.map((pkg) => {
+            const active = selected === pkg.id;
+            const isPopular = pkg.badge?.toLowerCase() === "popular";
+            return (
+              <button
+                key={pkg.id}
+                type="button"
+                onClick={() => handleSelect(pkg.id)}
+                className={`relative text-left rounded-2xl border p-5 transition-smooth flex flex-col ${
+                  isPopular ? "sm:scale-[1.03] sm:py-6" : ""
+                } ${
+                  active
+                    ? "border-primary bg-primary/10 ring-2 ring-primary/30 shadow-elegant"
+                    : isPopular
+                    ? "border-primary/60 bg-primary/5 hover:bg-primary/10 shadow-soft"
+                    : "border-border bg-background hover:bg-muted"
+                }`}
+              >
+                {pkg.badge && (
+                  <span
+                    className={`absolute -top-2.5 left-5 px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-wider ${
+                      isPopular ? "bg-primary text-primary-foreground" : "bg-foreground text-background"
+                    }`}
+                  >
+                    {pkg.badge}
+                  </span>
+                )}
+                <div className="flex items-baseline justify-between mb-1.5">
+                  <span className="font-serif text-3xl leading-none">{pkg.credits}</span>
+                  <span className="text-sm font-medium tabular-nums">{formatEur(pkg.price_eur)}</span>
+                </div>
+                <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2">
+                  {pkg.name}
+                </p>
+                <p className="text-xs text-foreground/75 leading-relaxed mt-auto">
+                  {(pkg.price_eur / pkg.credits).toFixed(2).replace(".", ",")} € por mensagem
+                </p>
+                {active && (
+                  <span className="absolute top-3 right-3 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                    <Check className="w-3 h-3" strokeWidth={3} />
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
-      {/* Subtle urgency */}
+      {/* Coupon */}
+      {selected && (
+        <div className="mt-5 p-4 rounded-2xl bg-muted/40 border border-border/60">
+          <div className="flex items-center gap-2 mb-2 text-[11px] uppercase tracking-wider text-muted-foreground">
+            <Ticket className="w-3.5 h-3.5" />
+            Cupão de desconto
+          </div>
+          {coupon ? (
+            <div className="flex items-center justify-between gap-3">
+              <div className="text-sm">
+                <span className="font-mono font-medium">{coupon.code}</span>
+                <span className="text-muted-foreground ml-2">
+                  {coupon.discountType === "percent"
+                    ? `-${coupon.discountValue}%`
+                    : `-${formatEur(coupon.discountValue)}`}{" "}
+                  · Total:{" "}
+                  <strong className="text-foreground tabular-nums">{formatEur(coupon.finalPrice)}</strong>
+                  {selectedPkg && (
+                    <span className="ml-1 line-through opacity-60">{formatEur(selectedPkg.price_eur)}</span>
+                  )}
+                </span>
+              </div>
+              <button
+                onClick={removeCoupon}
+                className="p-1.5 rounded-full hover:bg-background"
+                aria-label="Remover cupão"
+              >
+                <X className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
+          ) : (
+            <div className="flex gap-2">
+              <input
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                placeholder="Insira o código"
+                className="flex-1 px-3 py-2 rounded-lg border border-border bg-background text-sm font-mono uppercase"
+                onKeyDown={(e) => e.key === "Enter" && applyCoupon()}
+              />
+              <button
+                onClick={applyCoupon}
+                disabled={couponLoading || !couponCode.trim()}
+                className="px-4 py-2 rounded-lg bg-foreground text-background text-sm font-medium hover:opacity-90 disabled:opacity-50"
+              >
+                {couponLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Aplicar"}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       <p className="mt-5 flex items-start gap-2 text-xs text-muted-foreground leading-relaxed">
         <Clock className="w-3.5 h-3.5 shrink-0 mt-0.5 text-primary/70" />
         <span>
           Pode esperar pela mensagem gratuita de amanhã… ou receber já a orientação que procura.
         </span>
       </p>
-
-      {/* What to expect */}
-      <div className="mt-6 p-5 rounded-2xl bg-muted/50 border border-border/60">
-        <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground mb-3">
-          O que esperar
-        </p>
-        <ul className="space-y-2.5">
-          {[
-            "Mensagens diretas e honestas",
-            "Sem respostas prontas — apenas clareza",
-            "Cada mensagem pode trazer uma nova perspetiva",
-          ].map((item) => (
-            <li key={item} className="flex gap-2.5 text-sm text-foreground/85 leading-relaxed">
-              <Check className="w-4 h-4 text-primary shrink-0 mt-0.5" strokeWidth={2.25} />
-              <span>{item}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
 
       <Disclaimer variant="compact" className="mt-5" />
 
@@ -395,6 +457,9 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
           <>
             <Landmark className="w-4 h-4" />
             Receber a minha mensagem agora
+            {coupon && selectedPkg && (
+              <span className="text-xs opacity-80">· {formatEur(coupon.finalPrice)}</span>
+            )}
           </>
         )}
       </button>

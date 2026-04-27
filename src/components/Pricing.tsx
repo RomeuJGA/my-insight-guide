@@ -1,36 +1,10 @@
-import { Check } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
-
-const plans = [
-  {
-    name: "1 Mensagem",
-    price: "1,99",
-    perCredit: "Para começar",
-    features: ["Acesso imediato", "Uma reflexão única", "Sem subscrição"],
-    cta: "Começar",
-    highlight: false,
-  },
-  {
-    name: "5 Créditos",
-    price: "7,99",
-    perCredit: "Menos de 1,60 € por mensagem",
-    features: ["5 mensagens à sua escolha", "Histórico guardado", "Sem validade"],
-    cta: "Escolher",
-    highlight: false,
-    badge: "Popular",
-  },
-  {
-    name: "20 Créditos",
-    price: "24,99",
-    perCredit: "Menos de 1 € por mensagem",
-    features: ["20 mensagens à sua escolha", "Histórico guardado", "Sem validade", "Melhor valor"],
-    cta: "Escolher",
-    highlight: true,
-    badge: "Melhor valor",
-  },
-];
+import { useCreditPackages, formatEur } from "@/hooks/useCreditPackages";
 
 const Pricing = () => {
+  const { packages, loading } = useCreditPackages({ onlyActive: true });
+
   return (
     <section id="pricing" className="py-24 md:py-32">
       <div className="container">
@@ -41,57 +15,89 @@ const Pricing = () => {
             <br />
             <span className="italic">Precisa da certa.</span>
           </h2>
-          <p className="text-muted-foreground">Menos de 1 € por mensagem. Sem subscrições.</p>
+          <p className="text-muted-foreground">Sem subscrições. Cupões de desconto disponíveis no checkout.</p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {plans.map((plan) => (
-            <div
-              key={plan.name}
-              className={`relative p-8 rounded-3xl border transition-smooth ${
-                plan.highlight
-                  ? "bg-gradient-primary text-primary-foreground border-primary shadow-elegant scale-[1.02]"
-                  : "bg-card border-border/60 hover:border-primary/30 shadow-soft"
-              }`}
-            >
-              {plan.badge && (
-                <div className={`absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-medium ${
-                  plan.highlight ? "bg-accent-foreground text-primary" : "bg-primary text-primary-foreground"
-                }`}>
-                  {plan.badge}
+        {loading ? (
+          <div className="flex justify-center py-10">
+            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <div
+            className={`grid gap-6 max-w-5xl mx-auto ${
+              packages.length >= 3 ? "md:grid-cols-3" : packages.length === 2 ? "md:grid-cols-2" : "md:grid-cols-1"
+            }`}
+          >
+            {packages.map((plan) => {
+              const highlight = plan.badge?.toLowerCase() === "popular" || plan.badge?.toLowerCase().includes("valor");
+              const perMsg = plan.price_eur / plan.credits;
+              return (
+                <div
+                  key={plan.id}
+                  className={`relative p-8 rounded-3xl border transition-smooth ${
+                    highlight
+                      ? "bg-gradient-primary text-primary-foreground border-primary shadow-elegant scale-[1.02]"
+                      : "bg-card border-border/60 hover:border-primary/30 shadow-soft"
+                  }`}
+                >
+                  {plan.badge && (
+                    <div
+                      className={`absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-medium ${
+                        highlight ? "bg-accent-foreground text-primary" : "bg-primary text-primary-foreground"
+                      }`}
+                    >
+                      {plan.badge}
+                    </div>
+                  )}
+
+                  <h3 className="font-serif text-2xl mb-2">{plan.name}</h3>
+                  <div className="flex items-baseline gap-1 mb-1">
+                    <span className="font-serif text-5xl">{formatEur(plan.price_eur)}</span>
+                  </div>
+                  <p
+                    className={`text-sm mb-8 ${
+                      highlight ? "text-primary-foreground/70" : "text-muted-foreground"
+                    }`}
+                  >
+                    {perMsg.toFixed(2).replace(".", ",")} € por mensagem
+                  </p>
+
+                  <ul className="space-y-3 mb-8">
+                    {[
+                      `${plan.credits} mensagem${plan.credits === 1 ? "" : "s"} à sua escolha`,
+                      "Histórico guardado",
+                      "Sem validade",
+                    ].map((f) => (
+                      <li key={f} className="flex items-start gap-3 text-sm">
+                        <Check
+                          className={`w-4 h-4 mt-0.5 shrink-0 ${
+                            highlight ? "text-primary-foreground" : "text-primary"
+                          }`}
+                        />
+                        <span
+                          className={highlight ? "text-primary-foreground/90" : "text-foreground/80"}
+                        >
+                          {f}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Link
+                    to="/credits?buy=1"
+                    className={`block text-center w-full py-3 rounded-full font-medium transition-smooth ${
+                      highlight
+                        ? "bg-primary-foreground text-primary hover:opacity-90"
+                        : "bg-primary text-primary-foreground hover:opacity-90"
+                    }`}
+                  >
+                    Escolher
+                  </Link>
                 </div>
-              )}
-
-              <h3 className="font-serif text-2xl mb-2">{plan.name}</h3>
-              <div className="flex items-baseline gap-1 mb-1">
-                <span className="font-serif text-5xl">€{plan.price}</span>
-              </div>
-              <p className={`text-sm mb-8 ${plan.highlight ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
-                {plan.perCredit}
-              </p>
-
-              <ul className="space-y-3 mb-8">
-                {plan.features.map((f) => (
-                  <li key={f} className="flex items-start gap-3 text-sm">
-                    <Check className={`w-4 h-4 mt-0.5 shrink-0 ${plan.highlight ? "text-primary-foreground" : "text-primary"}`} />
-                    <span className={plan.highlight ? "text-primary-foreground/90" : "text-foreground/80"}>{f}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <Link
-                to="/credits?buy=1"
-                className={`block text-center w-full py-3 rounded-full font-medium transition-smooth ${
-                  plan.highlight
-                    ? "bg-primary-foreground text-primary hover:opacity-90"
-                    : "bg-primary text-primary-foreground hover:opacity-90"
-                }`}
-              >
-                {plan.cta}
-              </Link>
-            </div>
-          ))}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </section>
   );
