@@ -9,6 +9,7 @@ import AdminCredits from "@/components/AdminCredits";
 import AdminAnalytics from "@/components/AdminAnalytics";
 import AdminPackages from "@/components/AdminPackages";
 import AdminCoupons from "@/components/AdminCoupons";
+import AdminTestimonials from "@/components/AdminTestimonials";
 import Footer from "@/components/Footer";
 import {
   AlertDialog,
@@ -389,6 +390,10 @@ const Admin = () => {
 
         <div className="mt-12">
           <AdminCoupons />
+        </div>
+
+        <div className="mt-12">
+          <AdminTestimonials />
         </div>
 
         <div className="mt-12">
