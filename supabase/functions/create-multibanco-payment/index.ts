@@ -1,5 +1,6 @@
-// Creates a Multibanco payment reference via IfthenPay and stores a pending order.
-// Credits are NOT added here — only when ifthenpay-callback confirms payment.
+// Generates a Multibanco payment reference LOCALLY (clássico IfthenPay) and stores a pending order.
+// No external API call is made — Entidade + Sub-entidade come from secrets, reference is computed
+// using the official MOD 97-10 algorithm. Credits are added only when ifthenpay-callback confirms payment.
 import { corsHeaders, getAuthedUser, jsonResponse } from "../_shared/auth.ts";
 
 const PACKAGES: Record<string, { credits: number; amount: string; label: string }> = {
@@ -9,10 +10,35 @@ const PACKAGES: Record<string, { credits: number; amount: string; label: string 
 };
 
 function genOrderId() {
-  // IfthenPay maxLength = 25
   const ts = Date.now().toString(36);
   const rnd = Math.random().toString(36).slice(2, 8);
   return `LMN${ts}${rnd}`.slice(0, 25).toUpperCase();
+}
+
+/**
+ * Computes the 2-digit MOD 97-10 check digits for the Multibanco reference.
+ * Input: subEntity (3 digits) + sequential (4 digits) + amount in cents (8 digits, zero-padded).
+ * Output: 2 check digits as string.
+ */
+function mod9710(input: string): string {
+  let remainder = 0;
+  for (const ch of input) {
+    remainder = (remainder * 10 + parseInt(ch, 10)) % 97;
+  }
+  const check = (98 - (remainder * 100) % 97) % 97;
+  return check.toString().padStart(2, "0");
+}
+
+/**
+ * Builds a 9-digit Multibanco reference: subEntity(3) + seq(4) + checkDigits(2).
+ * Amount must be in cents (integer). Sequential is 0..9999.
+ */
+function buildReference(subEntity: string, sequential: number, amountCents: number): string {
+  const sub = subEntity.padStart(3, "0").slice(-3);
+  const seq = sequential.toString().padStart(4, "0").slice(-4);
+  const amt = amountCents.toString().padStart(8, "0").slice(-8);
+  const check = mod9710(sub + seq + amt);
+  return sub + seq + check; // 9 digits
 }
 
 Deno.serve(async (req) => {
@@ -33,19 +59,28 @@ Deno.serve(async (req) => {
     return jsonResponse({ error: "Tem de aceitar os Termos, Política de Privacidade e Política de Reembolso." }, 400);
   }
 
-  const mbKey = Deno.env.get("IFTHENPAY_MULTIBANCO_KEY");
-  if (!mbKey) {
-    console.error("Missing IFTHENPAY_MULTIBANCO_KEY");
+  const entidade = (Deno.env.get("IFTHENPAY_ENTIDADE") ?? "").trim();
+  const subentidade = (Deno.env.get("IFTHENPAY_SUBENTIDADE") ?? "").trim();
+  if (!entidade || !subentidade) {
+    console.error("Missing IFTHENPAY_ENTIDADE or IFTHENPAY_SUBENTIDADE");
     return jsonResponse({ error: "Configuração de pagamento em falta." }, 500);
   }
-  const sandbox = (Deno.env.get("IFTHENPAY_SANDBOX") ?? "false").toLowerCase() === "true";
-  const endpoint = sandbox
-    ? "https://api.ifthenpay.com/multibanco/reference/sandbox"
-    : "https://api.ifthenpay.com/multibanco/reference/init";
 
   const orderId = genOrderId();
+  const amountCents = Math.round(parseFloat(chosen.amount) * 100);
 
-  // 1) Insert pending order using service role (RLS blocks direct inserts).
+  // 1) Allocate next sequential number atomically via DB sequence
+  const { data: seqData, error: seqErr } = await admin.rpc("next_ifthenpay_reference_number");
+  if (seqErr || seqData == null) {
+    console.error("sequence error:", seqErr);
+    return jsonResponse({ error: "Erro ao gerar referência." }, 500);
+  }
+  const sequential = Number(seqData) % 10000; // wrap into 4 digits
+
+  // 2) Build reference locally
+  const reference = buildReference(subentidade, sequential, amountCents);
+
+  // 3) Insert pending order with the generated reference
   const { error: insErr } = await admin.from("payment_orders").insert({
     user_id: user.id,
     order_id: orderId,
@@ -54,70 +89,24 @@ Deno.serve(async (req) => {
     credits: chosen.credits,
     amount: chosen.amount,
     status: "pending",
+    ifthenpay_entity: entidade,
+    ifthenpay_reference: reference,
   });
   if (insErr) {
     console.error("payment_orders insert error:", insErr);
     return jsonResponse({ error: "Erro ao criar a ordem de pagamento." }, 500);
   }
 
-  // 2) Request reference from IfthenPay
-  let mbRes: Response;
-  try {
-    mbRes = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        mbKey,
-        orderId,
-        amount: chosen.amount,
-        description: `Lumen - ${chosen.label}`,
-        clientEmail: user.email ?? "",
-        expiryDays: 3,
-      }),
-    });
-  } catch (e) {
-    console.error("ifthenpay fetch error:", e);
-    await admin.from("payment_orders").update({ status: "failed" }).eq("order_id", orderId);
-    return jsonResponse({ error: "Erro de comunicação com o gateway." }, 502);
-  }
-
-  const rawText = await mbRes.text();
-  let mbData: any = null;
-  try { mbData = JSON.parse(rawText); } catch { /* not JSON */ }
-
-  if (!mbRes.ok || !mbData || String(mbData.Status) !== "0") {
-    console.error("ifthenpay non-success:", mbRes.status, "sandbox=", sandbox, "body=", rawText?.slice(0, 500));
-    await admin.from("payment_orders").update({ status: "failed" }).eq("order_id", orderId);
-    const detail =
-      mbData?.Message ||
-      (mbRes.status === 403
-        ? `MB Key inválida ou não autorizada para o ambiente ${sandbox ? "sandbox" : "produção"}.`
-        : `Gateway respondeu ${mbRes.status}.`);
-    return jsonResponse({ error: detail }, 502);
-  }
-
-  // 3) Persist returned reference details
-  const entity = String(mbData.Entity ?? "");
-  const reference = String(mbData.Reference ?? "");
-  const requestId = String(mbData.RequestId ?? "");
-  const expiryDate = String(mbData.ExpiryDate ?? "");
-
-  const { error: updErr } = await admin
-    .from("payment_orders")
-    .update({
-      ifthenpay_entity: entity,
-      ifthenpay_reference: reference,
-      ifthenpay_request_id: requestId,
-    })
-    .eq("order_id", orderId);
-  if (updErr) console.error("payment_orders update error:", updErr);
+  // Reference valid for 3 days by convention
+  const expiry = new Date();
+  expiry.setDate(expiry.getDate() + 3);
 
   return jsonResponse({
     orderId,
-    entity,
+    entity: entidade,
     reference,
     amount: chosen.amount,
-    expiryDate,
-    sandbox,
+    expiryDate: expiry.toISOString().slice(0, 10),
+    sandbox: false,
   });
 });
