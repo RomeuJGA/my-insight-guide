@@ -8,7 +8,7 @@ interface LegalLayoutProps {
   children: React.ReactNode;
 }
 
-const LegalLayout = ({ title, updated = "Abril 2026", children }: LegalLayoutProps) => {
+const LegalLayout = ({ title, updated = "27 de abril de 2026", children }: LegalLayoutProps) => {
   return (
     <main className="min-h-screen bg-background">
       <div className="container max-w-3xl pt-20 pb-16">

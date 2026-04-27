@@ -1,44 +1,39 @@
-## Problema
+## Atualizar páginas legais com conteúdo definitivo
 
-Todos os botões da landing page que deveriam levar à **aquisição de créditos** (`Hero`, `FinalCta`, `Pricing` e respetivas variantes A) apontam atualmente para `href="#experience"`.
+Substituir o conteúdo das três páginas em `src/pages/legal/` pelos textos finais (já validados juridicamente, com identificação completa do prestador, NIF, morada, contactos e referências legais portuguesas).
 
-A secção `#experience` (`src/components/Experience.tsx`) é o ecrã de **escolher / receber a mensagem do dia** — só revela o `Paywall` *depois* do utilizador ter tentado destrancar uma mensagem sem créditos. Por isso, ao clicar em "Adquirir créditos" o utilizador é levado para o seletor de mensagem, não para o paywall.
+### Ficheiros a editar
 
-O `Paywall` real (com pacotes 5/10/20) já vive em dois sítios:
-- Embebido em `Experience.tsx` (atrás do fluxo de revelar mensagem)
-- Em `/credits` (`src/pages/Credits.tsx`), através do botão **"Comprar"** que faz `setShowPaywall(true)`
+**1. `src/pages/legal/Terms.tsx`**
+- Substituir todo o JSX por 12 secções (Identificação, Objeto, Acesso, Descrição do Serviço, Compra, Livre Resolução, PI, Obrigações, Limitação Responsabilidade, Duração, Alterações, Lei Aplicável).
+- Incluir tabela de pacotes (5/10/20 créditos).
+- Manter `<LegalLayout>` e `<Disclaimer>`.
+- Atualizar `updated="27 de abril de 2026"`.
 
-## Solução
+**2. `src/pages/legal/Privacy.tsx`**
+- Substituir por 10 secções com identificação completa do responsável.
+- Incluir 4 tabelas (dados recolhidos, finalidades/bases legais, prazos de conservação, subprocessadores).
+- Manter `<LegalLayout>` e `<Disclaimer>`.
+- Atualizar data.
 
-Encaminhar os CTAs de compra para `/credits` e abrir o paywall automaticamente.
+**3. `src/pages/legal/Refunds.tsx`**
+- Substituir por 9 secções com identificação completa do vendedor.
+- Manter o bloco de resumo destacado no topo (com `AlertCircle`).
+- Manter `<LegalLayout>` e `<Disclaimer>`.
+- Atualizar data.
 
-### 1. Página `/credits` — abrir paywall via query string
+**4. `src/components/LegalLayout.tsx`**
+- Alterar o default de `updated` de `"Abril 2026"` para `"27 de abril de 2026"` (consistência caso alguma página não passe a prop).
 
-Em `src/pages/Credits.tsx`:
-- Ler `?buy=1` (ou hash `#comprar`) no `useEffect` inicial.
-- Se presente e o utilizador estiver autenticado, fazer `setShowPaywall(true)` e fazer scroll suave até ao paywall.
-- Se não autenticado, redirecionar para `/auth?redirect=/credits?buy=1` (padrão já usado no projeto, confirmar em `Auth.tsx`).
+### Detalhes técnicos
 
-### 2. Atualizar todos os CTAs de "adquirir créditos"
+- Usar elementos HTML semânticos (`<section>`, `<h2>`, `<table>`, `<ul>`) com as classes Tailwind já em uso (`font-serif text-2xl mt-6 mb-3`, `list-disc pl-6 space-y-2`).
+- Para as tabelas em Privacy: usar `<table className="w-full text-sm border-collapse">` com `<thead>` e `<tbody>`, células com `border border-border/60 p-2 text-left align-top`, dentro de wrapper com `overflow-x-auto` para responsividade.
+- Links externos (CNIACC, ODR, CNPD) abrem em nova aba: `target="_blank" rel="noopener noreferrer"` com `className="underline hover:text-foreground"`.
+- Email `suporte@pontocego.pt` como `<a href="mailto:...">`.
+- Não alterar rotas, navegação, footer nem qualquer outra parte do código.
 
-Trocar `href="#experience"` por `to="/credits?buy=1"` (usando `Link` do `react-router-dom`) nos seguintes ficheiros, **apenas** nos botões cuja intenção textual é comprar créditos (manter `#experience` em CTAs cuja intenção é "experimentar a mensagem grátis"):
+### O que NÃO é feito neste plano
 
-- `src/components/Pricing.tsx` (linha 82)
-- `src/components/_variantA/PricingA.tsx` (linha 82)
-- `src/components/FinalCta.tsx` (linha 18) — rever copy do botão
-- `src/components/_variantA/FinalCtaA.tsx` (linha 18) — rever copy do botão
-- `src/components/Hero.tsx` / `HeroA.tsx` — **manter** `#experience` (CTA primário continua a ser "receber mensagem grátis"), só alterar se houver botão secundário de compra
-
-Para cada alteração, trocar `<a href=...>` por `<Link to=...>` e remover/ajustar o evento `track("click_receive_message", ...)` para `track("click_buy_credits", { source: ... })` quando aplicável.
-
-### 3. Confirmação visual
-
-Após mudança, ao clicar em qualquer CTA de "Adquirir créditos" / "Comprar" na landing:
-- Utilizador autenticado → vai direto para `/credits` com o paywall já aberto e scrollado.
-- Utilizador não autenticado → passa por `/auth` e regressa a `/credits?buy=1`.
-
-## Notas técnicas
-
-- `Link` de `react-router-dom` já é usado em `Navbar.tsx`, mantendo consistência.
-- O parâmetro `?buy=1` é limpo do URL com `navigate("/credits", { replace: true })` após abrir o paywall, para evitar reabrir em refresh.
-- Não são necessárias alterações no backend nem no `Paywall.tsx`.
+- Não se altera o texto da checkbox/aceitação no Paywall (mencionado pelo Perplexity como "já contemplado"). Se quiseres rever esse texto, dizes depois.
+- Não se cria caixa de email `suporte@pontocego.pt` — isso é configuração externa do teu domínio.
