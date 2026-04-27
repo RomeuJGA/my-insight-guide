@@ -29,16 +29,10 @@ Deno.serve(async (req) => {
   const reference = get("reference") ?? get("referencia");
   const paymentDatetime = get("payment_datetime") ?? get("paymentDatetime") ?? get("dataHoraPagamento") ?? get("datahorapag");
 
-  const expectedKeyRaw = Deno.env.get("IFTHENPAY_ANTI_PHISHING_KEY") ?? "";
-  const expectedKey = expectedKeyRaw.trim();
+  const expectedKey = (Deno.env.get("IFTHENPAY_ANTI_PHISHING_KEY") ?? "").trim();
   const receivedKey = (key ?? "").trim();
   if (!expectedKey || receivedKey !== expectedKey) {
-    const mask = (s: string) => s ? `${s.length}chars [${s.slice(0,2)}…${s.slice(-2)}]` : "empty";
-    console.warn("Invalid anti-phishing key", {
-      received: mask(receivedKey),
-      expected: mask(expectedKey),
-      rawHadWhitespace: expectedKeyRaw !== expectedKey,
-    });
+    console.warn("Invalid anti-phishing key", { receivedKeyPresent: !!receivedKey });
     return txt("invalid key", 401);
   }
 
