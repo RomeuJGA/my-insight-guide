@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { Coins, Loader2, ArrowDownCircle, ArrowUpCircle, Gift, ShoppingCart, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -28,6 +28,24 @@ const Credits = () => {
   const [txs, setTxs] = useState<Tx[]>([]);
   const [loadingTxs, setLoadingTxs] = useState(true);
   const [showPaywall, setShowPaywall] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const paywallRef = useRef<HTMLDivElement | null>(null);
+
+  // Auto-open paywall when arriving with ?buy=1
+  useEffect(() => {
+    if (!user) return;
+    const params = new URLSearchParams(location.search);
+    if (params.get("buy") === "1") {
+      setShowPaywall(true);
+      // Clean the URL so refresh doesn't re-trigger
+      navigate("/credits", { replace: true });
+      // Smooth scroll to paywall after it mounts
+      setTimeout(() => {
+        paywallRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 80);
+    }
+  }, [user, location.search, navigate]);
 
   useEffect(() => {
     if (!user) return;
@@ -57,7 +75,10 @@ const Credits = () => {
       </div>
     );
   }
-  if (!user) return <Navigate to="/auth" replace />;
+  if (!user) {
+    const buy = new URLSearchParams(location.search).get("buy");
+    return <Navigate to={buy === "1" ? "/auth" : "/auth"} replace state={{ from: `/credits${buy === "1" ? "?buy=1" : ""}` }} />;
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -88,7 +109,7 @@ const Credits = () => {
         </div>
 
         {showPaywall && (
-          <div className="mb-8">
+          <div className="mb-8" ref={paywallRef}>
             <Paywall
               onPurchased={(n) => {
                 setLocal(n);
