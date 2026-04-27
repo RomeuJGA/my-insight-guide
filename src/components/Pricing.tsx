@@ -1,4 +1,5 @@
 import { Check } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const plans = [
   {
@@ -78,8 +79,8 @@ const Pricing = () => {
                 ))}
               </ul>
 
-              <a
-                href="#experience"
+              <Link
+                to="/credits?buy=1"
                 className={`block text-center w-full py-3 rounded-full font-medium transition-smooth ${
                   plan.highlight
                     ? "bg-primary-foreground text-primary hover:opacity-90"
@@ -87,7 +88,7 @@ const Pricing = () => {
                 }`}
               >
                 {plan.cta}
-              </a>
+              </Link>
             </div>
           ))}
         </div>
