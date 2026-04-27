@@ -333,6 +333,7 @@ export type Database = {
         Args: { _ifthenpay_request_id?: string; _order_id: string }
         Returns: number
       }
+      next_ifthenpay_reference_number: { Args: never; Returns: number }
       replace_all_messages: { Args: { _rows: Json }; Returns: number }
       reveal_message: {
         Args: { _message_id: number; _user_id: string }
