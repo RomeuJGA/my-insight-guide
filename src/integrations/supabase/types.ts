@@ -317,6 +317,42 @@ export type Database = {
         }
         Relationships: []
       }
+      testimonials: {
+        Row: {
+          active: boolean
+          author: string
+          created_at: string
+          display_order: number
+          id: string
+          quote: string
+          rating: number
+          role: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          author: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          quote: string
+          rating?: number
+          role?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          author?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          quote?: string
+          rating?: number
+          role?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_credits: {
         Row: {
           credits: number
