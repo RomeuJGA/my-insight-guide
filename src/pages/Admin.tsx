@@ -7,6 +7,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import AdminCredits from "@/components/AdminCredits";
 import AdminAnalytics from "@/components/AdminAnalytics";
+import AdminPackages from "@/components/AdminPackages";
+import AdminCoupons from "@/components/AdminCoupons";
 import Footer from "@/components/Footer";
 import {
   AlertDialog,
@@ -379,6 +381,14 @@ const Admin = () => {
           >
             Importar mensagens
           </button>
+        </div>
+
+        <div className="mt-12">
+          <AdminPackages />
+        </div>
+
+        <div className="mt-12">
+          <AdminCoupons />
         </div>
 
         <div className="mt-12">
