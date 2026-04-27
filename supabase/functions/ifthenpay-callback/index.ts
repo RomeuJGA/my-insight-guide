@@ -22,12 +22,12 @@ Deno.serve(async (req) => {
   const get = (k: string) => params.get(k) ?? params.get(k.toLowerCase()) ?? params.get(k.toUpperCase());
 
   const key = get("key") ?? get("chave");
-  const orderId = get("orderId") ?? get("order_id") ?? get("id");
+  let orderId = get("orderId") ?? get("order_id") ?? get("id");
   const amount = get("amount") ?? get("valor");
-  const requestId = get("requestId") ?? get("request_id");
+  const requestId = get("requestId") ?? get("request_id") ?? get("terminal");
   const entity = get("entity") ?? get("entidade");
   const reference = get("reference") ?? get("referencia");
-  const paymentDatetime = get("payment_datetime") ?? get("paymentDatetime") ?? get("dataHoraPagamento");
+  const paymentDatetime = get("payment_datetime") ?? get("paymentDatetime") ?? get("dataHoraPagamento") ?? get("datahorapag");
 
   const expectedKey = Deno.env.get("IFTHENPAY_ANTI_PHISHING_KEY");
   if (!expectedKey || key !== expectedKey) {
@@ -35,23 +35,40 @@ Deno.serve(async (req) => {
     return txt("invalid key", 401);
   }
 
-  if (!orderId) return txt("missing orderId", 400);
-
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
   const admin = createClient(supabaseUrl, serviceKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  // Fetch order to validate amount/entity/reference before crediting
-  const { data: order, error: fetchErr } = await admin
-    .from("payment_orders")
-    .select("user_id, amount, status, ifthenpay_entity, ifthenpay_reference")
-    .eq("order_id", orderId)
-    .maybeSingle();
+  // Fetch order: prefer orderId; otherwise look up by entity+reference (IfthenPay classic callback)
+  let order: any = null;
+  let fetchErr: any = null;
+
+  if (orderId) {
+    const r = await admin
+      .from("payment_orders")
+      .select("order_id, user_id, amount, status, ifthenpay_entity, ifthenpay_reference")
+      .eq("order_id", orderId)
+      .maybeSingle();
+    order = r.data; fetchErr = r.error;
+  } else if (entity && reference) {
+    const r = await admin
+      .from("payment_orders")
+      .select("order_id, user_id, amount, status, ifthenpay_entity, ifthenpay_reference")
+      .eq("ifthenpay_entity", entity)
+      .eq("ifthenpay_reference", reference)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    order = r.data; fetchErr = r.error;
+    if (order) orderId = order.order_id;
+  } else {
+    return txt("missing orderId or entity+reference", 400);
+  }
 
   if (fetchErr || !order) {
-    console.error("order not found:", orderId, fetchErr);
+    console.error("order not found:", { orderId, entity, reference, fetchErr });
     return txt("order not found", 404);
   }
 
