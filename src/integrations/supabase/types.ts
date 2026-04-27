@@ -41,6 +41,87 @@ export type Database = {
         }
         Relationships: []
       }
+      coupon_redemptions: {
+        Row: {
+          coupon_id: string
+          created_at: string
+          discount_applied: number
+          id: string
+          order_id: string | null
+          package_id: string | null
+          user_id: string
+        }
+        Insert: {
+          coupon_id: string
+          created_at?: string
+          discount_applied: number
+          id?: string
+          order_id?: string | null
+          package_id?: string | null
+          user_id: string
+        }
+        Update: {
+          coupon_id?: string
+          created_at?: string
+          discount_applied?: number
+          id?: string
+          order_id?: string | null
+          package_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coupon_redemptions_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "discount_coupons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coupon_redemptions_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "credit_packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      credit_packages: {
+        Row: {
+          active: boolean
+          badge: string | null
+          created_at: string
+          credits: number
+          display_order: number
+          id: string
+          name: string
+          price_eur: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          badge?: string | null
+          created_at?: string
+          credits: number
+          display_order?: number
+          id?: string
+          name: string
+          price_eur: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          badge?: string | null
+          created_at?: string
+          credits?: number
+          display_order?: number
+          id?: string
+          name?: string
+          price_eur?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       credit_transactions: {
         Row: {
           amount: number
@@ -89,6 +170,57 @@ export type Database = {
           message_id?: number
           shown_date?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      discount_coupons: {
+        Row: {
+          active: boolean
+          allowed_package_ids: string[]
+          code: string
+          created_at: string
+          discount_type: Database["public"]["Enums"]["coupon_discount_type"]
+          discount_value: number
+          ends_at: string | null
+          id: string
+          max_uses: number | null
+          max_uses_per_user: number | null
+          notes: string | null
+          starts_at: string | null
+          updated_at: string
+          uses_count: number
+        }
+        Insert: {
+          active?: boolean
+          allowed_package_ids?: string[]
+          code: string
+          created_at?: string
+          discount_type: Database["public"]["Enums"]["coupon_discount_type"]
+          discount_value: number
+          ends_at?: string | null
+          id?: string
+          max_uses?: number | null
+          max_uses_per_user?: number | null
+          notes?: string | null
+          starts_at?: string | null
+          updated_at?: string
+          uses_count?: number
+        }
+        Update: {
+          active?: boolean
+          allowed_package_ids?: string[]
+          code?: string
+          created_at?: string
+          discount_type?: Database["public"]["Enums"]["coupon_discount_type"]
+          discount_value?: number
+          ends_at?: string | null
+          id?: string
+          max_uses?: number | null
+          max_uses_per_user?: number | null
+          notes?: string | null
+          starts_at?: string | null
+          updated_at?: string
+          uses_count?: number
         }
         Relationships: []
       }
@@ -344,6 +476,17 @@ export type Database = {
           status: string
         }[]
       }
+      validate_coupon: {
+        Args: { _code: string; _package_id: string; _user_id: string }
+        Returns: {
+          coupon_id: string
+          discount_type: Database["public"]["Enums"]["coupon_discount_type"]
+          discount_value: number
+          final_price: number
+          reason: string
+          valid: boolean
+        }[]
+      }
     }
     Enums: {
       analytics_event_name:
@@ -355,6 +498,7 @@ export type Database = {
         | "purchase_attempt"
         | "purchase_success"
       app_role: "admin" | "user"
+      coupon_discount_type: "percent" | "fixed"
       credit_tx_type: "purchase" | "usage" | "admin" | "welcome"
     }
     CompositeTypes: {
@@ -493,6 +637,7 @@ export const Constants = {
         "purchase_success",
       ],
       app_role: ["admin", "user"],
+      coupon_discount_type: ["percent", "fixed"],
       credit_tx_type: ["purchase", "usage", "admin", "welcome"],
     },
   },
