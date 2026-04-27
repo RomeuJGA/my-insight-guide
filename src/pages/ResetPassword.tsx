@@ -15,15 +15,32 @@ const ResetPassword = () => {
   const [done, setDone] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
+
+    const waitForSession = async (attempts = 12) => {
+      for (let i = 0; i < attempts; i += 1) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) return session;
+        await new Promise((resolve) => window.setTimeout(resolve, 250));
+      }
+      return null;
+    };
+
+    const markRecoveryReady = () => {
+      if (!cancelled) setHasRecoverySession(true);
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "PASSWORD_RECOVERY" || (event === "SIGNED_IN" && session)) {
-        setHasRecoverySession(true);
+        markRecoveryReady();
       }
     });
 
     (async () => {
+      let recoveryReady = false;
+      let lastError: string | null = null;
+      const url = new URL(window.location.href);
       try {
-        const url = new URL(window.location.href);
         const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
 
         const code = url.searchParams.get("code");
@@ -33,45 +50,68 @@ const ResetPassword = () => {
         const accessToken = hash.get("access_token");
         const refreshToken = hash.get("refresh_token");
 
-        if (errorDesc) {
-          toast.error(decodeURIComponent(errorDesc));
+        const existingSession = await waitForSession(4);
+        if (existingSession) {
+          recoveryReady = true;
+          markRecoveryReady();
+        } else if (errorDesc) {
+          lastError = decodeURIComponent(errorDesc);
         } else if (code) {
           // PKCE flow: exchange ?code=... for a session
           const { error } = await supabase.auth.exchangeCodeForSession(code);
-          if (error) toast.error(error.message);
-          else setHasRecoverySession(true);
+          if (error) lastError = error.message;
+          else {
+            recoveryReady = true;
+            markRecoveryReady();
+          }
         } else if (tokenHash) {
           // OTP/token_hash flow
           const { error } = await supabase.auth.verifyOtp({
             type: (type as any) || "recovery",
             token_hash: tokenHash,
           });
-          if (error) toast.error(error.message);
-          else setHasRecoverySession(true);
+          if (error) lastError = error.message;
+          else {
+            recoveryReady = true;
+            markRecoveryReady();
+          }
         } else if (accessToken && refreshToken) {
           // Implicit flow with tokens in hash
           const { error } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken,
           });
-          if (error) toast.error(error.message);
-          else setHasRecoverySession(true);
-        } else {
-          // Fallback: maybe Supabase already set the session (e.g. via /verify redirect)
-          const { data: { session } } = await supabase.auth.getSession();
-          if (session) setHasRecoverySession(true);
+          if (error) lastError = error.message;
+          else {
+            recoveryReady = true;
+            markRecoveryReady();
+          }
         }
 
-        // Clean URL so refresh doesn't retry an already-consumed token
-        if (url.search || window.location.hash) {
+        if (!recoveryReady) {
+          // Fallback: Supabase may already have consumed the link and created the session.
+          const session = await waitForSession();
+          if (session) {
+            recoveryReady = true;
+            markRecoveryReady();
+          } else if (lastError) {
+            toast.error(lastError);
+          }
+        }
+
+        // Clean URL only after success so refresh doesn't retry an already-consumed token.
+        if (recoveryReady && (url.search || window.location.hash)) {
           window.history.replaceState({}, document.title, url.pathname);
         }
       } finally {
-        setReady(true);
+        if (!cancelled) setReady(true);
       }
     })();
 
-    return () => subscription.unsubscribe();
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const submit = async (e: React.FormEvent) => {
