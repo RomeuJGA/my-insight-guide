@@ -15,17 +15,61 @@ const ResetPassword = () => {
   const [done, setDone] = useState(false);
 
   useEffect(() => {
-    // Supabase auto-exchanges the recovery token in the URL hash and triggers PASSWORD_RECOVERY.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "PASSWORD_RECOVERY" || (event === "SIGNED_IN" && session)) {
         setHasRecoverySession(true);
       }
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) setHasRecoverySession(true);
-      setReady(true);
-    });
+    (async () => {
+      try {
+        const url = new URL(window.location.href);
+        const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+
+        const code = url.searchParams.get("code");
+        const tokenHash = url.searchParams.get("token_hash") ?? hash.get("token_hash");
+        const type = url.searchParams.get("type") ?? hash.get("type");
+        const errorDesc = url.searchParams.get("error_description") ?? hash.get("error_description");
+        const accessToken = hash.get("access_token");
+        const refreshToken = hash.get("refresh_token");
+
+        if (errorDesc) {
+          toast.error(decodeURIComponent(errorDesc));
+        } else if (code) {
+          // PKCE flow: exchange ?code=... for a session
+          const { error } = await supabase.auth.exchangeCodeForSession(code);
+          if (error) toast.error(error.message);
+          else setHasRecoverySession(true);
+        } else if (tokenHash) {
+          // OTP/token_hash flow
+          const { error } = await supabase.auth.verifyOtp({
+            type: (type as any) || "recovery",
+            token_hash: tokenHash,
+          });
+          if (error) toast.error(error.message);
+          else setHasRecoverySession(true);
+        } else if (accessToken && refreshToken) {
+          // Implicit flow with tokens in hash
+          const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+          if (error) toast.error(error.message);
+          else setHasRecoverySession(true);
+        } else {
+          // Fallback: maybe Supabase already set the session (e.g. via /verify redirect)
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session) setHasRecoverySession(true);
+        }
+
+        // Clean URL so refresh doesn't retry an already-consumed token
+        if (url.search || window.location.hash) {
+          window.history.replaceState({}, document.title, url.pathname);
+        }
+      } finally {
+        setReady(true);
+      }
+    })();
 
     return () => subscription.unsubscribe();
   }, []);
