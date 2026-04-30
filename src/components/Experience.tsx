@@ -31,7 +31,7 @@ const Experience = () => {
   const reveal = async (n: number) => {
     if (animating) return;
     track("reveal_attempt", { metadata: { number: n, has_user: !!user } });
-    if (n < 1 || n > TOTAL_MESSAGES || !Number.isFinite(n)) {
+    if (!Number.isInteger(n) || n < 1 || n > TOTAL_MESSAGES) {
       toast.error(`Escolha um número entre 1 e ${TOTAL_MESSAGES}.`);
       return;
     }

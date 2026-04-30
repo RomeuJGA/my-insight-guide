@@ -410,7 +410,7 @@ const Admin = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Substituir todas as mensagens?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will replace all current messages. Continue?
+              Esta ação vai substituir todas as mensagens atuais. Quer continuar?
               {rows && (
                 <span className="block mt-2 text-foreground">
                   Serão importadas <strong>{rows.length}</strong> linhas.
