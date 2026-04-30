@@ -60,7 +60,7 @@ const AdminAnalytics = () => {
 
     Promise.all([
       supabase.rpc("get_funnel_stats", { _since: since }),
-      supabase.rpc("get_funnel_stats_by_variant" as any, { _since: since }),
+      supabase.rpc("get_funnel_stats_by_variant", { _since: since }),
     ])
       .then(([overall, perVariant]) => {
         if (cancelled) return;

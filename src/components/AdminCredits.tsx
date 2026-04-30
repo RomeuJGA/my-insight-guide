@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Loader2, UserCog, Plus, Minus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/errors";
 
 const AdminCredits = () => {
   const [userId, setUserId] = useState("");
@@ -27,8 +28,8 @@ const AdminCredits = () => {
       });
       if (error) throw error;
       toast.success(`Saldo atualizado: ${data?.credits} créditos.`);
-    } catch (e: any) {
-      toast.error(e?.message ?? "Erro ao ajustar créditos.");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err) || "Erro ao ajustar créditos.");
     } finally {
       setBusy(false);
     }

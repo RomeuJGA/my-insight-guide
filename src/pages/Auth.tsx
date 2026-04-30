@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/errors";
 import { Sparkles, MailCheck, RefreshCw, LogOut, KeyRound, Loader2 } from "lucide-react";
 import Footer from "@/components/Footer";
 
@@ -57,8 +58,8 @@ const Auth = () => {
       if (error) throw error;
       toast.success("Enviámos um email com instruções para repor a palavra-passe.");
       setShowForgot(false);
-    } catch (err: any) {
-      toast.error(err.message ?? "Erro ao enviar email de reposição.");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err) || "Erro ao enviar email de reposição.");
     } finally {
       setSendingReset(false);
     }
@@ -91,7 +92,7 @@ const Auth = () => {
             msg.includes("invalid login") ||
             msg.includes("invalid credentials") ||
             msg.includes("invalid_grant") ||
-            (error as any).status === 400;
+            (error as { status?: number }).status === 400;
           if (isInvalid) {
             setShowResetSuggestion(true);
             toast.error("Email ou palavra-passe incorretos.");
@@ -105,8 +106,8 @@ const Auth = () => {
           toast.success("Sessão iniciada.");
         }
       }
-    } catch (err: any) {
-      toast.error(err.message ?? "Erro de autenticação.");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err) || "Erro de autenticação.");
     } finally {
       setLoading(false);
     }
@@ -131,8 +132,8 @@ const Auth = () => {
       });
       if (error) throw error;
       toast.success("Email de confirmação reenviado.");
-    } catch (err: any) {
-      toast.error(err.message ?? "Erro ao reenviar email.");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err) || "Erro ao reenviar email.");
     } finally {
       setResending(false);
     }

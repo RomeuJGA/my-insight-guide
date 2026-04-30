@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/errors";
 import { KeyRound, Loader2, CheckCircle2 } from "lucide-react";
 import Footer from "@/components/Footer";
 
@@ -67,7 +68,7 @@ const ResetPassword = () => {
         } else if (tokenHash) {
           // OTP/token_hash flow
           const { error } = await supabase.auth.verifyOtp({
-            type: (type as any) || "recovery",
+            type: (type as Parameters<typeof supabase.auth.verifyOtp>[0]["type"]) || "recovery",
             token_hash: tokenHash,
           });
           if (error) lastError = error.message;
@@ -126,8 +127,8 @@ const ResetPassword = () => {
       toast.success("Palavra-passe atualizada.");
       // After a recovery flow the user is now signed in. Redirect home shortly.
       setTimeout(() => navigate("/", { replace: true }), 1500);
-    } catch (err: any) {
-      toast.error(err.message ?? "Erro ao atualizar palavra-passe.");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err) || "Erro ao atualizar palavra-passe.");
     } finally {
       setSaving(false);
     }

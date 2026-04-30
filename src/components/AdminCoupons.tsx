@@ -55,7 +55,7 @@ const AdminCoupons = () => {
       .select("*")
       .order("created_at", { ascending: false });
     if (error) toast.error(error.message);
-    else setCoupons((data ?? []) as any);
+    else setCoupons((data ?? []) as Coupon[]);
     setLoading(false);
   };
 
@@ -218,7 +218,7 @@ const AdminCoupons = () => {
               <label className="text-xs text-muted-foreground">Tipo</label>
               <select
                 value={draft.discount_type}
-                onChange={(e) => setDraft({ ...draft, discount_type: e.target.value as any })}
+                onChange={(e) => setDraft({ ...draft, discount_type: e.target.value as "percent" | "fixed" })}
                 className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-background text-sm"
               >
                 <option value="percent">Percentagem (%)</option>

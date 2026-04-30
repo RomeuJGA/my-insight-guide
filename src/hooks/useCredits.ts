@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 import { useAuth } from "./useAuth";
+
+type UserCreditsRow = Database["public"]["Tables"]["user_credits"]["Row"];
 
 export function useCredits() {
   const { user, loading: authLoading } = useAuth();
@@ -34,7 +37,7 @@ export function useCredits() {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "user_credits", filter: `user_id=eq.${user.id}` },
-        (payload: any) => {
+        (payload: { new?: Partial<UserCreditsRow> }) => {
           const next = payload.new?.credits;
           if (typeof next === "number") setCredits(next);
         },

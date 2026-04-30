@@ -22,7 +22,7 @@ const AdminPackages = () => {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
 
-  const setField = (id: string, field: keyof Editable, value: any) => {
+  const setField = (id: string, field: keyof Editable, value: string | number | boolean | null) => {
     setDrafts((d) => ({ ...d, [id]: { ...packages.find((p) => p.id === id), ...d[id], [field]: value } }));
   };
 

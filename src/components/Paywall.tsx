@@ -17,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { toast } from "sonner";
 import { useCreditPackages, formatEur } from "@/hooks/useCreditPackages";
+import { getErrorMessage } from "@/lib/errors";
 
 type PaymentRef = {
   orderId: string;
@@ -129,8 +130,8 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
         finalPrice: Number(row.final_price),
       });
       toast.success("Cupão aplicado.");
-    } catch (e: any) {
-      toast.error(e?.message ?? "Erro ao validar cupão.");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err) || "Erro ao validar cupão.");
     } finally {
       setCouponLoading(false);
     }
@@ -157,8 +158,8 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
       }
       if (!silent) toast.message("Ainda a aguardar pagamento.");
       return false;
-    } catch (e: any) {
-      if (!silent) toast.error(e?.message ?? "Erro ao verificar estado.");
+    } catch (err: unknown) {
+      if (!silent) toast.error(getErrorMessage(err) || "Erro ao verificar estado.");
       return false;
     } finally {
       if (!silent) setChecking(false);
@@ -189,15 +190,15 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
         },
       });
       if (error) {
-        const ctxBody = (error as any)?.context?.body;
+        const ctxBody = (error as { context?: { body?: unknown } })?.context?.body;
         const msg = typeof ctxBody === "string" ? ctxBody : error.message;
         throw new Error(msg || "Erro ao contactar o servidor.");
       }
       if (!data?.entity || !data?.reference) throw new Error("Resposta inválida do gateway.");
       setPayment(data as PaymentRef);
       startPolling(data.orderId);
-    } catch (e: any) {
-      toast.error(e?.message ?? "Erro ao gerar referência.");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err) || "Erro ao gerar referência.");
     } finally {
       setCreating(false);
     }

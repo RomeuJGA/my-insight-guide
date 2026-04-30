@@ -10,6 +10,7 @@ import Paywall from "./Paywall";
 import ReflectionGuide from "./ReflectionGuide";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/errors";
 
 const TOTAL_MESSAGES = 534;
 
@@ -59,8 +60,9 @@ const Experience = () => {
         body: { id: n },
       });
       if (error) {
-        const msg = (error as any)?.context?.body || error.message || "";
-        if (typeof msg === "string" && msg.includes("NO_CREDITS")) {
+        const ctxBody = (error as { context?: { body?: unknown } })?.context?.body;
+        const msg = typeof ctxBody === "string" ? ctxBody : (error.message ?? "");
+        if (msg.includes("NO_CREDITS")) {
           track("paywall_view", { metadata: { trigger: "no_credits_server" } });
           setShowPaywall(true);
           return;
@@ -82,9 +84,9 @@ const Experience = () => {
       if (data.alreadyRevealed) {
         toast.message("Mensagem já revelada anteriormente — sem custo.");
       }
-    } catch (e: any) {
-      console.error(e);
-      toast.error(e?.message ?? "Erro ao obter a mensagem.");
+    } catch (err: unknown) {
+      console.error(err);
+      toast.error(getErrorMessage(err) || "Erro ao obter a mensagem.");
       refreshCredits();
     } finally {
       setAnimating(false);

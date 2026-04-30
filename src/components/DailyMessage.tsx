@@ -4,6 +4,7 @@ import { Sun, Sparkles, Quote, Loader2, LogIn, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/errors";
 import Disclaimer from "./Disclaimer";
 import ReflectionGuide from "./ReflectionGuide";
 
@@ -54,8 +55,8 @@ const DailyMessage = () => {
           JSON.stringify({ date: new Date().toISOString().slice(0, 10), userId: user.id }),
         );
       } catch {}
-    } catch (e: any) {
-      if (!silent) toast.error(e?.message ?? "Erro ao obter a mensagem do dia.");
+    } catch (err: unknown) {
+      if (!silent) toast.error(getErrorMessage(err) || "Erro ao obter a mensagem do dia.");
     } finally {
       setLoading(false);
     }

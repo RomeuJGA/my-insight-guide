@@ -1,15 +1,13 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 
-export type CreditPackage = {
-  id: string;
-  name: string;
-  credits: number;
-  price_eur: number;
-  badge: string | null;
-  display_order: number;
-  active: boolean;
-};
+type CreditPackageRow = Database["public"]["Tables"]["credit_packages"]["Row"];
+
+export type CreditPackage = Pick<
+  CreditPackageRow,
+  "id" | "name" | "credits" | "price_eur" | "badge" | "display_order" | "active"
+>;
 
 export function useCreditPackages(opts: { onlyActive?: boolean } = { onlyActive: true }) {
   const [packages, setPackages] = useState<CreditPackage[]>([]);
@@ -24,9 +22,14 @@ export function useCreditPackages(opts: { onlyActive?: boolean } = { onlyActive:
     if (error) setError(error.message);
     else {
       setPackages(
-        (data ?? []).map((p: any) => ({
-          ...p,
-          price_eur: typeof p.price_eur === "string" ? parseFloat(p.price_eur) : Number(p.price_eur),
+        (data ?? []).map((p: CreditPackageRow) => ({
+          id: p.id,
+          name: p.name,
+          credits: p.credits,
+          price_eur: Number(p.price_eur),
+          badge: p.badge,
+          display_order: p.display_order,
+          active: p.active,
         })),
       );
       setError(null);

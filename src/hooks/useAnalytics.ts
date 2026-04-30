@@ -1,21 +1,17 @@
 import { useCallback, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Enums } from "@/integrations/supabase/types";
 import { useAuth } from "./useAuth";
 import { getCurrentVariant } from "./useABVariant";
 
-export type AnalyticsEvent =
-  | "landing_view"
-  | "click_receive_message"
-  | "reveal_attempt"
-  | "paywall_view"
-  | "package_selected"
-  | "purchase_attempt"
-  | "purchase_success";
+export type AnalyticsEvent = Enums<"analytics_event_name">;
 
 interface TrackOptions {
   package?: string | null;
   metadata?: Record<string, unknown>;
 }
+
+const MAX_RETRIES = 2;
 
 /**
  * Lightweight analytics. Inserts into the `analytics_events` table.
@@ -29,21 +25,26 @@ export function useAnalytics() {
 
   const track = useCallback(
     async (event: AnalyticsEvent, opts: TrackOptions = {}) => {
-      try {
-        const variant = getCurrentVariant();
-        const metadata = {
-          ...(opts.metadata ?? {}),
-          ...(variant ? { variant } : {}),
-        };
-        // Cast: analytics_events may not yet be in auto-generated types.
-        await (supabase.from("analytics_events" as never) as any).insert({
-          event_name: event,
-          user_id: user?.id ?? null,
-          package: opts.package ?? null,
-          metadata: Object.keys(metadata).length ? metadata : null,
-        });
-      } catch (err) {
-        console.warn("[analytics] failed to track", event, err);
+      const variant = getCurrentVariant();
+      const metadata = {
+        ...(opts.metadata ?? {}),
+        ...(variant ? { variant } : {}),
+      };
+      const payload = {
+        event_name: event,
+        user_id: user?.id ?? null,
+        package: opts.package ?? null,
+        metadata: Object.keys(metadata).length ? metadata : null,
+      };
+
+      for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+        try {
+          const { error } = await supabase.from("analytics_events").insert(payload);
+          if (!error) return;
+          if (attempt === MAX_RETRIES) console.warn("[analytics] failed to track", event, error);
+        } catch (err) {
+          if (attempt === MAX_RETRIES) console.warn("[analytics] failed to track", event, err);
+        }
       }
     },
     [user?.id],
