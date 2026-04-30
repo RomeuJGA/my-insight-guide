@@ -59,7 +59,7 @@ const AdminAnalytics = () => {
     const since = new Date(Date.now() - range * 24 * 60 * 60 * 1000).toISOString();
 
     Promise.all([
-      supabase.rpc("get_funnel_stats", { _since: since }),
+      supabase.rpc("get_funnel_stats", { _since: since, _variant: null }),
       supabase.rpc("get_funnel_stats_by_variant", { _since: since }),
     ])
       .then(([overall, perVariant]) => {
