@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Quote, Sparkles, Loader2, History } from "lucide-react";
+import { ArrowLeft, Quote, Sparkles, History } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -8,6 +8,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Disclaimer from "@/components/Disclaimer";
 import ReflectionGuide from "@/components/ReflectionGuide";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type Reveal = { messageId: number; revealedAt: string; content: string };
 
@@ -63,9 +64,18 @@ const MyMessages = () => {
           </header>
 
           {loading ? (
-            <div className="flex items-center justify-center py-20 text-muted-foreground">
-              <Loader2 className="w-5 h-5 animate-spin mr-2" /> A carregar…
-            </div>
+            <ul className="space-y-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <li key={i} className="p-5 rounded-2xl bg-card border border-border/60 flex items-center gap-4">
+                  <Skeleton className="w-14 h-10 rounded-lg shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-3.5 w-3/4" />
+                    <Skeleton className="h-3 w-24" />
+                  </div>
+                  <Skeleton className="h-8 w-24 rounded-full shrink-0" />
+                </li>
+              ))}
+            </ul>
           ) : items.length === 0 ? (
             <div className="text-center py-20 rounded-3xl bg-card border border-border/60">
               <History className="w-10 h-10 mx-auto text-muted-foreground/60 mb-4" />

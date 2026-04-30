@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useCredits } from "@/hooks/useCredits";
 import Paywall from "@/components/Paywall";
 import Footer from "@/components/Footer";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type Tx = {
   id: string;
@@ -125,9 +126,18 @@ const Credits = () => {
           </div>
 
           {loadingTxs ? (
-            <div className="p-8 flex justify-center">
-              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
-            </div>
+            <ul className="divide-y divide-border/60">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <li key={i} className="px-5 py-4 flex items-center gap-4">
+                  <Skeleton className="w-9 h-9 rounded-full shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-3.5 w-40" />
+                    <Skeleton className="h-3 w-28" />
+                  </div>
+                  <Skeleton className="h-4 w-8" />
+                </li>
+              ))}
+            </ul>
           ) : txs.length === 0 ? (
             <p className="p-8 text-sm text-muted-foreground text-center">Sem transações ainda.</p>
           ) : (

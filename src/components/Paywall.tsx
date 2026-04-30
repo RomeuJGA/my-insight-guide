@@ -54,6 +54,7 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
 
   const pollRef = useRef<number | null>(null);
   const pollCountRef = useRef(0);
+  const lastCouponAttemptRef = useRef(0);
   const { track } = useAnalytics();
 
   useEffect(() => {
@@ -94,6 +95,9 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
     const code = couponCode.trim();
     if (!code) return;
     if (!selected) return toast.error("Escolha primeiro um pack.");
+    const now = Date.now();
+    if (now - lastCouponAttemptRef.current < 1500) return;
+    lastCouponAttemptRef.current = now;
     setCouponLoading(true);
     try {
       const { data, error } = await supabase.rpc("validate_coupon", {
