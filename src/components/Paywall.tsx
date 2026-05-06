@@ -53,6 +53,10 @@ interface PaywallProps {
   onPurchased: (newBalance: number) => void;
 }
 
+function tryParseError(s: string): string | null {
+  try { return JSON.parse(s)?.error ?? null; } catch { return null; }
+}
+
 function isValidPhone(raw: string): boolean {
   const digits = raw.replace(/\D/g, "");
   if (digits.startsWith("351") && digits.length === 12) return true;
@@ -222,9 +226,11 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
           body: { packageId: selected, acceptedTerms: true, couponCode: coupon?.code ?? null },
         });
         if (error) {
-          const ctxBody = (error as { context?: { body?: unknown } })?.context?.body;
-          const msg = typeof ctxBody === "string" ? ctxBody : error.message;
-          throw new Error(msg || "Erro ao contactar o servidor.");
+          const ctx = (error as { context?: unknown })?.context;
+          const ctxErr = typeof ctx === "object" && ctx !== null
+            ? (ctx as { error?: string }).error
+            : typeof ctx === "string" ? (tryParseError(ctx) ?? ctx) : null;
+          throw new Error(ctxErr || error.message || "Erro ao contactar o servidor.");
         }
         if (!data?.entity || !data?.reference) throw new Error("Resposta inválida do gateway.");
         setPayment({ method: "multibanco", ...data } as MultibancoPayment);
@@ -234,9 +240,11 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
           body: { packageId: selected, acceptedTerms: true, couponCode: coupon?.code ?? null, phone },
         });
         if (error) {
-          const ctxBody = (error as { context?: { body?: unknown } })?.context?.body;
-          const msg = typeof ctxBody === "string" ? ctxBody : error.message;
-          throw new Error(msg || "Erro ao contactar o servidor.");
+          const ctx = (error as { context?: unknown })?.context;
+          const ctxErr = typeof ctx === "object" && ctx !== null
+            ? (ctx as { error?: string }).error
+            : typeof ctx === "string" ? (tryParseError(ctx) ?? ctx) : null;
+          throw new Error(ctxErr || error.message || "Erro ao contactar o servidor.");
         }
         if (!data?.orderId) throw new Error("Resposta inválida do gateway.");
         setPayment({ method: "mbway", orderId: data.orderId, phone: data.phone, amount: data.amount, requestId: data.requestId });

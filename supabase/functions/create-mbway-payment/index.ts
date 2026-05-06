@@ -10,10 +10,10 @@ function genOrderId() {
 }
 
 function formatPhone(raw: string): string {
-  // Accept "9XXXXXXXX" or "351XXXXXXXXX" or "+351XXXXXXXXX"
+  // IfthenPay ASMX API expects just the 9-digit PT mobile number
   const digits = raw.replace(/\D/g, "");
-  if (digits.startsWith("351") && digits.length === 12) return `351#${digits.slice(3)}`;
-  if (digits.length === 9 && digits.startsWith("9")) return `351#${digits}`;
+  if (digits.startsWith("351") && digits.length === 12) return digits.slice(3);
+  if (digits.length === 9 && digits.startsWith("9")) return digits;
   return "";
 }
 
@@ -85,26 +85,43 @@ Deno.serve(async (req) => {
   }
 
   const orderId = genOrderId();
+  // IfthenPay ASMX API requires amount with comma as decimal separator
   const amountStr = finalAmount.toFixed(2);
+  const amountForApi = amountStr.replace(".", ",");
+  // Referencia max 25 chars (already enforced by genOrderId)
+  const descricao = `Ponto Cego - ${pkg.name}`.slice(0, 50);
 
-  // 3) Call IfthenPay MBWay API
-  const mbwayRes = await fetch("https://ifthenpay.com/api/mbway/set/json", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      MbWayKey: mbwayKey,
-      orderId,
-      amount: amountStr,
-      mobileNumber: phone,
-      email: user.email ?? "",
-      description: `Ponto Cego — ${pkg.name}`,
-    }),
+  // 3) Call IfthenPay MBWay ASMX API
+  const params = new URLSearchParams({
+    MbWayKey: mbwayKey,
+    Canal: "03",
+    Referencia: orderId,
+    valor: amountForApi,
+    nrtlm: phone,
+    email: user.email ?? "",
+    descricao,
   });
 
+  const mbwayRes = await fetch(
+    "https://mbway.ifthenpay.com/IfthenPayMBW.asmx/SetPedidoJSON",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: params.toString(),
+    },
+  );
+
   const mbwayData = await mbwayRes.json().catch(() => null);
-  if (!mbwayRes.ok || mbwayData?.Status !== "000") {
+  if (!mbwayRes.ok || mbwayData?.Estado !== "000") {
     console.error("MBWay API error:", mbwayData);
-    const msg = mbwayData?.Message ?? "Erro ao enviar pedido MB WAY.";
+    let msg: string = mbwayData?.MsgDescricao || "";
+    if (!msg) {
+      if (mbwayData?.Estado === "999") {
+        msg = "Número não tem MB WAY ativo. Verifique se a app MB WAY está instalada e o número associado.";
+      } else {
+        msg = "Erro ao enviar pedido MB WAY.";
+      }
+    }
     return jsonResponse({ error: msg }, 502);
   }
 
@@ -118,7 +135,7 @@ Deno.serve(async (req) => {
     amount: amountStr,
     status: "pending",
     mbway_phone: phone,
-    ifthenpay_request_id: mbwayData.RequestId ?? null,
+    ifthenpay_request_id: mbwayData.IdPedido ?? null,
   });
   if (insErr) {
     console.error("payment_orders insert error:", insErr);
@@ -151,6 +168,6 @@ Deno.serve(async (req) => {
     orderId,
     phone: rawPhone,
     amount: amountStr,
-    requestId: mbwayData.RequestId,
+    requestId: mbwayData.IdPedido,
   });
 });

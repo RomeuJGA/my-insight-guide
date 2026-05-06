@@ -97,11 +97,11 @@ Deno.serve(async (req) => {
   const get = (k: string) => params.get(k) ?? params.get(k.toLowerCase()) ?? params.get(k.toUpperCase());
 
   const key = get("key") ?? get("chave");
-  let orderId = get("orderId") ?? get("order_id") ?? get("id");
+  let orderId = get("orderId") ?? get("order_id") ?? get("id") ?? get("referencia");
   const amount = get("amount") ?? get("valor");
-  const requestId = get("requestId") ?? get("request_id") ?? get("terminal");
+  const requestId = get("requestId") ?? get("request_id") ?? get("terminal") ?? get("idpedido");
   const entity = get("entity") ?? get("entidade");
-  const reference = get("reference") ?? get("referencia");
+  const reference = get("reference");
   const paymentDatetime = get("payment_datetime") ?? get("paymentDatetime") ?? get("dataHoraPagamento") ?? get("datahorapag");
   const estado = get("estado") ?? get("status_mbway");
 
