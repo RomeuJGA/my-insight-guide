@@ -4,10 +4,12 @@ import { renderHook, act, waitFor } from "@testing-library/react";
 // ── Supabase mock ──────────────────────────────────────────────────────────
 let realtimeCallback: ((payload: { new?: { credits?: number } }) => void) | null = null;
 
-const mockInvoke = vi.fn();
-const mockRemoveChannel = vi.fn();
-const mockSubscribe = vi.fn().mockReturnValue({});
-const mockOn = vi.fn();
+const { mockInvoke, mockRemoveChannel, mockSubscribe, mockOn } = vi.hoisted(() => ({
+  mockInvoke: vi.fn(),
+  mockRemoveChannel: vi.fn(),
+  mockSubscribe: vi.fn().mockReturnValue({}),
+  mockOn: vi.fn(),
+}));
 
 vi.mock("@/integrations/supabase/client", () => ({
   supabase: {
@@ -41,6 +43,8 @@ beforeEach(() => {
     realtimeCallback = cb;
     return { subscribe: mockSubscribe };
   });
+  // Ensure useAuth always returns a user between tests (test isolation)
+  (useAuth as ReturnType<typeof vi.fn>).mockReturnValue({ user: mockUser, loading: false });
 });
 
 describe("useCredits", () => {

@@ -7,8 +7,10 @@ vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn(), message: v
 vi.mock("@/hooks/useAnalytics", () => ({ useAnalytics: () => ({ track: vi.fn() }) }));
 vi.mock("./Disclaimer", () => ({ default: () => null }));
 
-const mockInvoke = vi.fn();
-const mockRpc = vi.fn();
+const { mockInvoke, mockRpc } = vi.hoisted(() => ({
+  mockInvoke: vi.fn(),
+  mockRpc: vi.fn(),
+}));
 
 vi.mock("@/integrations/supabase/client", () => ({
   supabase: {
@@ -19,8 +21,8 @@ vi.mock("@/integrations/supabase/client", () => ({
 }));
 
 const mockPackages = [
-  { id: "pkg-5", name: "Pack 5", credits: 5, price_eur: 2.5, badge: null, display_order: 1, active: true },
-  { id: "pkg-10", name: "Pack 10", credits: 10, price_eur: 4.5, badge: "popular", display_order: 2, active: true },
+  { id: "pkg-5", name: "Pack 5", credits: 5, price_eur: 2.5, badge: null, display_order: 1, active: true, description: null },
+  { id: "pkg-10", name: "Pack 10", credits: 10, price_eur: 4.5, badge: "popular", display_order: 2, active: true, description: null },
 ];
 
 vi.mock("@/hooks/useCreditPackages", () => ({
@@ -32,11 +34,6 @@ import { toast } from "sonner";
 
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.useFakeTimers();
-});
-
-afterEach(() => {
-  vi.useRealTimers();
 });
 
 const selectPack = () => {
@@ -124,6 +121,7 @@ describe("Paywall — cupão", () => {
   });
 
   it("rate limit: segunda tentativa imediata não chama RPC", async () => {
+    vi.useFakeTimers();
     mockRpc.mockResolvedValue({
       data: [{ valid: false, reason: "invalid" }],
       error: null,
@@ -135,13 +133,16 @@ describe("Paywall — cupão", () => {
     fireEvent.change(input, { target: { value: "CUPÃO" } });
 
     clickApply(); // 1ª tentativa
-    await waitFor(() => expect(mockRpc).toHaveBeenCalledTimes(1));
+    await act(async () => { await Promise.resolve(); });
+    expect(mockRpc).toHaveBeenCalledTimes(1);
 
     clickApply(); // 2ª tentativa imediata — deve ser bloqueada
     expect(mockRpc).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
   });
 
   it("permite nova tentativa após 1.5s de cooldown", async () => {
+    vi.useFakeTimers();
     mockRpc.mockResolvedValue({
       data: [{ valid: false, reason: "invalid" }],
       error: null,
@@ -153,11 +154,14 @@ describe("Paywall — cupão", () => {
     fireEvent.change(input, { target: { value: "CUPÃO" } });
 
     clickApply();
-    await waitFor(() => expect(mockRpc).toHaveBeenCalledTimes(1));
+    await act(async () => { await Promise.resolve(); });
+    expect(mockRpc).toHaveBeenCalledTimes(1);
 
     act(() => vi.advanceTimersByTime(1600));
     clickApply();
-    await waitFor(() => expect(mockRpc).toHaveBeenCalledTimes(2));
+    await act(async () => { await Promise.resolve(); });
+    expect(mockRpc).toHaveBeenCalledTimes(2);
+    vi.useRealTimers();
   });
 
   it("mostra mensagem correcta para cupão expirado", async () => {
@@ -190,7 +194,7 @@ describe("Paywall — cupão", () => {
     clickApply();
 
     await waitFor(() => expect(screen.getByText("DESCONTO")).toBeInTheDocument());
-    expect(screen.getByText(/2\.25/)).toBeInTheDocument();
+    expect(screen.getByText("2.25 €")).toBeInTheDocument();
   });
 });
 

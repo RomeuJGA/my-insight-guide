@@ -1,5 +1,6 @@
 import { Star } from "lucide-react";
 import { useTestimonials } from "@/hooks/useTestimonials";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Trust = () => {
   const { testimonials, loading } = useTestimonials({ onlyActive: true });
@@ -14,6 +15,24 @@ const Trust = () => {
           </h2>
         </div>
 
+        {loading && (
+          <div className="grid gap-6 md:gap-7 md:grid-cols-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="p-9 rounded-3xl bg-gradient-card border border-border/60 space-y-4">
+                <div className="flex gap-1">
+                  {[1,2,3,4,5].map((s) => <Skeleton key={s} className="w-4 h-4 rounded-full" />)}
+                </div>
+                <Skeleton className="h-5 w-full" />
+                <Skeleton className="h-5 w-5/6" />
+                <Skeleton className="h-5 w-4/5" />
+                <div className="pt-6 border-t border-border/60 space-y-2">
+                  <Skeleton className="h-4 w-28" />
+                  <Skeleton className="h-3 w-20" />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
         {!loading && testimonials.length > 0 && (
           <div
             className={`grid gap-6 md:gap-7 ${

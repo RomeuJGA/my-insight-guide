@@ -1,6 +1,7 @@
-import { Check, Loader2 } from "lucide-react";
+import { Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCreditPackages, formatEur } from "@/hooks/useCreditPackages";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Pricing = () => {
   const { packages, loading } = useCreditPackages({ onlyActive: true });
@@ -19,8 +20,20 @@ const Pricing = () => {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-10">
-            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+          <div className="grid gap-6 max-w-5xl mx-auto md:grid-cols-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="p-8 rounded-3xl border border-border/60 bg-card space-y-4">
+                <Skeleton className="h-7 w-28" />
+                <Skeleton className="h-12 w-36" />
+                <Skeleton className="h-4 w-40" />
+                <div className="space-y-3 pt-4">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-4/5" />
+                  <Skeleton className="h-4 w-3/4" />
+                </div>
+                <Skeleton className="h-11 w-full rounded-full mt-4" />
+              </div>
+            ))}
           </div>
         ) : (
           <div
@@ -50,7 +63,12 @@ const Pricing = () => {
                     </div>
                   )}
 
-                  <h3 className="font-serif text-2xl mb-2">{plan.name}</h3>
+                  <h3 className="font-serif text-2xl mb-1">{plan.name}</h3>
+                  {plan.description && (
+                    <p className={`text-sm italic mb-4 ${highlight ? "text-primary-foreground/75" : "text-muted-foreground"}`}>
+                      {plan.description}
+                    </p>
+                  )}
                   <div className="flex items-baseline gap-1 mb-1">
                     <span className="font-serif text-5xl">{formatEur(plan.price_eur)}</span>
                   </div>

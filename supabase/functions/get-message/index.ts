@@ -15,8 +15,9 @@ Deno.serve(async (req) => {
   const rawId = body?.id;
   const id = typeof rawId === "number" ? rawId : parseInt(String(rawId), 10);
 
-  if (!Number.isInteger(id) || id < 1 || id > 534) {
-    return jsonResponse({ error: "Número inválido. Escolha entre 1 e 534." }, 400);
+  const MAX_MESSAGE_ID = 534;
+  if (!Number.isInteger(id) || id < 1 || id > MAX_MESSAGE_ID) {
+    return jsonResponse({ error: `Número inválido. Escolha entre 1 e ${MAX_MESSAGE_ID}.` }, 400);
   }
 
   const { data, error } = await admin.rpc("reveal_message", {

@@ -11,6 +11,8 @@ import {
   Clock,
   Ticket,
   X,
+  Smartphone,
+  Phone,
 } from "lucide-react";
 import Disclaimer from "./Disclaimer";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,7 +21,8 @@ import { toast } from "sonner";
 import { useCreditPackages, formatEur } from "@/hooks/useCreditPackages";
 import { getErrorMessage } from "@/lib/errors";
 
-type PaymentRef = {
+type MultibancoPayment = {
+  method: "multibanco";
   orderId: string;
   entity: string;
   reference: string;
@@ -27,6 +30,16 @@ type PaymentRef = {
   expiryDate?: string;
   sandbox?: boolean;
 };
+
+type MbwayPayment = {
+  method: "mbway";
+  orderId: string;
+  phone: string;
+  amount: string;
+  requestId?: string;
+};
+
+type ActivePayment = MultibancoPayment | MbwayPayment;
 
 type AppliedCoupon = {
   code: string;
@@ -40,13 +53,24 @@ interface PaywallProps {
   onPurchased: (newBalance: number) => void;
 }
 
+function isValidPhone(raw: string): boolean {
+  const digits = raw.replace(/\D/g, "");
+  if (digits.startsWith("351") && digits.length === 12) return true;
+  if (digits.length === 9 && digits.startsWith("9")) return true;
+  return false;
+}
+
 const Paywall = ({ onPurchased }: PaywallProps) => {
   const { packages, loading: loadingPkgs } = useCreditPackages({ onlyActive: true });
   const [selected, setSelected] = useState<string | null>(null);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [creating, setCreating] = useState(false);
-  const [payment, setPayment] = useState<PaymentRef | null>(null);
+  const [payment, setPayment] = useState<ActivePayment | null>(null);
   const [checking, setChecking] = useState(false);
+
+  const [paymentMethod, setPaymentMethod] = useState<"multibanco" | "mbway">("multibanco");
+  const [phone, setPhone] = useState("");
+  const [phoneError, setPhoneError] = useState("");
 
   // Coupon
   const [couponCode, setCouponCode] = useState("");
@@ -67,8 +91,9 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
 
   const handleSelect = (id: string) => {
     setSelected(id);
-    setCoupon(null); // reset coupon when changing pack
-    track("package_selected", { package: id });
+    setCoupon(null);
+    const pkgName = packages.find((p) => p.id === id)?.name ?? id;
+    track("package_selected", { package: pkgName });
   };
 
   const stopPolling = () => {
@@ -97,7 +122,10 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
     if (!code) return;
     if (!selected) return toast.error("Escolha primeiro um pack.");
     const now = Date.now();
-    if (now - lastCouponAttemptRef.current < 1500) return;
+    if (now - lastCouponAttemptRef.current < 1500) {
+      toast.error("Aguarde um momento antes de tentar novamente.");
+      return;
+    }
     lastCouponAttemptRef.current = now;
     setCouponLoading(true);
     try {
@@ -152,7 +180,7 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
       if (data?.status === "paid") {
         stopPolling();
         toast.success("Pagamento confirmado. Os seus créditos foram adicionados.");
-        track("purchase_success", { package: selected, metadata: { order_id: orderId } });
+        track("purchase_success", { package: selectedPkg?.name ?? selected, metadata: { order_id: orderId } });
         if (typeof data.balance === "number") onPurchased(data.balance);
         return true;
       }
@@ -166,39 +194,56 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
     }
   };
 
-  const startPolling = (orderId: string) => {
+  const startPolling = (orderId: string, intervalMs: number, maxPolls: number) => {
     stopPolling();
     pollCountRef.current = 0;
     pollRef.current = window.setInterval(async () => {
       pollCountRef.current += 1;
       const done = await checkStatus(orderId, true);
-      if (done || pollCountRef.current >= 12) stopPolling();
-    }, 10000);
+      if (done || pollCountRef.current >= maxPolls) stopPolling();
+    }, intervalMs);
   };
 
   const create = async () => {
     if (!selected) return toast.error("Escolha um pacote.");
     if (!acceptedTerms) return toast.error("Aceite os Termos para continuar.");
-    track("purchase_attempt", { package: selected });
+    if (paymentMethod === "mbway") {
+      if (!isValidPhone(phone)) {
+        setPhoneError("Número inválido. Use o formato 9XXXXXXXX.");
+        return;
+      }
+      setPhoneError("");
+    }
+    track("purchase_attempt", { package: selectedPkg?.name ?? selected, method: paymentMethod });
     setCreating(true);
     try {
-      const { data, error } = await supabase.functions.invoke("create-multibanco-payment", {
-        body: {
-          packageId: selected,
-          acceptedTerms: true,
-          couponCode: coupon?.code ?? null,
-        },
-      });
-      if (error) {
-        const ctxBody = (error as { context?: { body?: unknown } })?.context?.body;
-        const msg = typeof ctxBody === "string" ? ctxBody : error.message;
-        throw new Error(msg || "Erro ao contactar o servidor.");
+      if (paymentMethod === "multibanco") {
+        const { data, error } = await supabase.functions.invoke("create-multibanco-payment", {
+          body: { packageId: selected, acceptedTerms: true, couponCode: coupon?.code ?? null },
+        });
+        if (error) {
+          const ctxBody = (error as { context?: { body?: unknown } })?.context?.body;
+          const msg = typeof ctxBody === "string" ? ctxBody : error.message;
+          throw new Error(msg || "Erro ao contactar o servidor.");
+        }
+        if (!data?.entity || !data?.reference) throw new Error("Resposta inválida do gateway.");
+        setPayment({ method: "multibanco", ...data } as MultibancoPayment);
+        startPolling(data.orderId, 10_000, 12); // every 10s, 2min max
+      } else {
+        const { data, error } = await supabase.functions.invoke("create-mbway-payment", {
+          body: { packageId: selected, acceptedTerms: true, couponCode: coupon?.code ?? null, phone },
+        });
+        if (error) {
+          const ctxBody = (error as { context?: { body?: unknown } })?.context?.body;
+          const msg = typeof ctxBody === "string" ? ctxBody : error.message;
+          throw new Error(msg || "Erro ao contactar o servidor.");
+        }
+        if (!data?.orderId) throw new Error("Resposta inválida do gateway.");
+        setPayment({ method: "mbway", orderId: data.orderId, phone: data.phone, amount: data.amount, requestId: data.requestId });
+        startPolling(data.orderId, 3_000, 100); // every 3s, 5min max
       }
-      if (!data?.entity || !data?.reference) throw new Error("Resposta inválida do gateway.");
-      setPayment(data as PaymentRef);
-      startPolling(data.orderId);
     } catch (err: unknown) {
-      toast.error(getErrorMessage(err) || "Erro ao gerar referência.");
+      toast.error(getErrorMessage(err) || "Erro ao gerar pedido de pagamento.");
     } finally {
       setCreating(false);
     }
@@ -211,10 +256,12 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
     setAcceptedTerms(false);
     setCoupon(null);
     setCouponCode("");
+    setPhone("");
+    setPhoneError("");
   };
 
-  // ---- Multibanco reference details ----
-  if (payment) {
+  // ── Multibanco pending screen ──────────────────────────────────────────────
+  if (payment?.method === "multibanco") {
     return (
       <div className="p-8 md:p-10 rounded-3xl bg-card border border-border/60 shadow-elegant animate-fade-in-up">
         <div className="text-center mb-6">
@@ -297,7 +344,62 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
     );
   }
 
-  // ---- Package selection ----
+  // ── MB WAY pending screen ──────────────────────────────────────────────────
+  if (payment?.method === "mbway") {
+    return (
+      <div className="p-8 md:p-10 rounded-3xl bg-card border border-border/60 shadow-elegant animate-fade-in-up">
+        <div className="text-center mb-6">
+          <div className="w-12 h-12 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
+            <Smartphone className="w-5 h-5 text-primary" />
+          </div>
+          <h3 className="font-serif text-2xl md:text-3xl mb-2">Confirme no MB WAY</h3>
+          <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+            Enviámos uma notificação para o número{" "}
+            <strong className="text-foreground">{payment.phone}</strong>. Abra a app MB WAY e confirme o pagamento.
+          </p>
+        </div>
+
+        <div className="px-4 py-3 rounded-2xl bg-muted/60 border border-border/60 text-center mb-6">
+          <dt className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1">Montante</dt>
+          <dd className="font-serif text-3xl tabular-nums">
+            {Number(payment.amount).toFixed(2).replace(".", ",")} €
+          </dd>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-primary/5 border border-primary/20 mb-6">
+          <div className="flex items-center gap-2 text-sm">
+            <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
+            <span className="text-foreground/80">A aguardar confirmação…</span>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Os créditos são adicionados automaticamente assim que confirmar na app MB WAY.
+          </p>
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-3">
+          <button
+            type="button"
+            onClick={() => checkStatus(payment.orderId)}
+            disabled={checking}
+            className="inline-flex items-center justify-center gap-2 py-3 rounded-full bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-smooth disabled:opacity-60"
+          >
+            {checking ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+            Verificar estado
+          </button>
+          <button
+            type="button"
+            onClick={reset}
+            className="inline-flex items-center justify-center gap-2 py-3 rounded-full bg-card border border-border text-sm font-medium hover:bg-muted transition-smooth"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Voltar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Package selection ──────────────────────────────────────────────────────
   return (
     <div className="p-6 sm:p-8 md:p-10 rounded-3xl bg-card border border-border/60 shadow-elegant animate-fade-in-up">
       <div className="text-center mb-8">
@@ -307,7 +409,7 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
         <h3 className="font-serif text-2xl md:text-3xl mb-2 tracking-tight">
           Receba a sua mensagem agora
         </h3>
-        <p className="text-sm md:text-[15px] text-muted-foreground max-w-md mx-auto leading-relaxed">
+        <p className="text-sm md:text-[15px] text-muted-foreground max-md max-w-md mx-auto leading-relaxed">
           Não precisa de todas as respostas. Precisa da certa — no momento certo.
         </p>
       </div>
@@ -368,6 +470,58 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
               </button>
             );
           })}
+        </div>
+      )}
+
+      {/* Payment method toggle */}
+      {selected && (
+        <div className="mt-5">
+          <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2">Método de pagamento</p>
+          <div className="grid grid-cols-2 gap-2">
+            {(["multibanco", "mbway"] as const).map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => { setPaymentMethod(m); setPhoneError(""); }}
+                className={`flex items-center justify-center gap-2 py-2.5 rounded-xl border text-sm font-medium transition-smooth ${
+                  paymentMethod === m
+                    ? "border-primary bg-primary/10 text-foreground ring-2 ring-primary/30"
+                    : "border-border bg-background hover:bg-muted text-muted-foreground"
+                }`}
+              >
+                {m === "multibanco" ? (
+                  <><Landmark className="w-4 h-4" /> Multibanco</>
+                ) : (
+                  <><Smartphone className="w-4 h-4" /> MB WAY</>
+                )}
+              </button>
+            ))}
+          </div>
+
+          {/* Phone input for MB WAY */}
+          {paymentMethod === "mbway" && (
+            <div className="mt-3">
+              <label className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5 flex items-center gap-1">
+                <Phone className="w-3 h-3" />
+                Número de telemóvel
+              </label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => { setPhone(e.target.value); setPhoneError(""); }}
+                placeholder="9XXXXXXXX"
+                className={`w-full px-3 py-2.5 rounded-xl border bg-background text-sm tabular-nums ${
+                  phoneError ? "border-destructive" : "border-border"
+                }`}
+              />
+              {phoneError && (
+                <p className="mt-1 text-xs text-destructive">{phoneError}</p>
+              )}
+              <p className="mt-1 text-xs text-muted-foreground">
+                Número português. Receberá uma notificação na app MB WAY para confirmar.
+              </p>
+            </div>
+          )}
         </div>
       )}
 
@@ -456,11 +610,11 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
         {creating ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin" />
-            A gerar referência…
+            {paymentMethod === "mbway" ? "A enviar pedido MB WAY…" : "A gerar referência…"}
           </>
         ) : (
           <>
-            <Landmark className="w-4 h-4" />
+            {paymentMethod === "mbway" ? <Smartphone className="w-4 h-4" /> : <Landmark className="w-4 h-4" />}
             Receber a minha mensagem agora
             {coupon && selectedPkg && (
               <span className="text-xs opacity-80">· {formatEur(coupon.finalPrice)}</span>
@@ -471,7 +625,9 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
 
       <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
         <ShieldCheck className="w-3.5 h-3.5 text-primary/70" />
-        Pagamento seguro por Multibanco · IfthenPay
+        {paymentMethod === "mbway"
+          ? "Pagamento seguro por MB WAY · IfthenPay"
+          : "Pagamento seguro por Multibanco · IfthenPay"}
       </p>
     </div>
   );

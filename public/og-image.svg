@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f1a17"/>
+      <stop offset="100%" style="stop-color:#162820"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2d6b55"/>
+      <stop offset="100%" style="stop-color:#3d8a6e"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Subtle orb top-left -->
+  <circle cx="120" cy="160" r="280" fill="#2d6b55" opacity="0.07"/>
+  <!-- Subtle orb bottom-right -->
+  <circle cx="1100" cy="500" r="320" fill="#2d6b55" opacity="0.05"/>
+
+  <!-- Top border accent line -->
+  <rect x="80" y="60" width="80" height="3" rx="2" fill="url(#accent)" opacity="0.8"/>
+
+  <!-- Logo / brand -->
+  <text x="80" y="130" font-family="Georgia, serif" font-size="26" font-weight="400" fill="#7db89e" letter-spacing="3" opacity="0.9">PONTO CEGO</text>
+
+  <!-- Main headline -->
+  <text x="80" y="270" font-family="Georgia, serif" font-size="72" font-weight="400" fill="#f0ece4" letter-spacing="-1">Nem tudo o que evita</text>
+  <text x="80" y="360" font-family="Georgia, serif" font-size="72" font-weight="400" font-style="italic" fill="#7db89e" letter-spacing="-1">pensar… é por acaso.</text>
+
+  <!-- Sub-copy -->
+  <text x="80" y="440" font-family="Georgia, serif" font-size="28" fill="#8a9e98" font-weight="400">Mensagens de reflexão baseadas em prática terapêutica real.</text>
+
+  <!-- CTA pill -->
+  <rect x="80" y="490" width="260" height="54" rx="27" fill="#2d6b55"/>
+  <text x="210" y="522" font-family="Georgia, serif" font-size="20" fill="#f0ece4" text-anchor="middle" font-weight="400">Escolha o seu número</text>
+
+  <!-- Right visual: number choices -->
+  <text x="920" y="220" font-family="Georgia, serif" font-size="180" fill="#2d6b55" opacity="0.25" text-anchor="middle">237</text>
+  <text x="1050" y="400" font-family="Georgia, serif" font-size="110" fill="#2d6b55" opacity="0.15" text-anchor="middle">14</text>
+  <text x="820" y="420" font-family="Georgia, serif" font-size="90" fill="#2d6b55" opacity="0.12" text-anchor="middle">389</text>
+</svg>

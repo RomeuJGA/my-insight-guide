@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Quote, Shuffle, Sparkles, X, LogIn, Coins, MailCheck, BookMarked } from "lucide-react";
 import Disclaimer from "./Disclaimer";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,21 +11,34 @@ import ReflectionGuide from "./ReflectionGuide";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/errors";
-
-const TOTAL_MESSAGES = 534;
+import { TOTAL_MESSAGES } from "@/lib/constants";
 
 const Experience = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, loading: authLoading } = useAuth();
   const { credits, loading: creditsLoading, setLocal: setLocalCredits, refresh: refreshCredits } = useCredits();
   const [input, setInput] = useState<string>("");
   const [revealed, setRevealed] = useState<{ number: number; message: string; alreadyRevealed?: boolean } | null>(null);
   const [animating, setAnimating] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
+  const pendingRevealRef = useRef<number | null>(null);
   const { track } = useAnalytics();
 
   // Auto-grant welcome credit if email verified
   useWelcomeCredit((newBalance) => setLocalCredits(newBalance));
+
+  // If arriving from Auth with a pending number (user was redirected mid-reveal), pre-fill and auto-reveal
+  useEffect(() => {
+    const state = location.state as { pendingNumber?: number } | null;
+    const n = state?.pendingNumber;
+    if (!n || !user || authLoading) return;
+    setInput(String(n));
+    // Clear the state so a page refresh doesn't re-trigger
+    navigate(location.pathname + location.hash, { replace: true, state: null });
+    setTimeout(() => reveal(n), 300);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, authLoading]);
 
   const emailUnverified = !!user && !user.email_confirmed_at;
 
@@ -38,7 +51,7 @@ const Experience = () => {
     }
     if (!user) {
       toast.error("Inicie sessão para receber a sua mensagem.");
-      navigate("/auth");
+      navigate("/auth", { state: { pendingNumber: n } });
       return;
     }
     if (emailUnverified) {
@@ -47,8 +60,8 @@ const Experience = () => {
       return;
     }
     if ((credits ?? 0) <= 0) {
-      // Could be NO_CREDITS — paywall, but server is the source of truth
       track("paywall_view", { metadata: { trigger: "no_credits_pre" } });
+      pendingRevealRef.current = n;
       setShowPaywall(true);
       return;
     }
@@ -64,6 +77,7 @@ const Experience = () => {
         const msg = typeof ctxBody === "string" ? ctxBody : (error.message ?? "");
         if (msg.includes("NO_CREDITS")) {
           track("paywall_view", { metadata: { trigger: "no_credits_server" } });
+          pendingRevealRef.current = n;
           setShowPaywall(true);
           return;
         }
@@ -168,7 +182,14 @@ const Experience = () => {
               onPurchased={(newBalance) => {
                 setLocalCredits(newBalance);
                 setShowPaywall(false);
-                toast.success("Saldo atualizado. Boa exploração.");
+                const pending = pendingRevealRef.current;
+                pendingRevealRef.current = null;
+                if (pending !== null) {
+                  toast.success("Créditos adicionados! A revelar a sua mensagem…");
+                  setTimeout(() => reveal(pending), 400);
+                } else {
+                  toast.success("Saldo atualizado. Boa exploração.");
+                }
               }}
             />
           ) : !revealed ? (

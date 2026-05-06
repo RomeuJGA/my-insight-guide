@@ -30,12 +30,6 @@ type VariantStats = Stats & { variant: string };
 
 type Range = 1 | 7 | 30;
 
-const PACKAGE_LABELS: Record<string, string> = {
-  five: "5 créditos",
-  ten: "10 créditos",
-  twenty: "20 créditos",
-};
-
 const VARIANT_LABEL: Record<string, string> = {
   a: "Variante A · versão anterior",
   b: "Variante B · versão atual",
@@ -158,7 +152,7 @@ const AdminAnalytics = () => {
               <div>
                 <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Pacote mais selecionado</p>
                 <p className="font-serif text-lg mt-0.5">
-                  {stats.top_package ? PACKAGE_LABELS[stats.top_package] ?? stats.top_package : "—"}
+                  {stats.top_package ?? "—"}
                 </p>
               </div>
               <span className="font-medium tabular-nums text-sm text-foreground/80">
@@ -231,7 +225,7 @@ const AdminAnalytics = () => {
                       <p className="text-[11px] text-muted-foreground">
                         Pacote favorito:{" "}
                         <span className="text-foreground font-medium">
-                          {PACKAGE_LABELS[v.top_package] ?? v.top_package}
+                          {v.top_package}
                         </span>{" "}
                         · {v.top_package_count} seleções
                       </p>

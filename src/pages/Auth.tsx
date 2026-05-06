@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/errors";
@@ -8,6 +8,8 @@ import Footer from "@/components/Footer";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const pendingNumber = (location.state as { pendingNumber?: number } | null)?.pendingNumber ?? null;
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,21 +27,34 @@ const Auth = () => {
   // Suggestion when wrong credentials
   const [showResetSuggestion, setShowResetSuggestion] = useState(false);
 
+  const redirectAfterAuth = (replace = true) => {
+    if (pendingNumber !== null) {
+      navigate("/", { replace, state: { pendingNumber } });
+    } else {
+      navigate("/", { replace });
+      // Scroll to experience after navigation settles
+      setTimeout(() => {
+        document.getElementById("experience")?.scrollIntoView({ behavior: "smooth" });
+      }, 200);
+    }
+  };
+
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
       if (session?.user?.email_confirmed_at) {
-        navigate("/#experience", { replace: true });
+        redirectAfterAuth();
       }
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user?.email_confirmed_at) {
-        navigate("/#experience", { replace: true });
+        redirectAfterAuth();
       } else if (session?.user && !session.user.email_confirmed_at) {
         setPendingEmail(session.user.email ?? null);
       }
     });
     return () => subscription.unsubscribe();
-  }, [navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const openForgot = (prefill?: string) => {
     setForgotEmail(prefill ?? email ?? "");

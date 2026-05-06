@@ -4,8 +4,10 @@ import { renderHook, act, waitFor } from "@testing-library/react";
 // ── Supabase mock ──────────────────────────────────────────────────────────
 let authStateCallback: ((event: string, session: unknown) => void) | null = null;
 
-const mockUnsubscribe = vi.fn();
-const mockGetSession = vi.fn();
+const { mockUnsubscribe, mockGetSession } = vi.hoisted(() => ({
+  mockUnsubscribe: vi.fn(),
+  mockGetSession: vi.fn(),
+}));
 
 vi.mock("@/integrations/supabase/client", () => ({
   supabase: {

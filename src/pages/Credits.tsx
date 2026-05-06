@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useCredits } from "@/hooks/useCredits";
 import Paywall from "@/components/Paywall";
+import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -23,11 +24,16 @@ const typeMeta: Record<Tx["type"], { label: string; Icon: typeof Coins }> = {
   welcome: { label: "Boas-vindas", Icon: Gift },
 };
 
+const PAGE_SIZE = 10;
+
 const Credits = () => {
   const { user, loading: authLoading } = useAuth();
   const { credits, loading: creditsLoading, setLocal } = useCredits();
   const [txs, setTxs] = useState<Tx[]>([]);
   const [loadingTxs, setLoadingTxs] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [page, setPage] = useState(0);
   const [showPaywall, setShowPaywall] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -39,35 +45,46 @@ const Credits = () => {
     const params = new URLSearchParams(location.search);
     if (params.get("buy") === "1") {
       setShowPaywall(true);
-      // Clean the URL so refresh doesn't re-trigger
       navigate("/credits", { replace: true });
-      // Smooth scroll to paywall after it mounts
       setTimeout(() => {
         paywallRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 80);
     }
   }, [user, location.search, navigate]);
 
-  useEffect(() => {
+  const fetchTxs = async (pageIndex: number, append = false) => {
     if (!user) return;
-    let cancelled = false;
-    setLoadingTxs(true);
-    supabase
+    if (append) setLoadingMore(true);
+    else setLoadingTxs(true);
+    const from = pageIndex * PAGE_SIZE;
+    const { data } = await supabase
       .from("credit_transactions")
       .select("id, type, amount, description, created_at")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
-      .limit(10)
-      .then(({ data }) => {
-        if (!cancelled) {
-          setTxs((data as Tx[]) ?? []);
-          setLoadingTxs(false);
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
+      .range(from, from + PAGE_SIZE);
+    const rows = (data as Tx[]) ?? [];
+    if (append) {
+      setTxs((prev) => [...prev, ...rows.slice(0, PAGE_SIZE)]);
+    } else {
+      setTxs(rows.slice(0, PAGE_SIZE));
+    }
+    setHasMore(rows.length > PAGE_SIZE);
+    if (append) setLoadingMore(false);
+    else setLoadingTxs(false);
+  };
+
+  useEffect(() => {
+    setPage(0);
+    void fetchTxs(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, credits]);
+
+  const loadMore = () => {
+    const next = page + 1;
+    setPage(next);
+    void fetchTxs(next, true);
+  };
 
   if (authLoading) {
     return (
@@ -83,6 +100,7 @@ const Credits = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <Navbar />
       <div className="flex-1 pt-24 pb-16 px-6">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
@@ -122,7 +140,7 @@ const Credits = () => {
 
         <div className="rounded-2xl bg-card border border-border/60 overflow-hidden">
           <div className="px-5 py-3 border-b border-border/60 flex items-center justify-between">
-            <h2 className="font-medium text-sm">Últimas 10 transações</h2>
+            <h2 className="font-medium text-sm">Histórico de transações</h2>
           </div>
 
           {loadingTxs ? (
@@ -173,6 +191,19 @@ const Credits = () => {
                 );
               })}
             </ul>
+          )}
+          {hasMore && !loadingTxs && (
+            <div className="px-5 py-3 border-t border-border/60">
+              <button
+                type="button"
+                onClick={loadMore}
+                disabled={loadingMore}
+                className="w-full py-2.5 text-sm text-muted-foreground hover:text-foreground transition-smooth disabled:opacity-60 flex items-center justify-center gap-2"
+              >
+                {loadingMore ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                {loadingMore ? "A carregar…" : "Ver mais transações"}
+              </button>
+            </div>
           )}
         </div>
 
