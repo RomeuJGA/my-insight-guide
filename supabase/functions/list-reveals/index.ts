@@ -13,7 +13,7 @@ Deno.serve(async (req) => {
 
   const { data: reveals, error } = await admin
     .from("message_reveals")
-    .select("message_id, revealed_at")
+    .select("message_id, revealed_at, question")
     .eq("user_id", user.id)
     .order("revealed_at", { ascending: false });
 
@@ -40,6 +40,7 @@ Deno.serve(async (req) => {
     messageId: r.message_id,
     revealedAt: r.revealed_at,
     content: byId.get(r.message_id) ?? "",
+    question: r.question ?? null,
   }));
 
   return jsonResponse({ items });

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { Quote, Shuffle, Sparkles, X, LogIn, Coins, MailCheck, BookMarked } from "lucide-react";
+import { Quote, Shuffle, Sparkles, X, LogIn, Coins, MailCheck, BookMarked, PenLine, ChevronDown, Lock } from "lucide-react";
 import Disclaimer from "./Disclaimer";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -19,7 +19,9 @@ const Experience = () => {
   const { user, loading: authLoading } = useAuth();
   const { credits, loading: creditsLoading, setLocal: setLocalCredits, refresh: refreshCredits } = useCredits();
   const [input, setInput] = useState<string>("");
-  const [revealed, setRevealed] = useState<{ number: number; message: string; alreadyRevealed?: boolean } | null>(null);
+  const [question, setQuestion] = useState("");
+  const [questionOpen, setQuestionOpen] = useState(false);
+  const [revealed, setRevealed] = useState<{ number: number; message: string; alreadyRevealed?: boolean; question?: string } | null>(null);
   const [animating, setAnimating] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
   const pendingRevealRef = useRef<number | null>(null);
@@ -89,11 +91,25 @@ const Experience = () => {
 
       await new Promise((r) => setTimeout(r, 300));
 
+      const trimmedQuestion = question.trim();
       setRevealed({
         number: n,
         message: data.content,
         alreadyRevealed: data.alreadyRevealed === true,
+        question: trimmedQuestion || undefined,
       });
+
+      // Persist question privately — fire-and-forget, non-blocking
+      if (trimmedQuestion) {
+        supabase
+          .from("message_reveals")
+          .update({ question: trimmedQuestion })
+          .eq("user_id", user.id)
+          .eq("message_id", n)
+          .then(({ error: qErr }) => {
+            if (qErr) console.error("Failed to save question:", qErr);
+          });
+      }
 
       if (data.alreadyRevealed) {
         toast.message("Mensagem já revelada anteriormente — sem custo.");
@@ -122,6 +138,8 @@ const Experience = () => {
   const handleReset = () => {
     setRevealed(null);
     setInput("");
+    setQuestion("");
+    setQuestionOpen(false);
   };
 
   return (
@@ -194,6 +212,39 @@ const Experience = () => {
             />
           ) : !revealed ? (
             <form onSubmit={handleSubmit} className="p-8 md:p-10 rounded-3xl bg-card border border-border/60 shadow-elegant animate-fade-in-up">
+              {/* Optional question field */}
+              <div className="mb-7">
+                <button
+                  type="button"
+                  onClick={() => setQuestionOpen(!questionOpen)}
+                  className="w-full flex items-center justify-between text-sm text-muted-foreground hover:text-foreground transition-smooth group"
+                >
+                  <span className="flex items-center gap-2">
+                    <PenLine className="w-4 h-4" />
+                    O que traz à mente? <span className="text-xs opacity-60">(opcional)</span>
+                  </span>
+                  <ChevronDown
+                    className={`w-4 h-4 transition-transform duration-200 ${questionOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+                {questionOpen && (
+                  <div className="mt-3 animate-fade-in">
+                    <textarea
+                      value={question}
+                      onChange={(e) => setQuestion(e.target.value)}
+                      placeholder="O que está a viver, a evitar ou a tentar compreender? Escreva sem filtro — é apenas para si."
+                      rows={3}
+                      maxLength={500}
+                      className="w-full px-4 py-3 rounded-2xl border border-input bg-background text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring/40 transition-smooth leading-relaxed"
+                    />
+                    <p className="mt-1.5 text-xs text-muted-foreground flex items-center gap-1.5">
+                      <Lock className="w-3 h-3 shrink-0" />
+                      Privado. Não é lido por ninguém — apenas acessível por si.
+                    </p>
+                  </div>
+                )}
+              </div>
+
               <label htmlFor="number" className="block text-sm font-medium text-foreground/80 mb-3">
                 Número entre 1 e {TOTAL_MESSAGES}
               </label>
@@ -254,6 +305,17 @@ const Experience = () => {
                   <span className="font-serif text-5xl text-primary">{revealed.number}</span>
                   <Quote className="w-7 h-7 text-primary/40" strokeWidth={1.5} />
                 </div>
+                {revealed.question && (
+                  <div className="mb-7 pb-7 border-b border-border/60">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                      <PenLine className="w-3 h-3" />
+                      A sua questão
+                    </p>
+                    <p className="text-sm text-foreground/80 italic leading-relaxed">
+                      "{revealed.question}"
+                    </p>
+                  </div>
+                )}
                 <p className="font-serif text-xl md:text-2xl leading-relaxed text-foreground/90">
                   "{revealed.message}"
                 </p>

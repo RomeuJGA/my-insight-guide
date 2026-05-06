@@ -133,21 +133,24 @@ const DailyMessage = () => {
             </article>
           )}
 
-          {/* Bridge to paid product */}
-          <div className="mt-8 p-5 rounded-2xl bg-muted/40 border border-border/60 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-muted-foreground text-center sm:text-left">
-              Quer receber uma mensagem específica?
-              <br className="hidden sm:block" />
-              <span className="text-foreground"> Escolha um número e use 1 crédito.</span>
-            </p>
-            <Link
-              to="/#experience"
-              className="shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-card border border-border text-sm font-medium hover:bg-background transition-smooth"
-            >
-              Escolher uma mensagem
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
+          {/* Bridge: only after message revealed */}
+          {content && (
+            <div className="mt-6 p-6 rounded-2xl bg-card border border-primary/20 shadow-soft">
+              <p className="font-medium text-sm text-foreground mb-1">
+                Há um número que sente chamar?
+              </p>
+              <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+                A sua mensagem de hoje foi aleatória. Use 1 crédito para escolher o número que sentir — e receber a mensagem que lhe pertence.
+              </p>
+              <Link
+                to="/#experience"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-smooth shadow-soft"
+              >
+                Escolher o meu número
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </section>

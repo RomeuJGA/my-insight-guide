@@ -2,7 +2,7 @@ import { BookOpen, Hash, Heart, Zap } from "lucide-react";
 
 const values = [
   { icon: BookOpen, title: "5+ anos em formato físico", desc: "Uma ferramenta usada e testada há mais de cinco anos." },
-  { icon: Hash, title: "564 mensagens únicas", desc: "Cada número guarda uma reflexão distinta e cuidadosamente escrita." },
+  { icon: Hash, title: "534 mensagens únicas", desc: "Cada número guarda uma reflexão distinta e cuidadosamente escrita." },
   { icon: Heart, title: "Reflexão pessoal", desc: "Pensada para o ajudar a olhar para dentro com mais consciência." },
   { icon: Zap, title: "Simples e intuitiva", desc: "Sem rituais complicados. Pense, escolha, reflita." },
 ];

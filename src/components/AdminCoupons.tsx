@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Loader2, Plus, Trash2, Ticket } from "lucide-react";
+import { Loader2, Plus, Trash2, Ticket, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useCreditPackages } from "@/hooks/useCreditPackages";
+import { useAppSetting } from "@/hooks/useAppSetting";
 
 type Coupon = {
   id: string;
@@ -47,6 +48,7 @@ const AdminCoupons = () => {
   const [loading, setLoading] = useState(true);
   const [draft, setDraft] = useState(emptyDraft);
   const [creating, setCreating] = useState(false);
+  const { value: showCouponField, loading: settingLoading, set: setShowCouponField } = useAppSetting<boolean>("show_coupon_field", true);
 
   const refetch = async () => {
     setLoading(true);
@@ -122,16 +124,32 @@ const AdminCoupons = () => {
 
   return (
     <section className="rounded-2xl border border-border bg-card p-6">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-          <Ticket className="w-5 h-5 text-primary" />
+      <div className="flex items-start justify-between gap-4 mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+            <Ticket className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <h2 className="font-serif text-xl">Cupões de desconto</h2>
+            <p className="text-xs text-muted-foreground">
+              Crie cupões com validade, limites de utilização e packs aplicáveis.
+            </p>
+          </div>
         </div>
-        <div>
-          <h2 className="font-serif text-xl">Cupões de desconto</h2>
-          <p className="text-xs text-muted-foreground">
-            Crie cupões com validade, limites de utilização e packs aplicáveis.
-          </p>
-        </div>
+        <button
+          type="button"
+          onClick={() => setShowCouponField(!showCouponField)}
+          disabled={settingLoading}
+          title={showCouponField ? "Ocultar campo de cupão no site" : "Mostrar campo de cupão no site"}
+          className={`shrink-0 inline-flex items-center gap-2 px-3 py-2 rounded-full border text-xs font-medium transition-smooth disabled:opacity-50 ${
+            showCouponField
+              ? "border-primary bg-primary/10 text-primary"
+              : "border-border bg-muted text-muted-foreground"
+          }`}
+        >
+          {showCouponField ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+          {showCouponField ? "Campo visível" : "Campo oculto"}
+        </button>
       </div>
 
       {/* List */}

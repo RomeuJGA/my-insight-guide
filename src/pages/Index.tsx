@@ -8,7 +8,6 @@ import ExperiencePreview from "@/components/ExperiencePreview";
 import DailyMessage from "@/components/DailyMessage";
 import Experience from "@/components/Experience";
 import FreeVsPaid from "@/components/FreeVsPaid";
-import BookProgression from "@/components/BookProgression";
 import Pricing from "@/components/Pricing";
 import Trust from "@/components/Trust";
 import FinalCta from "@/components/FinalCta";
@@ -23,7 +22,6 @@ const AuthorityA = lazy(() => import("@/components/_variantA/AuthorityA"));
 const HowItWorksA = lazy(() => import("@/components/_variantA/HowItWorksA"));
 const ExperiencePreviewA = lazy(() => import("@/components/_variantA/ExperiencePreviewA"));
 const FreeVsPaidA = lazy(() => import("@/components/_variantA/FreeVsPaidA"));
-const BookProgressionA = lazy(() => import("@/components/_variantA/BookProgressionA"));
 const PricingA = lazy(() => import("@/components/_variantA/PricingA"));
 const FinalCtaA = lazy(() => import("@/components/_variantA/FinalCtaA"));
 
@@ -52,7 +50,6 @@ const Index = () => {
           <DailyMessage />
           <Experience />
           <FreeVsPaidA />
-          <BookProgressionA />
           <PricingA />
           <Trust />
           <FinalCtaA />
@@ -73,7 +70,6 @@ const Index = () => {
       <DailyMessage />
       <Experience />
       <FreeVsPaid />
-      <BookProgression />
       <Pricing />
       <Trust />
       <FinalCta />

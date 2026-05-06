@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Quote, Sparkles, History } from "lucide-react";
+import { ArrowLeft, Quote, Sparkles, History, PenLine } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -10,7 +10,7 @@ import Disclaimer from "@/components/Disclaimer";
 import ReflectionGuide from "@/components/ReflectionGuide";
 import { Skeleton } from "@/components/ui/skeleton";
 
-type Reveal = { messageId: number; revealedAt: string; content: string };
+type Reveal = { messageId: number; revealedAt: string; content: string; question?: string | null };
 
 const MyMessages = () => {
   const navigate = useNavigate();
@@ -100,16 +100,27 @@ const MyMessages = () => {
               </button>
 
               <article className="p-10 md:p-14 rounded-3xl bg-gradient-message border border-border/60 shadow-elegant">
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center justify-between mb-8">
                   <span className="font-serif text-5xl text-primary">{active.messageId}</span>
                   <Quote className="w-7 h-7 text-primary/40" strokeWidth={1.5} />
                 </div>
+                {active.question && (
+                  <div className="mb-7 pb-7 border-b border-border/60">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                      <PenLine className="w-3 h-3" />
+                      A sua questão
+                    </p>
+                    <p className="text-sm text-foreground/80 italic leading-relaxed">
+                      "{active.question}"
+                    </p>
+                  </div>
+                )}
                 <p className="font-serif text-xl md:text-2xl leading-relaxed text-foreground/90">
                   "{active.content}"
                 </p>
                 <Disclaimer variant="inline" className="mt-6" />
                 <p className="mt-6 pt-6 border-t border-border/60 text-xs text-muted-foreground">
-                  Revelada a {fmt(active.revealedAt)} · Mensagem já revelada anteriormente
+                  Revelada a {fmt(active.revealedAt)}
                 </p>
               </article>
               <ReflectionGuide seed={active.messageId} questionCount={3} />
@@ -125,6 +136,12 @@ const MyMessages = () => {
                     {it.messageId}
                   </span>
                   <div className="min-w-0 flex-1">
+                    {it.question && (
+                      <p className="text-xs text-muted-foreground italic line-clamp-1 mb-1 flex items-center gap-1">
+                        <PenLine className="w-3 h-3 shrink-0" />
+                        {it.question}
+                      </p>
+                    )}
                     <p className="text-sm text-foreground line-clamp-2 mb-1">{it.content}</p>
                     <p className="text-xs text-muted-foreground">{fmt(it.revealedAt)}</p>
                   </div>

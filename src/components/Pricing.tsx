@@ -2,9 +2,11 @@ import { Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCreditPackages, formatEur } from "@/hooks/useCreditPackages";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAppSetting } from "@/hooks/useAppSetting";
 
 const Pricing = () => {
   const { packages, loading } = useCreditPackages({ onlyActive: true });
+  const { value: showCouponField } = useAppSetting<boolean>("show_coupon_field", true);
 
   return (
     <section id="pricing" className="py-24 md:py-32">
@@ -16,7 +18,9 @@ const Pricing = () => {
             <br />
             <span className="italic">Precisa da certa.</span>
           </h2>
-          <p className="text-muted-foreground">Sem subscrições. Cupões de desconto disponíveis no checkout.</p>
+          <p className="text-muted-foreground">
+            Sem subscrições.{showCouponField && " Cupões de desconto disponíveis no checkout."}
+          </p>
         </div>
 
         {loading ? (

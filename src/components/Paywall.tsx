@@ -20,6 +20,7 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 import { toast } from "sonner";
 import { useCreditPackages, formatEur } from "@/hooks/useCreditPackages";
 import { getErrorMessage } from "@/lib/errors";
+import { useAppSetting } from "@/hooks/useAppSetting";
 
 type MultibancoPayment = {
   method: "multibanco";
@@ -66,6 +67,7 @@ function isValidPhone(raw: string): boolean {
 
 const Paywall = ({ onPurchased }: PaywallProps) => {
   const { packages, loading: loadingPkgs } = useCreditPackages({ onlyActive: true });
+  const { value: showCouponField } = useAppSetting<boolean>("show_coupon_field", true);
   const [selected, setSelected] = useState<string | null>(null);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -534,7 +536,7 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
       )}
 
       {/* Coupon */}
-      {selected && (
+      {selected && showCouponField && (
         <div className="mt-5 p-4 rounded-2xl bg-muted/40 border border-border/60">
           <div className="flex items-center gap-2 mb-2 text-[11px] uppercase tracking-wider text-muted-foreground">
             <Ticket className="w-3.5 h-3.5" />
