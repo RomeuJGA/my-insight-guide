@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/errors";
 import { Sparkles, MailCheck, RefreshCw, LogOut, KeyRound, Loader2 } from "lucide-react";
 import Footer from "@/components/Footer";
+import PasswordField from "@/components/PasswordField";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -308,9 +309,8 @@ const Auth = () => {
                   </button>
                 )}
               </div>
-              <input
+              <PasswordField
                 id="password"
-                type="password"
                 required
                 minLength={6}
                 value={password}

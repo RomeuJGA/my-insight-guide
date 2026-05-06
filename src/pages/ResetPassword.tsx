@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/errors";
 import { KeyRound, Loader2, CheckCircle2 } from "lucide-react";
 import Footer from "@/components/Footer";
+import PasswordField from "@/components/PasswordField";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -179,9 +180,8 @@ const ResetPassword = () => {
                   <label htmlFor="new-password" className="block text-sm font-medium mb-2">
                     Nova palavra-passe
                   </label>
-                  <input
+                  <PasswordField
                     id="new-password"
-                    type="password"
                     required
                     minLength={6}
                     value={password}
@@ -193,9 +193,8 @@ const ResetPassword = () => {
                   <label htmlFor="confirm-password" className="block text-sm font-medium mb-2">
                     Confirmar palavra-passe
                   </label>
-                  <input
+                  <PasswordField
                     id="confirm-password"
-                    type="password"
                     required
                     minLength={6}
                     value={confirm}
