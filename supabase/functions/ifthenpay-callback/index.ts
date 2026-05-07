@@ -32,7 +32,7 @@ async function sendConfirmationEmail(
       </a>
 
       <p style="margin-top:32px;font-size:12px;color:#999;">
-        Ponto Cego — mensagens de reflexão baseadas em prática terapêutica real.
+        Um Ävatar — mensagens de reflexão baseadas em prática terapêutica real.
       </p>
     </div>
   `;
@@ -41,7 +41,7 @@ async function sendConfirmationEmail(
     method: "POST",
     headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      from: "Ponto Cego <noreply@umavatar.pt>",
+      from: "Um Ävatar <noreply@umavatar.pt>",
       to: [toEmail],
       subject: `${credits} créditos adicionados à sua conta`,
       html,
@@ -63,7 +63,7 @@ async function sendAdminNotification(
     method: "POST",
     headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      from: "Ponto Cego <noreply@umavatar.pt>",
+      from: "Um Ävatar <noreply@umavatar.pt>",
       to: [toAdmin],
       subject: `Nova compra: ${credits} créditos · ${amount.toFixed(2).replace(".", ",")} €`,
       html: `<p>Nova compra confirmada.</p>

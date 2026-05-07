@@ -11,7 +11,7 @@ const Refunds = () => (
       <div>
         <p className="font-medium text-foreground mb-1">Resumo</p>
         <p className="text-sm text-muted-foreground">
-          A Ponto Cego é um produto digital. Os créditos são consumidos no momento da
+          A Um Ävatar é um produto digital. Os créditos são consumidos no momento da
           revelação da mensagem.{" "}
           <strong className="text-foreground">
             Créditos já utilizados não são reembolsáveis. Créditos não utilizados são

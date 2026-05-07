@@ -155,7 +155,7 @@ const PrivateGate = ({ children }: PrivateGateProps) => {
         </div>
 
         <p className="mt-6 text-center text-xs text-muted-foreground/70">
-          Ponto Cego — área privada
+          Um Ävatar — área privada
         </p>
       </div>
     </div>

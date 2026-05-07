@@ -89,7 +89,7 @@ Deno.serve(async (req) => {
   const amountStr = finalAmount.toFixed(2);
   const amountForApi = amountStr.replace(".", ",");
   // Referencia max 25 chars (already enforced by genOrderId)
-  const descricao = `Ponto Cego - ${pkg.name}`.slice(0, 50);
+  const descricao = `Um Ävatar - ${pkg.name}`.slice(0, 50);
 
   // 3) Call IfthenPay MBWay ASMX API
   const params = new URLSearchParams({

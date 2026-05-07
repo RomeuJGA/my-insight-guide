@@ -9,10 +9,10 @@ const STATIC_HTML = `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ponto Cego — Ver com mais clareza por dentro</title>
+  <title>Um Ävatar — Ver com mais clareza por dentro</title>
   <meta name="description" content="Baseado no trabalho real de uma terapeuta que acompanha diariamente processos de mudança profunda. Escolha um número e receba uma mensagem que o ajuda a ver com clareza aquilo que tem evitado." />
   <link rel="canonical" href="https://www.umavatar.pt/" />
-  <meta property="og:title" content="Ponto Cego — Ver com mais clareza por dentro" />
+  <meta property="og:title" content="Um Ävatar — Ver com mais clareza por dentro" />
   <meta property="og:description" content="Mensagens de reflexão baseadas em prática terapêutica real. Não dão respostas — dão clareza." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://www.umavatar.pt/" />
@@ -21,7 +21,7 @@ const STATIC_HTML = `<!DOCTYPE html>
 
 <header>
   <nav>
-    <a href="/">Ponto Cego</a>
+    <a href="/">Um Ävatar</a>
     <ul>
       <li><a href="/#how">Como funciona</a></li>
       <li><a href="/#experience">Experiência</a></li>
@@ -83,19 +83,19 @@ const STATIC_HTML = `<!DOCTYPE html>
 
   <section id="about">
     <h2>Quem está por detrás</h2>
-    <p>O Ponto Cego é uma ferramenta de reflexão baseada no trabalho real de uma terapeuta com anos de consulta ativa. As mensagens não são aforismos genéricos — emergem de padrões reais observados em processos de mudança profunda.</p>
+    <p>O Um Ävatar é uma ferramenta de reflexão baseada no trabalho real de uma terapeuta com anos de consulta ativa. As mensagens não são aforismos genéricos — emergem de padrões reais observados em processos de mudança profunda.</p>
     <p>Esta ferramenta destina-se a reflexão pessoal e não substitui aconselhamento profissional psicológico, médico, jurídico ou financeiro.</p>
   </section>
 
   <section id="trust">
     <h2>O que dizem quem já experimentou</h2>
-    <p>Utilizadores partilham que o Ponto Cego os ajuda a ganhar clareza sobre situações que tinham dificuldade em ver com objetividade.</p>
+    <p>Utilizadores partilham que o Um Ävatar os ajuda a ganhar clareza sobre situações que tinham dificuldade em ver com objetividade.</p>
   </section>
 
   <section id="faq">
     <h2>Perguntas frequentes</h2>
     <dl>
-      <dt>O que é o Ponto Cego?</dt>
+      <dt>O que é o Um Ävatar?</dt>
       <dd>Uma ferramenta de reflexão pessoal com 534 mensagens únicas, baseadas em prática terapêutica real. Escolhe um número e recebe uma mensagem que pode ajudá-lo a ver com mais clareza aquilo que tem evitado.</dd>
 
       <dt>Como funcionam os créditos?</dt>
@@ -108,7 +108,7 @@ const STATIC_HTML = `<!DOCTYPE html>
       <dd>Sim, sem gastar créditos. Todas as suas mensagens reveladas ficam guardadas no histórico.</dd>
 
       <dt>Isto substitui terapia ou aconselhamento profissional?</dt>
-      <dd>Não. O Ponto Cego é uma ferramenta de reflexão pessoal e não substitui qualquer tipo de aconselhamento profissional.</dd>
+      <dd>Não. O Um Ävatar é uma ferramenta de reflexão pessoal e não substitui qualquer tipo de aconselhamento profissional.</dd>
 
       <dt>Posso revelar a mesma mensagem mais de uma vez?</dt>
       <dd>Sim, mas gasta um crédito adicional. Se pretende reler, use o histórico em "As minhas mensagens" — gratuito.</dd>
@@ -118,7 +118,7 @@ const STATIC_HTML = `<!DOCTYPE html>
 </main>
 
 <footer>
-  <p>Ponto Cego &mdash; Ver com mais clareza por dentro</p>
+  <p>Um Ävatar &mdash; Ver com mais clareza por dentro</p>
   <nav>
     <a href="/legal/termos">Termos</a>
     <a href="/legal/privacidade">Privacidade</a>

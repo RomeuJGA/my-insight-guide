@@ -7,7 +7,7 @@ const About = () => (
     <div className="flex-1 pt-28 pb-20 px-4">
       <div className="max-w-2xl mx-auto">
         <h1 className="font-serif text-4xl md:text-5xl tracking-tight text-foreground mb-3">
-          Quem está por detrás do Ponto Cego
+          Quem está por detrás do Um Ävatar
         </h1>
         <p className="text-muted-foreground text-sm mb-8">Mónica Dell Rey</p>
 
