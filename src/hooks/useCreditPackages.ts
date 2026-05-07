@@ -31,9 +31,7 @@ export function useCreditPackages(opts: { onlyActive?: boolean } = { onlyActive:
           display_order: p.display_order,
           active: p.active,
           description: (p as CreditPackageRow & { description?: string | null }).description ?? null,
-          future_price_eur: (p as CreditPackageRow & { future_price_eur?: number | null }).future_price_eur != null
-            ? Number((p as CreditPackageRow & { future_price_eur?: number | null }).future_price_eur)
-            : null,
+          future_price_eur: p.future_price_eur != null ? Number(p.future_price_eur) : null,
         })),
       );
       setError(null);

@@ -93,6 +93,7 @@ export type Database = {
           created_at: string
           credits: number
           display_order: number
+          future_price_eur: number | null
           id: string
           name: string
           price_eur: number
@@ -104,6 +105,7 @@ export type Database = {
           created_at?: string
           credits: number
           display_order?: number
+          future_price_eur?: number | null
           id?: string
           name: string
           price_eur: number
@@ -115,6 +117,7 @@ export type Database = {
           created_at?: string
           credits?: number
           display_order?: number
+          future_price_eur?: number | null
           id?: string
           name?: string
           price_eur?: number
