@@ -13,6 +13,7 @@ import {
   X,
   Smartphone,
   Phone,
+  AlertCircle,
 } from "lucide-react";
 import Disclaimer from "./Disclaimer";
 import { supabase } from "@/integrations/supabase/client";
@@ -83,6 +84,7 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
   const [couponLoading, setCouponLoading] = useState(false);
   const [coupon, setCoupon] = useState<AppliedCoupon | null>(null);
 
+  const [pollingTimedOut, setPollingTimedOut] = useState(false);
   const pollRef = useRef<number | null>(null);
   const pollCountRef = useRef(0);
   const lastCouponAttemptRef = useRef(0);
@@ -203,10 +205,14 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
   const startPolling = (orderId: string, intervalMs: number, maxPolls: number) => {
     stopPolling();
     pollCountRef.current = 0;
+    setPollingTimedOut(false);
     pollRef.current = window.setInterval(async () => {
       pollCountRef.current += 1;
       const done = await checkStatus(orderId, true);
-      if (done || pollCountRef.current >= maxPolls) stopPolling();
+      if (done || pollCountRef.current >= maxPolls) {
+        if (!done) setPollingTimedOut(true);
+        stopPolling();
+      }
     }, intervalMs);
   };
 
@@ -268,6 +274,7 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
     setCouponCode("");
     setPhone("");
     setPhoneError("");
+    setPollingTimedOut(false);
   };
 
   // ── Multibanco pending screen ──────────────────────────────────────────────
@@ -321,15 +328,28 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
           </p>
         )}
 
-        <div className="mt-6 p-4 rounded-2xl bg-primary/5 border border-primary/20">
-          <div className="flex items-center gap-2 text-sm">
-            <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
-            <span className="text-foreground/80">A aguardar pagamento…</span>
+        {pollingTimedOut ? (
+          <div className="mt-6 p-4 rounded-2xl bg-amber-50 border border-amber-200">
+            <div className="flex items-center gap-2 text-sm text-amber-800">
+              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+              <span className="font-medium">Verificação automática expirou.</span>
+            </div>
+            <p className="mt-1 text-xs text-amber-700 leading-relaxed">
+              Se efetuou o pagamento, clique em "Já paguei, verificar estado". Se o problema persistir, contacte-nos em{" "}
+              <a href="mailto:suporte@pontocego.pt" className="underline font-medium">suporte@pontocego.pt</a>.
+            </p>
           </div>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Os créditos são adicionados automaticamente assim que o pagamento for confirmado pelo banco.
-          </p>
-        </div>
+        ) : (
+          <div className="mt-6 p-4 rounded-2xl bg-primary/5 border border-primary/20">
+            <div className="flex items-center gap-2 text-sm">
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
+              <span className="text-foreground/80">A aguardar pagamento…</span>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Os créditos são adicionados automaticamente assim que o pagamento for confirmado pelo banco.
+            </p>
+          </div>
+        )}
 
         <div className="mt-6 grid sm:grid-cols-2 gap-3">
           <button
@@ -376,15 +396,28 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
           </dd>
         </div>
 
-        <div className="p-4 rounded-2xl bg-primary/5 border border-primary/20 mb-6">
-          <div className="flex items-center gap-2 text-sm">
-            <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
-            <span className="text-foreground/80">A aguardar confirmação…</span>
+        {pollingTimedOut ? (
+          <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 mb-6">
+            <div className="flex items-center gap-2 text-sm text-amber-800">
+              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+              <span className="font-medium">A notificação MB WAY expirou.</span>
+            </div>
+            <p className="mt-1 text-xs text-amber-700 leading-relaxed">
+              Se confirmou o pagamento na app, clique em "Verificar estado". Se não recebeu a notificação, contacte-nos em{" "}
+              <a href="mailto:suporte@pontocego.pt" className="underline font-medium">suporte@pontocego.pt</a>.
+            </p>
           </div>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Os créditos são adicionados automaticamente assim que confirmar na app MB WAY.
-          </p>
-        </div>
+        ) : (
+          <div className="p-4 rounded-2xl bg-primary/5 border border-primary/20 mb-6">
+            <div className="flex items-center gap-2 text-sm">
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
+              <span className="text-foreground/80">A aguardar confirmação…</span>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Os créditos são adicionados automaticamente assim que confirmar na app MB WAY.
+            </p>
+          </div>
+        )}
 
         <div className="grid sm:grid-cols-2 gap-3">
           <button
