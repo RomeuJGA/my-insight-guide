@@ -1,21 +1,23 @@
 import { useState } from "react";
-import { Loader2, UserCog, Plus, Minus } from "lucide-react";
+import { Loader2, UserCog, Plus, Minus, CheckCircle2, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { getErrorMessage } from "@/lib/errors";
+
+type Result = { ok: true; credits: number } | { ok: false; message: string };
 
 const AdminCredits = () => {
   const [userId, setUserId] = useState("");
   const [amount, setAmount] = useState<string>("5");
   const [description, setDescription] = useState("Ajuste manual");
   const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<Result | null>(null);
 
   const submit = async (sign: 1 | -1) => {
     if (busy) return;
     const trimmedId = userId.trim();
     const n = parseInt(amount, 10);
-    if (!trimmedId) return toast.error("Indique o user_id.");
-    if (!Number.isInteger(n) || n <= 0) return toast.error("Quantidade inválida.");
+    setResult(null);
+    if (!trimmedId) { setResult({ ok: false, message: "Indique o email ou UUID do utilizador." }); return; }
+    if (!Number.isInteger(n) || n <= 0) { setResult({ ok: false, message: "Quantidade inválida." }); return; }
 
     setBusy(true);
     try {
@@ -26,10 +28,26 @@ const AdminCredits = () => {
           description: description || (sign > 0 ? "Crédito manual" : "Débito manual"),
         },
       });
-      if (error) throw error;
-      toast.success(`Saldo atualizado: ${data?.credits} créditos.`);
+
+      if (error) {
+        let msg = "Erro ao ajustar créditos.";
+        try {
+          const body = await (error as { context?: Response }).context?.json();
+          if (body?.error) msg = body.error;
+        } catch {}
+        setResult({ ok: false, message: msg });
+        return;
+      }
+
+      if (data?.error) {
+        setResult({ ok: false, message: data.error });
+        return;
+      }
+
+      setResult({ ok: true, credits: data?.credits ?? 0 });
     } catch (err: unknown) {
-      toast.error(getErrorMessage(err) || "Erro ao ajustar créditos.");
+      const msg = err instanceof Error ? err.message : "Erro inesperado.";
+      setResult({ ok: false, message: msg });
     } finally {
       setBusy(false);
     }
@@ -100,6 +118,19 @@ const AdminCredits = () => {
             Remover
           </button>
         </div>
+
+        {result && (
+          <div className={`flex items-start gap-2 rounded-lg px-3 py-2.5 text-sm mt-1 ${result.ok ? "bg-green-50 text-green-800 border border-green-200" : "bg-red-50 text-red-800 border border-red-200"}`}>
+            {result.ok
+              ? <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" />
+              : <XCircle className="w-4 h-4 mt-0.5 shrink-0" />}
+            <span>
+              {result.ok
+                ? `Feito. Saldo actual: ${result.credits} crédito${result.credits !== 1 ? "s" : ""}.`
+                : result.message}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
