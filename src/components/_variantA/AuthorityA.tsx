@@ -10,7 +10,7 @@ const AuthorityA = () => {
           <div className="space-y-6 text-lg md:text-xl text-foreground/80 leading-relaxed text-balance">
             <p>Estas mensagens não foram criadas para serem bonitas ou reconfortantes.</p>
             <p>
-              Foram desenvolvidas com base na experiência real de uma terapeuta que já acompanhou milhares de pessoas.
+              Foram desenvolvidas com base na experiência real de Mónica Dell Rey, que já acompanhou milhares de pessoas.
             </p>
             <p className="font-serif italic text-foreground">
               Quando alguém quer realmente mudar, nem sempre precisa de conforto.

@@ -33,7 +33,7 @@ const HeroA = () => {
           </h1>
 
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-4 leading-relaxed text-balance animate-fade-in-up" style={{ animationDelay: "0.15s" }}>
-            Baseado no trabalho real de uma terapeuta que acompanha diariamente pessoas em processos de mudança profunda.
+            Baseado no trabalho real de Mónica Dell Rey, que acompanha diariamente pessoas em processos de mudança profunda.
           </p>
           <p className="text-base md:text-lg text-muted-foreground/90 max-w-2xl mx-auto mb-10 leading-relaxed text-balance animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
             Escolha um número entre 1 e 534 e receba uma mensagem que pode ajudá-lo a ver com mais clareza aquilo que tem evitado.
