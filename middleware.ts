@@ -120,9 +120,9 @@ const STATIC_HTML = `<!DOCTYPE html>
 <footer>
   <p>Ponto Cego &mdash; Ver com mais clareza por dentro</p>
   <nav>
-    <a href="/termos">Termos</a>
-    <a href="/privacidade">Privacidade</a>
-    <a href="/reembolsos">Reembolsos</a>
+    <a href="/legal/termos">Termos</a>
+    <a href="/legal/privacidade">Privacidade</a>
+    <a href="/legal/reembolsos">Reembolsos</a>
   </nav>
   <p>Esta ferramenta destina-se a reflexão pessoal e não substitui aconselhamento profissional.</p>
 </footer>
