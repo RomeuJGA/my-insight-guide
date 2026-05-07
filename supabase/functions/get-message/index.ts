@@ -1,6 +1,6 @@
-// Reveals a message. Server-side, idempotent:
-// - First reveal: consumes 1 credit + records in message_reveals.
-// - Subsequent reveals of the same message: returns content WITHOUT charging.
+// Reveals a message. Always charges 1 credit, even for re-reveals.
+// On first call without force=true, returns alreadyRevealed=true so the client
+// can show a confirmation dialog. On second call with force=true, charges and returns content.
 import { corsHeaders, getAuthedUser, jsonResponse } from "../_shared/auth.ts";
 
 Deno.serve(async (req) => {
@@ -14,6 +14,7 @@ Deno.serve(async (req) => {
   const body = await req.json().catch(() => null);
   const rawId = body?.id;
   const id = typeof rawId === "number" ? rawId : parseInt(String(rawId), 10);
+  const force = body?.force === true;
 
   const MAX_MESSAGE_ID = 534;
   if (!Number.isInteger(id) || id < 1 || id > MAX_MESSAGE_ID) {
@@ -23,6 +24,7 @@ Deno.serve(async (req) => {
   const { data, error } = await admin.rpc("reveal_message", {
     _user_id: user.id,
     _message_id: id,
+    _force: force,
   });
 
   if (error) {
@@ -38,6 +40,9 @@ Deno.serve(async (req) => {
   }
   if (row.status === "not_found") {
     return jsonResponse({ error: "Mensagem não encontrada." }, 404);
+  }
+  if (row.status === "already_revealed") {
+    return jsonResponse({ alreadyRevealed: true, credits: row.credits, code: "ALREADY_REVEALED" }, 200);
   }
 
   return jsonResponse({
