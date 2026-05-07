@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Quote, Sparkles, History, PenLine } from "lucide-react";
+import { ArrowLeft, Quote, Sparkles, History, PenLine, NotebookPen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -10,7 +10,7 @@ import Disclaimer from "@/components/Disclaimer";
 import ReflectionGuide from "@/components/ReflectionGuide";
 import { Skeleton } from "@/components/ui/skeleton";
 
-type Reveal = { messageId: number; revealedAt: string; content: string; question?: string | null };
+type Reveal = { messageId: number; revealedAt: string; content: string; question?: string | null; notes?: string | null };
 
 const MyMessages = () => {
   const navigate = useNavigate();
@@ -124,6 +124,15 @@ const MyMessages = () => {
                 </p>
               </article>
               <ReflectionGuide seed={active.messageId} questionCount={3} />
+              {active.notes && (
+                <div className="mt-4 p-8 rounded-2xl bg-card border border-border/60">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                    <NotebookPen className="w-3 h-3" />
+                    O que ficou consigo
+                  </p>
+                  <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">{active.notes}</p>
+                </div>
+              )}
             </div>
           ) : (
             <ul className="space-y-3">

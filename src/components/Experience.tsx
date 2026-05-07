@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { Quote, Shuffle, Sparkles, X, LogIn, Coins, MailCheck, BookMarked, PenLine, ChevronDown, Lock } from "lucide-react";
+import { Quote, Shuffle, Sparkles, X, LogIn, Coins, MailCheck, BookMarked, PenLine, ChevronDown, Lock, NotebookPen } from "lucide-react";
 import Disclaimer from "./Disclaimer";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -25,7 +25,10 @@ const Experience = () => {
   const [animating, setAnimating] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
   const [confirmRepeat, setConfirmRepeat] = useState<number | null>(null);
+  const [notes, setNotes] = useState("");
+  const [noteSaveState, setNoteSaveState] = useState<"idle" | "saving" | "saved">("idle");
   const pendingRevealRef = useRef<number | null>(null);
+  const notesTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { track } = useAnalytics();
 
   // Auto-grant welcome credit if email verified
@@ -140,12 +143,36 @@ const Experience = () => {
     reveal(n);
   };
 
+  const saveNotes = useCallback(async (text: string, messageId: number) => {
+    if (!user) return;
+    await supabase
+      .from("message_reveals")
+      .update({ notes: text })
+      .eq("user_id", user.id)
+      .eq("message_id", messageId);
+    setNoteSaveState("saved");
+  }, [user]);
+
+  useEffect(() => {
+    if (!revealed || noteSaveState === "idle") return;
+    if (notesTimerRef.current) clearTimeout(notesTimerRef.current);
+    setNoteSaveState("saving");
+    notesTimerRef.current = setTimeout(() => {
+      saveNotes(notes, revealed.number);
+    }, 1500);
+    return () => { if (notesTimerRef.current) clearTimeout(notesTimerRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [notes]);
+
   const handleReset = () => {
+    if (notesTimerRef.current) clearTimeout(notesTimerRef.current);
     setRevealed(null);
     setConfirmRepeat(null);
     setInput("");
     setQuestion("");
     setQuestionOpen(false);
+    setNotes("");
+    setNoteSaveState("idle");
   };
 
   return (
@@ -361,7 +388,28 @@ const Experience = () => {
                 )}
                 <Disclaimer variant="inline" className="mt-6" />
                 <ReflectionGuide seed={revealed.number} questionCount={3} />
-                <div className="mt-10 pt-6 border-t border-border/60 flex flex-col sm:flex-row gap-3">
+
+                {/* Post-reveal notes */}
+                <div className="mt-8 pt-6 border-t border-border/60">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                    <NotebookPen className="w-3 h-3" />
+                    O que ficou consigo?
+                  </p>
+                  <textarea
+                    value={notes}
+                    onChange={(e) => { setNotes(e.target.value); setNoteSaveState("saving"); }}
+                    placeholder="Escreva livremente o que esta mensagem lhe trouxe. Fica guardado aqui, apenas para si."
+                    rows={4}
+                    maxLength={2000}
+                    className="w-full px-4 py-3 rounded-2xl border border-input bg-background/50 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring/40 transition-smooth leading-relaxed"
+                  />
+                  <p className="mt-1.5 text-xs text-muted-foreground/50 text-right h-4">
+                    {noteSaveState === "saved" && "Guardado"}
+                    {noteSaveState === "saving" && "A guardar…"}
+                  </p>
+                </div>
+
+                <div className="mt-4 pt-6 border-t border-border/60 flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={handleReset}
                     className="flex-1 py-3 rounded-full bg-card border border-border hover:bg-muted transition-smooth text-sm font-medium"
