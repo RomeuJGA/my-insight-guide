@@ -27,6 +27,7 @@ const Navbar = () => {
           <a href="/#how" className="hover:text-foreground transition-smooth">Como funciona</a>
           <a href="/#preview" className="hover:text-foreground transition-smooth">Experiência</a>
           <a href="/#pricing" className="hover:text-foreground transition-smooth">Preços</a>
+          <a href="/sobre" className="hover:text-foreground transition-smooth">Sobre</a>
         </div>
         {user ? (
           <div className="flex items-center gap-2 sm:gap-3">
