@@ -6,10 +6,12 @@ import { getErrorMessage } from "@/lib/errors";
 import { Sparkles, MailCheck, RefreshCw, LogOut, KeyRound, Loader2, Zap } from "lucide-react";
 import Footer from "@/components/Footer";
 import PasswordField from "@/components/PasswordField";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 const Auth = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { track } = useAnalytics();
   const pendingNumber = (location.state as { pendingNumber?: number } | null)?.pendingNumber ?? null;
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
@@ -99,6 +101,7 @@ const Auth = () => {
           options: { emailRedirectTo: `${window.location.origin}/` },
         });
         if (error) throw error;
+        track("signup");
         if (!data.session) {
           setPendingEmail(email);
           toast.success("Conta criada. Confirme o email para continuar.");

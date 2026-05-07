@@ -533,6 +533,8 @@ export type Database = {
         | "package_selected"
         | "purchase_attempt"
         | "purchase_success"
+        | "message_revealed"
+        | "signup"
       app_role: "admin" | "user"
       coupon_discount_type: "percent" | "fixed"
       credit_tx_type: "purchase" | "usage" | "admin" | "welcome"
@@ -671,6 +673,8 @@ export const Constants = {
         "package_selected",
         "purchase_attempt",
         "purchase_success",
+        "message_revealed",
+        "signup",
       ],
       app_role: ["admin", "user"],
       coupon_discount_type: ["percent", "fixed"],

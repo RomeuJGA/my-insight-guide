@@ -101,6 +101,8 @@ const Experience = () => {
 
       if (typeof data.credits === "number") setLocalCredits(data.credits);
 
+      track("message_revealed", { metadata: { number: n, already_revealed: data.alreadyRevealed === true } });
+
       await new Promise((r) => setTimeout(r, 300));
 
       const trimmedQuestion = question.trim();
