@@ -26,3 +26,6 @@ verify_jwt = true
 
 [functions.get-daily-message]
 verify_jwt = true
+
+[functions.admin-list-users]
+verify_jwt = true

@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import AdminCredits from "@/components/AdminCredits";
+import AdminUsers from "@/components/AdminUsers";
 import AdminAnalytics from "@/components/AdminAnalytics";
 import AdminPackages from "@/components/AdminPackages";
 import AdminCoupons from "@/components/AdminCoupons";
@@ -398,6 +399,10 @@ const Admin = () => {
 
         <div className="mt-12">
           <AdminAnalytics />
+        </div>
+
+        <div className="mt-12">
+          <AdminUsers />
         </div>
 
         <div className="mt-12">
