@@ -117,6 +117,10 @@ const Pricing = () => {
             })}
           </div>
         )}
+
+        <p className="text-center text-xs text-muted-foreground/60 mt-10 max-w-sm mx-auto">
+          Preços de lançamento — disponíveis por tempo limitado.
+        </p>
       </div>
     </section>
   );
