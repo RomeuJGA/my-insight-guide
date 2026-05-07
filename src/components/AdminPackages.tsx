@@ -36,6 +36,7 @@ const AdminPackages = () => {
         name: draft.name,
         credits: Number(draft.credits),
         price_eur: Number(draft.price_eur),
+        future_price_eur: draft.future_price_eur != null ? Number(draft.future_price_eur) : null,
         badge: draft.badge?.toString().trim() || null,
         display_order: Number(draft.display_order ?? 0),
         active: !!draft.active,
@@ -103,6 +104,7 @@ const AdminPackages = () => {
                 <th className="py-2 pr-3">Nome</th>
                 <th className="py-2 pr-3">Créditos</th>
                 <th className="py-2 pr-3">Preço (€)</th>
+                <th className="py-2 pr-3">Preço futuro (€)</th>
                 <th className="py-2 pr-3">Etiqueta</th>
                 <th className="py-2 pr-3">Ordem</th>
                 <th className="py-2 pr-3">Ativo</th>
@@ -138,6 +140,17 @@ const AdminPackages = () => {
                         min={0}
                         value={d.price_eur ?? 0}
                         onChange={(e) => setField(p.id, "price_eur", e.target.value)}
+                        className="w-24 px-2 py-1 rounded-md border border-border bg-background tabular-nums"
+                      />
+                    </td>
+                    <td className="py-2 pr-3">
+                      <input
+                        type="number"
+                        step="0.01"
+                        min={0}
+                        value={d.future_price_eur ?? ""}
+                        placeholder="—"
+                        onChange={(e) => setField(p.id, "future_price_eur", e.target.value === "" ? null : e.target.value)}
                         className="w-24 px-2 py-1 rounded-md border border-border bg-background tabular-nums"
                       />
                     </td>

@@ -70,6 +70,11 @@ const Pricing = () => {
                       {plan.description}
                     </p>
                   )}
+                  {plan.future_price_eur && (
+                    <p className={`text-sm line-through mb-1 ${highlight ? "text-primary-foreground/50" : "text-muted-foreground/60"}`}>
+                      {formatEur(plan.future_price_eur)}
+                    </p>
+                  )}
                   <div className="flex items-baseline gap-1 mb-1">
                     <span className="font-serif text-5xl">{formatEur(plan.price_eur)}</span>
                   </div>

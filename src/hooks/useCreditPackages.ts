@@ -7,7 +7,7 @@ type CreditPackageRow = Database["public"]["Tables"]["credit_packages"]["Row"];
 export type CreditPackage = Pick<
   CreditPackageRow,
   "id" | "name" | "credits" | "price_eur" | "badge" | "display_order" | "active"
-> & { description: string | null };
+> & { description: string | null; future_price_eur: number | null };
 
 export function useCreditPackages(opts: { onlyActive?: boolean } = { onlyActive: true }) {
   const [packages, setPackages] = useState<CreditPackage[]>([]);
@@ -31,6 +31,9 @@ export function useCreditPackages(opts: { onlyActive?: boolean } = { onlyActive:
           display_order: p.display_order,
           active: p.active,
           description: (p as CreditPackageRow & { description?: string | null }).description ?? null,
+          future_price_eur: (p as CreditPackageRow & { future_price_eur?: number | null }).future_price_eur != null
+            ? Number((p as CreditPackageRow & { future_price_eur?: number | null }).future_price_eur)
+            : null,
         })),
       );
       setError(null);
