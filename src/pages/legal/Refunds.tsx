@@ -31,8 +31,8 @@ const Refunds = () => (
         Rua Cristóvão Pinho Queimado 33, P3, E12 – 3800-012 Aveiro, Portugal
         <br />
         Email:{" "}
-        <a href="mailto:suporte@pontocego.pt" className="underline hover:text-foreground">
-          suporte@pontocego.pt
+        <a href="mailto:suporte@umavatar.pt" className="underline hover:text-foreground">
+          suporte@umavatar.pt
         </a>
         <br />
         Telefone: 234 386 003
@@ -42,7 +42,7 @@ const Refunds = () => (
     <section>
       <h2 className="font-serif text-2xl mt-6 mb-3">2. Natureza do Produto</h2>
       <p>
-        O serviço <strong>pontocego.pt</strong> fornece <strong>conteúdo digital</strong>{" "}
+        O serviço <strong>umavatar.pt</strong> fornece <strong>conteúdo digital</strong>{" "}
         (mensagens de orientação e reflexão) entregue imediatamente em ambiente online,
         mediante a utilização de créditos previamente adquiridos. Não existe subscrição
         periódica — os pagamentos são avulsos, por pacote de créditos.
@@ -73,7 +73,7 @@ const Refunds = () => (
         <li>o consumidor tenha <strong>reconhecido que perde o direito de livre resolução</strong>.</li>
       </ul>
       <p className="mt-3">
-        4.2 No <strong>pontocego.pt</strong>, cada vez que o utilizador clica para
+        4.2 No <strong>umavatar.pt</strong>, cada vez que o utilizador clica para
         revelar uma mensagem paga, é apresentada uma confirmação explícita de que:
       </p>
       <ul className="list-disc pl-6 space-y-2 mt-2">
@@ -93,8 +93,8 @@ const Refunds = () => (
         5.1 Os créditos adquiridos e <strong>ainda não utilizados</strong> (não aplicados
         em nenhuma revelação de mensagem) podem ser reembolsados mediante pedido enviado
         para{" "}
-        <a href="mailto:suporte@pontocego.pt" className="underline hover:text-foreground">
-          suporte@pontocego.pt
+        <a href="mailto:suporte@umavatar.pt" className="underline hover:text-foreground">
+          suporte@umavatar.pt
         </a>
         , nas seguintes condições:
       </p>
@@ -127,8 +127,8 @@ const Refunds = () => (
       </ul>
       <p className="mt-3">
         6.2 Pedidos de reembolso por falha técnica devem ser enviados para{" "}
-        <a href="mailto:suporte@pontocego.pt" className="underline hover:text-foreground">
-          suporte@pontocego.pt
+        <a href="mailto:suporte@umavatar.pt" className="underline hover:text-foreground">
+          suporte@umavatar.pt
         </a>
         , descrevendo o problema e indicando a data e hora aproximadas da ocorrência. O
         prestador responderá no prazo de <strong>5 dias úteis</strong>.
@@ -141,8 +141,8 @@ const Refunds = () => (
         7.1 Se o utilizador solicitar o encerramento da sua conta e possuir créditos não
         utilizados, pode solicitar o reembolso do valor correspondente, sem limite de
         prazo, enviando pedido para{" "}
-        <a href="mailto:suporte@pontocego.pt" className="underline hover:text-foreground">
-          suporte@pontocego.pt
+        <a href="mailto:suporte@umavatar.pt" className="underline hover:text-foreground">
+          suporte@umavatar.pt
         </a>
         .
       </p>
@@ -158,12 +158,12 @@ const Refunds = () => (
       <ol className="list-decimal pl-6 space-y-2 mt-2">
         <li>
           Envie email para{" "}
-          <a href="mailto:suporte@pontocego.pt" className="underline hover:text-foreground">
-            suporte@pontocego.pt
+          <a href="mailto:suporte@umavatar.pt" className="underline hover:text-foreground">
+            suporte@umavatar.pt
           </a>{" "}
           com o assunto «Pedido de Reembolso»;
         </li>
-        <li>Indique o email associado à sua conta no pontocego.pt;</li>
+        <li>Indique o email associado à sua conta no umavatar.pt;</li>
         <li>Descreva o motivo do pedido (resolução no prazo legal, falha técnica, encerramento de conta);</li>
         <li>Aguarde resposta no prazo de <strong>5 dias úteis</strong>.</li>
       </ol>

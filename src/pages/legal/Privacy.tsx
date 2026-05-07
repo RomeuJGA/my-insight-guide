@@ -18,8 +18,8 @@ const Privacy = () => (
         Rua Cristóvão Pinho Queimado 33, P3, E12 – 3800-012 Aveiro, Portugal
         <br />
         Email:{" "}
-        <a href="mailto:suporte@pontocego.pt" className="underline hover:text-foreground">
-          suporte@pontocego.pt
+        <a href="mailto:suporte@umavatar.pt" className="underline hover:text-foreground">
+          suporte@umavatar.pt
         </a>
         <br />
         Telefone: 234 386 003
@@ -280,8 +280,8 @@ const Privacy = () => (
       </ul>
       <p className="mt-3">
         Para exercer qualquer destes direitos, o utilizador deve enviar pedido para{" "}
-        <a href="mailto:suporte@pontocego.pt" className="underline hover:text-foreground">
-          suporte@pontocego.pt
+        <a href="mailto:suporte@umavatar.pt" className="underline hover:text-foreground">
+          suporte@umavatar.pt
         </a>
         , identificando-se e indicando o direito que pretende exercer. O responsável
         responderá no prazo de <strong>30 dias</strong> (prorrogável por mais 60 dias em

@@ -11,11 +11,11 @@ const STATIC_HTML = `<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ponto Cego — Ver com mais clareza por dentro</title>
   <meta name="description" content="Baseado no trabalho real de uma terapeuta que acompanha diariamente processos de mudança profunda. Escolha um número e receba uma mensagem que o ajuda a ver com clareza aquilo que tem evitado." />
-  <link rel="canonical" href="https://www.pontocego.pt/" />
+  <link rel="canonical" href="https://www.umavatar.pt/" />
   <meta property="og:title" content="Ponto Cego — Ver com mais clareza por dentro" />
   <meta property="og:description" content="Mensagens de reflexão baseadas em prática terapêutica real. Não dão respostas — dão clareza." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://www.pontocego.pt/" />
+  <meta property="og:url" content="https://www.umavatar.pt/" />
 </head>
 <body>
 

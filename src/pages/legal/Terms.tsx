@@ -8,7 +8,7 @@ const Terms = () => (
     <section>
       <h2 className="font-serif text-2xl mt-2 mb-3">1. Identificação do Prestador de Serviço</h2>
       <p>
-        O website <strong>pontocego.pt</strong> (doravante «Plataforma») é operado por:
+        O website <strong>umavatar.pt</strong> (doravante «Plataforma») é operado por:
       </p>
       <p className="mt-3">
         <strong>Romeu Jorge Gomes Abreu</strong>
@@ -18,8 +18,8 @@ const Terms = () => (
         Rua Cristóvão Pinho Queimado 33, P3, E12 – 3800-012 Aveiro, Portugal
         <br />
         Email:{" "}
-        <a href="mailto:suporte@pontocego.pt" className="underline hover:text-foreground">
-          suporte@pontocego.pt
+        <a href="mailto:suporte@umavatar.pt" className="underline hover:text-foreground">
+          suporte@umavatar.pt
         </a>
         <br />
         Telefone: 234 386 003
@@ -30,7 +30,7 @@ const Terms = () => (
       <h2 className="font-serif text-2xl mt-6 mb-3">2. Objeto e Âmbito</h2>
       <p>
         Os presentes Termos e Condições regulam o acesso e a utilização da Plataforma{" "}
-        <strong>pontocego.pt</strong>, bem como a aquisição de créditos e a revelação de
+        <strong>umavatar.pt</strong>, bem como a aquisição de créditos e a revelação de
         mensagens de orientação e reflexão (doravante «Conteúdo»), em conformidade com o
         Decreto-Lei n.º 7/2004, de 7 de janeiro (Comércio Eletrónico), e o Decreto-Lei n.º
         24/2014, de 14 de fevereiro (Contratos Celebrados à Distância).
@@ -222,8 +222,8 @@ const Terms = () => (
       <p className="mt-3">
         10.2 O utilizador pode encerrar a sua conta a qualquer momento, através de pedido
         enviado para{" "}
-        <a href="mailto:suporte@pontocego.pt" className="underline hover:text-foreground">
-          suporte@pontocego.pt
+        <a href="mailto:suporte@umavatar.pt" className="underline hover:text-foreground">
+          suporte@umavatar.pt
         </a>
         .
       </p>

@@ -11,7 +11,7 @@ async function sendConfirmationEmail(
   const resendKey = Deno.env.get("RESEND_API_KEY");
   if (!resendKey) return; // Skip if not configured
 
-  const appUrl = Deno.env.get("APP_URL") ?? "https://pontocego.pt";
+  const appUrl = Deno.env.get("APP_URL") ?? "https://umavatar.pt";
   const html = `
     <div style="font-family:Georgia,serif;max-width:520px;margin:0 auto;padding:32px;color:#1a1a1a;">
       <h1 style="font-size:28px;margin-bottom:8px;">Pagamento confirmado</h1>
@@ -41,7 +41,7 @@ async function sendConfirmationEmail(
     method: "POST",
     headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      from: "Ponto Cego <noreply@pontocego.pt>",
+      from: "Ponto Cego <noreply@umavatar.pt>",
       to: [toEmail],
       subject: `${credits} créditos adicionados à sua conta`,
       html,
@@ -63,7 +63,7 @@ async function sendAdminNotification(
     method: "POST",
     headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      from: "Ponto Cego <noreply@pontocego.pt>",
+      from: "Ponto Cego <noreply@umavatar.pt>",
       to: [toAdmin],
       subject: `Nova compra: ${credits} créditos · ${amount.toFixed(2).replace(".", ",")} €`,
       html: `<p>Nova compra confirmada.</p>

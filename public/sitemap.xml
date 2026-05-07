@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://www.pontocego.pt/</loc>
+    <loc>https://www.umavatar.pt/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://www.pontocego.pt/legal/termos</loc>
+    <loc>https://www.umavatar.pt/legal/termos</loc>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://www.pontocego.pt/legal/privacidade</loc>
+    <loc>https://www.umavatar.pt/legal/privacidade</loc>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://www.pontocego.pt/legal/reembolsos</loc>
+    <loc>https://www.umavatar.pt/legal/reembolsos</loc>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>

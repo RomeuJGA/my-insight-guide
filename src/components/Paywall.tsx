@@ -336,7 +336,7 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
             </div>
             <p className="mt-1 text-xs text-amber-700 leading-relaxed">
               Se efetuou o pagamento, clique em "Já paguei, verificar estado". Se o problema persistir, contacte-nos em{" "}
-              <a href="mailto:suporte@pontocego.pt" className="underline font-medium">suporte@pontocego.pt</a>.
+              <a href="mailto:suporte@umavatar.pt" className="underline font-medium">suporte@umavatar.pt</a>.
             </p>
           </div>
         ) : (
@@ -404,7 +404,7 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
             </div>
             <p className="mt-1 text-xs text-amber-700 leading-relaxed">
               Se confirmou o pagamento na app, clique em "Verificar estado". Se não recebeu a notificação, contacte-nos em{" "}
-              <a href="mailto:suporte@pontocego.pt" className="underline font-medium">suporte@pontocego.pt</a>.
+              <a href="mailto:suporte@umavatar.pt" className="underline font-medium">suporte@umavatar.pt</a>.
             </p>
           </div>
         ) : (
