@@ -9,33 +9,80 @@ async function sendConfirmationEmail(
   orderId: string,
 ) {
   const resendKey = Deno.env.get("RESEND_API_KEY");
-  if (!resendKey) return; // Skip if not configured
+  if (!resendKey) return;
 
   const appUrl = Deno.env.get("APP_URL") ?? "https://umavatar.pt";
-  const html = `
-    <div style="font-family:Georgia,serif;max-width:520px;margin:0 auto;padding:32px;color:#1a1a1a;">
-      <h1 style="font-size:28px;margin-bottom:8px;">Pagamento confirmado</h1>
-      <p style="color:#555;margin-bottom:24px;">O seu pagamento foi processado com sucesso.</p>
+  const creditLabel = credits === 1 ? "crédito" : "créditos";
+  const html = `<!DOCTYPE html>
+<html lang="pt">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f7f5f0;font-family:Georgia,serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f7f5f0;padding:40px 16px;">
+    <tr><td align="center">
+      <table width="520" cellpadding="0" cellspacing="0" style="max-width:520px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
 
-      <div style="background:#f5f3ef;border-radius:12px;padding:24px;margin-bottom:24px;">
-        <p style="margin:0 0 8px 0;font-size:14px;color:#777;text-transform:uppercase;letter-spacing:1px;">Créditos adicionados</p>
-        <p style="margin:0;font-size:40px;font-weight:400;color:#2d6b55;">${credits}</p>
-      </div>
+        <!-- Header -->
+        <tr>
+          <td style="background:#1a2e22;padding:28px 40px;text-align:center;">
+            <img src="${appUrl}/logo-umavatar.png" alt="Um Avatar" width="140" style="display:block;margin:0 auto;max-width:140px;" />
+          </td>
+        </tr>
 
-      <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:24px;">
-        <tr><td style="padding:8px 0;color:#777;">Valor</td><td style="padding:8px 0;text-align:right;">${amount.toFixed(2).replace(".", ",")} €</td></tr>
-        <tr><td style="padding:8px 0;color:#777;">Referência</td><td style="padding:8px 0;text-align:right;font-family:monospace;">${orderId}</td></tr>
+        <!-- Body -->
+        <tr>
+          <td style="padding:40px 40px 32px;">
+            <h1 style="margin:0 0 8px;font-size:26px;font-weight:400;color:#1a1a1a;letter-spacing:-0.3px;">Pagamento confirmado</h1>
+            <p style="margin:0 0 32px;font-size:15px;color:#666;line-height:1.6;">O seu pagamento foi processado com sucesso. Os seus créditos estão prontos a usar.</p>
+
+            <!-- Credits box -->
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0ede6;border-radius:12px;margin-bottom:28px;">
+              <tr>
+                <td style="padding:28px 32px;">
+                  <p style="margin:0 0 6px;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:1.5px;font-family:Arial,sans-serif;">Créditos adicionados</p>
+                  <p style="margin:0;font-size:52px;font-weight:400;color:#2d6b55;line-height:1;">${credits}</p>
+                  <p style="margin:4px 0 0;font-size:14px;color:#888;font-family:Arial,sans-serif;">${creditLabel} disponíveis na sua conta</p>
+                </td>
+              </tr>
+            </table>
+
+            <!-- Order details -->
+            <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #eee;margin-bottom:32px;">
+              <tr>
+                <td style="padding:12px 0;font-size:14px;color:#999;font-family:Arial,sans-serif;">Valor pago</td>
+                <td style="padding:12px 0;font-size:14px;color:#1a1a1a;text-align:right;font-family:Arial,sans-serif;">${amount.toFixed(2).replace(".", ",")} €</td>
+              </tr>
+              <tr style="border-top:1px solid #f0ede6;">
+                <td style="padding:12px 0;font-size:14px;color:#999;font-family:Arial,sans-serif;">Referência</td>
+                <td style="padding:12px 0;font-size:13px;color:#555;text-align:right;font-family:monospace;">${orderId}</td>
+              </tr>
+            </table>
+
+            <!-- CTA -->
+            <table cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="background:#2d6b55;border-radius:50px;">
+                  <a href="${appUrl}/#experience" style="display:inline-block;padding:14px 32px;color:#ffffff;text-decoration:none;font-size:15px;font-family:Arial,sans-serif;font-weight:500;letter-spacing:0.2px;">Revelar a minha mensagem</a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td style="background:#f7f5f0;padding:24px 40px;border-top:1px solid #ece9e2;">
+            <p style="margin:0;font-size:12px;color:#aaa;line-height:1.6;font-family:Arial,sans-serif;">
+              Um Ävatar &mdash; mensagens de reflexão baseadas em prática terapêutica real.<br>
+              <a href="${appUrl}" style="color:#aaa;text-decoration:underline;">umavatar.pt</a>
+            </p>
+          </td>
+        </tr>
+
       </table>
-
-      <a href="${appUrl}/#experience" style="display:inline-block;background:#2d6b55;color:#fff;padding:14px 28px;border-radius:50px;text-decoration:none;font-size:16px;">
-        Revelar a minha mensagem
-      </a>
-
-      <p style="margin-top:32px;font-size:12px;color:#999;">
-        Um Ävatar — mensagens de reflexão baseadas em prática terapêutica real.
-      </p>
-    </div>
-  `;
+    </td></tr>
+  </table>
+</body>
+</html>`;
 
   await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -43,7 +90,7 @@ async function sendConfirmationEmail(
     body: JSON.stringify({
       from: "Um Ävatar <noreply@umavatar.pt>",
       to: [toEmail],
-      subject: `${credits} créditos adicionados à sua conta`,
+      subject: `Os seus ${credits} ${creditLabel} estao prontos`,
       html,
     }),
   }).catch((e) => console.warn("Email send failed (non-fatal):", e));
@@ -59,20 +106,69 @@ async function sendAdminNotification(
   const resendKey = Deno.env.get("RESEND_API_KEY");
   if (!resendKey) return;
 
+  const appUrl = Deno.env.get("APP_URL") ?? "https://umavatar.pt";
+  const creditLabel = credits === 1 ? "crédito" : "créditos";
+  const now = new Date().toLocaleString("pt-PT", { timeZone: "Europe/Lisbon", dateStyle: "short", timeStyle: "short" });
+  const html = `<!DOCTYPE html>
+<html lang="pt">
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#f7f5f0;font-family:Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f7f5f0;padding:40px 16px;">
+    <tr><td align="center">
+      <table width="480" cellpadding="0" cellspacing="0" style="max-width:480px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+        <tr>
+          <td style="background:#1a2e22;padding:20px 32px;">
+            <p style="margin:0;font-size:11px;color:#6aad88;text-transform:uppercase;letter-spacing:1.5px;">Um Ävatar &mdash; Admin</p>
+            <p style="margin:4px 0 0;font-size:18px;color:#ffffff;font-weight:400;">Nova compra confirmada</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:28px 32px;">
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr style="border-bottom:1px solid #f0ede6;">
+                <td style="padding:10px 0;font-size:13px;color:#999;">Utilizador</td>
+                <td style="padding:10px 0;font-size:13px;color:#1a1a1a;text-align:right;">${userEmail}</td>
+              </tr>
+              <tr style="border-bottom:1px solid #f0ede6;">
+                <td style="padding:10px 0;font-size:13px;color:#999;">Créditos</td>
+                <td style="padding:10px 0;font-size:13px;color:#2d6b55;text-align:right;font-weight:600;">${credits} ${creditLabel}</td>
+              </tr>
+              <tr style="border-bottom:1px solid #f0ede6;">
+                <td style="padding:10px 0;font-size:13px;color:#999;">Valor</td>
+                <td style="padding:10px 0;font-size:13px;color:#1a1a1a;text-align:right;">${amount.toFixed(2).replace(".", ",")} €</td>
+              </tr>
+              <tr style="border-bottom:1px solid #f0ede6;">
+                <td style="padding:10px 0;font-size:13px;color:#999;">Referência</td>
+                <td style="padding:10px 0;font-size:12px;color:#555;text-align:right;font-family:monospace;">${orderId}</td>
+              </tr>
+              <tr>
+                <td style="padding:10px 0;font-size:13px;color:#999;">Data</td>
+                <td style="padding:10px 0;font-size:13px;color:#555;text-align:right;">${now}</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="background:#f7f5f0;padding:16px 32px;border-top:1px solid #ece9e2;">
+            <p style="margin:0;font-size:11px;color:#bbb;">
+              <a href="${appUrl}/admin" style="color:#bbb;text-decoration:underline;">Painel admin</a>
+            </p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
   await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       from: "Um Ävatar <noreply@umavatar.pt>",
       to: [toAdmin],
-      subject: `Nova compra: ${credits} créditos · ${amount.toFixed(2).replace(".", ",")} €`,
-      html: `<p>Nova compra confirmada.</p>
-             <ul>
-               <li>Utilizador: ${userEmail}</li>
-               <li>Créditos: ${credits}</li>
-               <li>Valor: ${amount.toFixed(2).replace(".", ",")} €</li>
-               <li>Ordem: ${orderId}</li>
-             </ul>`,
+      subject: `Nova compra: ${credits} ${creditLabel} - ${amount.toFixed(2).replace(".", ",")} EUR`,
+      html,
     }),
   }).catch((e) => console.warn("Admin email failed (non-fatal):", e));
 }
