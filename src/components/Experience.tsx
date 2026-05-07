@@ -274,7 +274,7 @@ const Experience = () => {
                     />
                     <p className="mt-1.5 text-xs text-muted-foreground flex items-center gap-1.5">
                       <Lock className="w-3 h-3 shrink-0" />
-                      Privado. Não é lido por ninguém — apenas acessível por si.
+                      Guardado apenas para si. Nenhum colaborador ou administrador consegue consultar as suas questões através desta plataforma.
                     </p>
                   </div>
                 )}
