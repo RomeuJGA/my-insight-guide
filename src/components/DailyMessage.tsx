@@ -74,7 +74,7 @@ const DailyMessage = () => {
             Mensagem do Dia
           </h2>
           <p className="text-muted-foreground">
-            Receba uma inspiração gratuita para o seu dia.
+            Receba uma reflexão gratuita para o seu dia.
           </p>
         </div>
 

@@ -19,7 +19,7 @@ const FinalCtaA = () => {
             to="/credits?buy=1"
             className="group inline-flex items-center gap-2 px-8 py-4 rounded-full bg-[hsl(165_35%_28%)] text-[hsl(40_30%_98%)] font-medium shadow-elegant hover:shadow-glow transition-smooth"
           >
-            Adquirir créditos
+            Escolher o meu número
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-smooth" />
           </Link>
         </div>
