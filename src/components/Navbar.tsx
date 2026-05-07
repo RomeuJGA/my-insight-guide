@@ -5,7 +5,7 @@ import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useCredits } from "@/hooks/useCredits";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import logo from "@/assets/intus-logo.png";
+import logo from "@/assets/logo-pontocego.png";
 
 const Navbar = () => {
   const { user } = useAuth();
