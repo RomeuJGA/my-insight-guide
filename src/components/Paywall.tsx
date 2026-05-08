@@ -83,6 +83,7 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
   const [couponCode, setCouponCode] = useState("");
   const [couponLoading, setCouponLoading] = useState(false);
   const [coupon, setCoupon] = useState<AppliedCoupon | null>(null);
+  const [showCouponInput, setShowCouponInput] = useState(false);
 
   const [pollingTimedOut, setPollingTimedOut] = useState(false);
   const pollRef = useRef<number | null>(null);
@@ -570,51 +571,60 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
 
       {/* Coupon */}
       {selected && showCouponField && (
-        <div className="mt-5 p-4 rounded-2xl bg-muted/40 border border-border/60">
-          <div className="flex items-center gap-2 mb-2 text-[11px] uppercase tracking-wider text-muted-foreground">
-            <Ticket className="w-3.5 h-3.5" />
-            Cupão de desconto
-          </div>
+        <div className="mt-4">
           {coupon ? (
-            <div className="flex items-center justify-between gap-3">
-              <div className="text-sm">
+            <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-muted/40 border border-border/60">
+              <div className="flex items-center gap-2 text-sm">
+                <Ticket className="w-3.5 h-3.5 text-primary/70 shrink-0" />
                 <span className="font-mono font-medium">{coupon.code}</span>
-                <span className="text-muted-foreground ml-2">
+                <span className="text-muted-foreground">
                   {coupon.discountType === "percent"
                     ? `-${coupon.discountValue}%`
-                    : `-${formatEur(coupon.discountValue)}`}{" "}
-                  · Total:{" "}
+                    : `-${formatEur(coupon.discountValue)}`}
+                  {" · "}
                   <strong className="text-foreground tabular-nums">{formatEur(coupon.finalPrice)}</strong>
                   {selectedPkg && (
-                    <span className="ml-1 line-through opacity-60">{formatEur(selectedPkg.price_eur)}</span>
+                    <span className="ml-1 line-through opacity-50">{formatEur(selectedPkg.price_eur)}</span>
                   )}
                 </span>
               </div>
               <button
                 onClick={removeCoupon}
-                className="p-1.5 rounded-full hover:bg-background"
+                className="p-1.5 rounded-full hover:bg-background shrink-0"
                 aria-label="Remover cupão"
               >
                 <X className="w-4 h-4 text-muted-foreground" />
               </button>
             </div>
           ) : (
-            <div className="flex gap-2">
-              <input
-                value={couponCode}
-                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                placeholder="Insira o código"
-                className="flex-1 px-3 py-2 rounded-lg border border-border bg-background text-sm font-mono uppercase"
-                onKeyDown={(e) => e.key === "Enter" && applyCoupon()}
-              />
+            <>
               <button
-                onClick={applyCoupon}
-                disabled={couponLoading || !couponCode.trim()}
-                className="px-4 py-2 rounded-lg bg-foreground text-background text-sm font-medium hover:opacity-90 disabled:opacity-50"
+                onClick={() => setShowCouponInput((v) => !v)}
+                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
-                {couponLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Aplicar"}
+                <Ticket className="w-3.5 h-3.5" />
+                Tem um código de desconto?
               </button>
-            </div>
+              {showCouponInput && (
+                <div className="mt-2 flex gap-2">
+                  <input
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    placeholder="Insira o código"
+                    className="flex-1 px-3 py-2 rounded-lg border border-border bg-background text-sm font-mono uppercase"
+                    onKeyDown={(e) => e.key === "Enter" && applyCoupon()}
+                    autoFocus
+                  />
+                  <button
+                    onClick={applyCoupon}
+                    disabled={couponLoading || !couponCode.trim()}
+                    className="px-4 py-2 rounded-lg bg-foreground text-background text-sm font-medium hover:opacity-90 disabled:opacity-50"
+                  >
+                    {couponLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Aplicar"}
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       )}

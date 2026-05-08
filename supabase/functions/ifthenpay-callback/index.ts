@@ -193,17 +193,22 @@ Deno.serve(async (req) => {
   const get = (k: string) => params.get(k) ?? params.get(k.toLowerCase()) ?? params.get(k.toUpperCase());
 
   const key = get("key") ?? get("chave");
-  let orderId = get("orderId") ?? get("order_id") ?? get("id") ?? get("referencia");
+  let orderId = get("orderId") ?? get("order_id") ?? get("id");
   const amount = get("amount") ?? get("valor");
   const requestId = get("requestId") ?? get("request_id") ?? get("terminal") ?? get("idpedido");
   const entity = get("entity") ?? get("entidade");
-  const reference = get("reference");
+  const reference = get("reference") ?? get("referencia");
   const paymentDatetime = get("payment_datetime") ?? get("paymentDatetime") ?? get("dataHoraPagamento") ?? get("datahorapag");
   const estado = get("estado") ?? get("status_mbway");
 
-  const expectedKey = (Deno.env.get("IFTHENPAY_ANTI_PHISHING_KEY") ?? "").trim();
+  // Accept keys for both Multibanco and MBWay (each has its own anti-phishing key in IfthenPay).
+  // Falls back to legacy IFTHENPAY_ANTI_PHISHING_KEY if the specific ones are not set.
+  const mbKey = (Deno.env.get("IFTHENPAY_MB_ANTI_PHISHING_KEY") ?? "").trim();
+  const mbwayKey = (Deno.env.get("IFTHENPAY_MBWAY_ANTI_PHISHING_KEY") ?? "").trim();
+  const legacyKey = (Deno.env.get("IFTHENPAY_ANTI_PHISHING_KEY") ?? "").trim();
+  const validKeys = [mbKey, mbwayKey, legacyKey].filter(Boolean);
   const receivedKey = (key ?? "").trim();
-  if (!expectedKey || receivedKey !== expectedKey) {
+  if (validKeys.length === 0 || !validKeys.includes(receivedKey)) {
     console.warn("Invalid anti-phishing key", { receivedKeyPresent: !!receivedKey });
     return txt("invalid key", 401);
   }
@@ -221,7 +226,8 @@ Deno.serve(async (req) => {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  // Fetch order: prefer orderId; otherwise look up by entity+reference (IfthenPay classic callback)
+  // Fetch order: try orderId first; if not found, fall back to entity+reference.
+  // IfthenPay REST API may echo back their own sequential ID instead of ours.
   let order: any = null;
   let fetchErr: any = null;
 
@@ -232,7 +238,9 @@ Deno.serve(async (req) => {
       .eq("order_id", orderId)
       .maybeSingle();
     order = r.data; fetchErr = r.error;
-  } else if (entity && reference) {
+  }
+
+  if (!order && entity && reference) {
     const r = await admin
       .from("payment_orders")
       .select("order_id, user_id, amount, credits, status, ifthenpay_entity, ifthenpay_reference")
@@ -243,7 +251,9 @@ Deno.serve(async (req) => {
       .maybeSingle();
     order = r.data; fetchErr = r.error;
     if (order) orderId = order.order_id;
-  } else {
+  }
+
+  if (!orderId && !entity && !reference) {
     return txt("missing orderId or entity+reference", 400);
   }
 
