@@ -16,7 +16,7 @@ const Pricing = () => {
             <span className="italic">Precisa da certa.</span>
           </h2>
           <p className="text-muted-foreground">
-            Sem subscrições.
+            Sem subscrições. Sem pressão.
           </p>
         </div>
 

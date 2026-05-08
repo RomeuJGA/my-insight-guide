@@ -16,7 +16,7 @@ const PricingA = () => {
             <br />
             <span className="italic text-[hsl(165_35%_28%)]">Precisa da certa.</span>
           </h2>
-          <p className="text-muted-foreground">Pague apenas pelo que precisa. Sem subscrições.</p>
+          <p className="text-muted-foreground">Sem subscrições. Sem pressão.</p>
         </div>
 
         {loading ? (
