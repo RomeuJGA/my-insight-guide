@@ -5,7 +5,7 @@ const EMOTIONAL_OPTIONS = [
   "Se esta mensagem lhe parece intensa, pode ser precisamente por tocar num ponto importante.",
   "Se não fizer sentido imediato, pode ser algo que ainda não está totalmente claro.",
   "Algumas mensagens tornam-se mais claras com o tempo e com a experiência.",
-  "Nem sempre a compreensão surge no momento. Pode ser útil deixar esta mensagem assentar.",
+  "Nem sempre a compreensão surge no momento. O significado chega quando estiver pronto.",
 ];
 
 const QUESTIONS = [

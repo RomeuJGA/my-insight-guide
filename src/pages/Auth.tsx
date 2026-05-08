@@ -16,6 +16,7 @@ const Auth = () => {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
 
   // Pending verification state — shown after signup or when signing in with unverified email
@@ -98,7 +99,10 @@ const Auth = () => {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: `${window.location.origin}/` },
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+            data: { full_name: name.trim() || undefined },
+          },
         });
         if (error) throw error;
         track("signup");
@@ -397,6 +401,20 @@ const Auth = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {mode === "signup" && (
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium mb-2">Nome</label>
+                <input
+                  id="name"
+                  type="text"
+                  autoComplete="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="O seu nome (opcional)"
+                  className="w-full px-4 py-3 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring/40 transition-smooth"
+                />
+              </div>
+            )}
             <div>
               <label htmlFor="email" className="block text-sm font-medium mb-2">Email</label>
               <input

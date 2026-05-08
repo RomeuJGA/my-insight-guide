@@ -14,7 +14,7 @@ const steps = [
   {
     icon: Sparkles,
     title: "Receba uma mensagem",
-    description: "Leia com calma. Deixe-a assentar antes de tirar conclusões.",
+    description: "Leia com calma. O significado chega quando estiver pronto.",
   },
 ];
 
