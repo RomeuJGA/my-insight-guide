@@ -1,6 +1,7 @@
 // Reveals a message. Always charges 1 credit, even for re-reveals.
 // On first call without force=true, returns alreadyRevealed=true so the client
 // can show a confirmation dialog. On second call with force=true, charges and returns content.
+// Serves content_feminine when the user's profile has grammatical_gender = 'f'.
 import { corsHeaders, getAuthedUser, jsonResponse } from "../_shared/auth.ts";
 
 Deno.serve(async (req) => {
@@ -20,6 +21,15 @@ Deno.serve(async (req) => {
   if (!Number.isInteger(id) || id < 1 || id > MAX_MESSAGE_ID) {
     return jsonResponse({ error: `Número inválido. Escolha entre 1 e ${MAX_MESSAGE_ID}.` }, 400);
   }
+
+  // Fetch user's grammatical gender preference (non-blocking on failure)
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("grammatical_gender")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  const useFeminine = profile?.grammatical_gender === "f";
 
   const { data, error } = await admin.rpc("reveal_message", {
     _user_id: user.id,
@@ -45,9 +55,20 @@ Deno.serve(async (req) => {
     return jsonResponse({ alreadyRevealed: true, credits: row.credits, code: "ALREADY_REVEALED" }, 200);
   }
 
+  // Use feminine version when available and user preference is feminine
+  let content = row.content;
+  if (useFeminine) {
+    const { data: msg } = await admin
+      .from("messages")
+      .select("content_feminine")
+      .eq("id", id)
+      .maybeSingle();
+    if (msg?.content_feminine) content = msg.content_feminine;
+  }
+
   return jsonResponse({
     id,
-    content: row.content,
+    content,
     credits: row.credits,
     alreadyRevealed: row.already_revealed === true,
   });
