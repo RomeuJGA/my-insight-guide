@@ -7,6 +7,7 @@ import { Sparkles, MailCheck, RefreshCw, LogOut, KeyRound, Loader2, Zap } from "
 import Footer from "@/components/Footer";
 import PasswordField from "@/components/PasswordField";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import type { GrammaticalGender } from "@/hooks/useProfile";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [gender, setGender] = useState<GrammaticalGender | null>(null);
   const [loading, setLoading] = useState(false);
 
   // Pending verification state — shown after signup or when signing in with unverified email
@@ -94,6 +96,12 @@ const Auth = () => {
     e.preventDefault();
     setLoading(true);
     setShowResetSuggestion(false);
+    if (mode === "signup" && !gender) {
+      toast.error("Por favor, indique como prefere que nos dirijamos a si.");
+      setLoading(false);
+      return;
+    }
+
     try {
       if (mode === "signup") {
         const { data, error } = await supabase.auth.signUp({
@@ -101,7 +109,10 @@ const Auth = () => {
           password,
           options: {
             emailRedirectTo: `${window.location.origin}/`,
-            data: { full_name: name.trim() || undefined },
+            data: {
+              full_name: name.trim() || undefined,
+              grammatical_gender: gender,
+            },
           },
         });
         if (error) throw error;
@@ -402,18 +413,42 @@ const Auth = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === "signup" && (
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium mb-2">Nome</label>
-                <input
-                  id="name"
-                  type="text"
-                  autoComplete="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="O seu nome (opcional)"
-                  className="w-full px-4 py-3 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring/40 transition-smooth"
-                />
-              </div>
+              <>
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium mb-2">Nome</label>
+                  <input
+                    id="name"
+                    type="text"
+                    autoComplete="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="O seu nome (opcional)"
+                    className="w-full px-4 py-3 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring/40 transition-smooth"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Como prefere que nos dirijamos a si? <span className="text-destructive">*</span>
+                  </label>
+                  <div className="flex gap-3">
+                    {(["m", "f"] as GrammaticalGender[]).map((g) => (
+                      <button
+                        key={g}
+                        type="button"
+                        onClick={() => setGender(g)}
+                        className={[
+                          "flex-1 py-3 rounded-xl border-2 text-sm font-medium transition-smooth",
+                          gender === g
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-input bg-background text-foreground hover:border-primary/40",
+                        ].join(" ")}
+                      >
+                        {g === "m" ? "No masculino" : "No feminino"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
             )}
             <div>
               <label htmlFor="email" className="block text-sm font-medium mb-2">Email</label>

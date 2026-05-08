@@ -6,8 +6,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useCredits } from "@/hooks/useCredits";
 import { useWelcomeCredit } from "@/hooks/useWelcomeCredit";
+import { useProfile } from "@/hooks/useProfile";
 import Paywall from "./Paywall";
 import ReflectionGuide from "./ReflectionGuide";
+import GenderSelect from "./GenderSelect";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/errors";
@@ -18,6 +20,7 @@ const Experience = () => {
   const location = useLocation();
   const { user, loading: authLoading } = useAuth();
   const { credits, loading: creditsLoading, setLocal: setLocalCredits, refresh: refreshCredits } = useCredits();
+  const { profile, loading: profileLoading, updateGender } = useProfile();
   const [input, setInput] = useState<string>("");
   const [question, setQuestion] = useState("");
   const [questionOpen, setQuestionOpen] = useState(false);
@@ -191,6 +194,13 @@ const Experience = () => {
         </div>
 
         <div className="max-w-xl mx-auto">
+          {/* Gender intercept — shown once for users who haven't set their preference */}
+          {user && !authLoading && !profileLoading && !profile?.grammatical_gender && (
+            <div className="rounded-3xl bg-card border border-border/60 shadow-elegant mb-6">
+              <GenderSelect onSelect={updateGender} />
+            </div>
+          )}
+
           {!user && !authLoading && (
             <div className="mb-6 p-5 rounded-2xl bg-card border border-border/60 text-center">
               <p className="text-sm text-muted-foreground mb-3">
