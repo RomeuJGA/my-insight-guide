@@ -145,7 +145,6 @@ const Experience = () => {
   const handleShuffle = () => {
     const n = Math.floor(Math.random() * TOTAL_MESSAGES) + 1;
     setInput(String(n));
-    reveal(n);
   };
 
   const saveNotes = useCallback(async (text: string, messageId: number) => {
@@ -169,11 +168,12 @@ const Experience = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [notes]);
 
-  const handleReset = () => {
+  const handleReset = (prefillNumber?: number) => {
     if (notesTimerRef.current) clearTimeout(notesTimerRef.current);
     setRevealed(null);
     setConfirmRepeat(null);
-    setInput("");
+    setShowPaywall(false);
+    setInput(prefillNumber ? String(prefillNumber) : "");
     setQuestion("");
     setQuestionOpen(false);
     setNotes("");
@@ -429,15 +429,11 @@ const Experience = () => {
                     Escolher outro número
                   </button>
                   <button
-                    onClick={() => {
-                      const n = Math.floor(Math.random() * TOTAL_MESSAGES) + 1;
-                      reveal(n);
-                    }}
-                    disabled={animating}
-                    className="flex-1 inline-flex items-center justify-center gap-2 py-3 rounded-full bg-primary text-primary-foreground hover:opacity-90 transition-smooth text-sm font-medium disabled:opacity-60"
+                    onClick={() => handleReset(Math.floor(Math.random() * TOTAL_MESSAGES) + 1)}
+                    className="flex-1 inline-flex items-center justify-center gap-2 py-3 rounded-full bg-primary text-primary-foreground hover:opacity-90 transition-smooth text-sm font-medium"
                   >
                     <Shuffle className="w-4 h-4" />
-                    Mensagem aleatória
+                    Outro número aleatório
                   </button>
                 </div>
               </article>
