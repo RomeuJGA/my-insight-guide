@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   Loader2, ShoppingCart, RefreshCw, Receipt,
-  Copy, Download, X, Search,
+  Copy, Download, X, Search, Trash2, AlertTriangle,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -92,6 +92,9 @@ const AdminOrders = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState(EMPTY_FILTERS);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [deleting, setDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -127,6 +130,38 @@ const AdminOrders = () => {
   const clearFilters = () => setFilters(EMPTY_FILTERS);
 
   const hasFilters = Object.values(filters).some(Boolean);
+
+  // Selection helpers — only pending orders can be selected
+  const pendingVisible = useMemo(() => visible.filter((o) => o.status === "pending"), [visible]);
+  const allPendingSelected = pendingVisible.length > 0 && pendingVisible.every((o) => selected.has(o.id));
+
+  const toggleOrder = (id: string) =>
+    setSelected((prev) => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
+
+  const toggleAllPending = () =>
+    setSelected(allPendingSelected ? new Set() : new Set(pendingVisible.map((o) => o.id)));
+
+  const deleteSelected = async () => {
+    if (selected.size === 0) return;
+    setDeleting(true);
+    try {
+      const ids = [...selected];
+      const { error } = await supabase
+        .from("payment_orders")
+        .delete()
+        .in("id", ids)
+        .eq("status", "pending");
+      if (error) throw error;
+      toast.success(`${ids.length} encomenda${ids.length !== 1 ? "s" : ""} eliminada${ids.length !== 1 ? "s" : ""}.`);
+      setSelected(new Set());
+      setOrders((prev) => prev.filter((o) => !ids.includes(o.id)));
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Erro ao eliminar encomendas.");
+    } finally {
+      setDeleting(false);
+      setConfirmDelete(false);
+    }
+  };
 
   const visible = useMemo(() => {
     const search = filters.search.toLowerCase().trim();
@@ -177,6 +212,16 @@ const AdminOrders = () => {
           )}
         </div>
         <div className="flex items-center gap-2">
+          {selected.size > 0 && (
+            <button
+              onClick={() => setConfirmDelete(true)}
+              disabled={deleting}
+              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-destructive text-destructive-foreground hover:opacity-90 transition-smooth disabled:opacity-50"
+            >
+              <Trash2 className="w-3 h-3" />
+              Eliminar {selected.size} selecionada{selected.size !== 1 ? "s" : ""}
+            </button>
+          )}
           {visible.length > 0 && (
             <button
               onClick={() => exportCsv(visible, users)}
@@ -310,6 +355,17 @@ const AdminOrders = () => {
             <table className="w-full text-sm min-w-[720px]">
               <thead>
                 <tr className="border-b border-border/60 bg-muted/30">
+                  <th className="pl-4 pr-2 py-2.5 w-8">
+                    {pendingVisible.length > 0 && (
+                      <input
+                        type="checkbox"
+                        checked={allPendingSelected}
+                        onChange={toggleAllPending}
+                        title="Selecionar todos os pendentes"
+                        className="accent-primary cursor-pointer"
+                      />
+                    )}
+                  </th>
                   {["Data", "Encomenda", "Utilizador", "Pacote", "Montante", "Método", "Estado", "Fatura"].map((h) => (
                     <th key={h} className="px-4 py-2.5 text-left text-[11px] uppercase tracking-wider text-muted-foreground font-medium whitespace-nowrap">
                       {h}
@@ -324,8 +380,18 @@ const AdminOrders = () => {
                   return (
                     <tr
                       key={o.id}
-                      className={`border-t border-border/40 hover:bg-muted/20 transition-smooth ${hasBilling ? "bg-primary/[0.025]" : ""}`}
+                      className={`border-t border-border/40 hover:bg-muted/20 transition-smooth ${selected.has(o.id) ? "bg-destructive/5" : hasBilling ? "bg-primary/[0.025]" : ""}`}
                     >
+                      <td className="pl-4 pr-2 py-3">
+                        {o.status === "pending" && (
+                          <input
+                            type="checkbox"
+                            checked={selected.has(o.id)}
+                            onChange={() => toggleOrder(o.id)}
+                            className="accent-primary cursor-pointer"
+                          />
+                        )}
+                      </td>
                       <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
                         {fmtDate(o.created_at)}
                       </td>
@@ -405,6 +471,43 @@ const AdminOrders = () => {
           </div>
         )}
       </div>
+      {/* Confirm delete dialog */}
+      {confirmDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="bg-card border border-border rounded-2xl shadow-elegant max-w-sm w-full p-6 space-y-4">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-4 h-4 text-destructive" />
+              </div>
+              <div>
+                <h3 className="font-medium text-sm">Eliminar encomendas pendentes</h3>
+                <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                  Vai eliminar{" "}
+                  <strong className="text-foreground">{selected.size}</strong>{" "}
+                  encomenda{selected.size !== 1 ? "s" : ""} com estado <em>Pendente</em>. Esta ação não pode ser desfeita.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => setConfirmDelete(false)}
+                disabled={deleting}
+                className="px-4 py-2 rounded-full border border-border text-sm text-muted-foreground hover:text-foreground transition-smooth disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={deleteSelected}
+                disabled={deleting}
+                className="px-4 py-2 rounded-full bg-destructive text-destructive-foreground text-sm font-medium hover:opacity-90 transition-smooth disabled:opacity-50 flex items-center gap-2"
+              >
+                {deleting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
