@@ -97,7 +97,7 @@ const TestimonialForm = () => {
           onChange={(e) => setQuote(e.target.value)}
           rows={4}
           maxLength={MAX_QUOTE + 20}
-          placeholder="Conte como o Ävatar o ajudou…"
+          placeholder="Conte como Um Ävatar o(a) ajudou…"
           className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none focus:outline-none focus:ring-1 focus:ring-primary"
         />
         <p className={`text-xs text-right ${quote.length > MAX_QUOTE ? "text-destructive" : "text-muted-foreground"}`}>
