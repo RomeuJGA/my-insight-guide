@@ -170,7 +170,7 @@ const MyMessages = () => {
           {!loading && items.length > 0 && !active && (
             <div className="mt-12 pt-8 border-t border-border/60">
               <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4">
-                A tua opinião
+                A sua opinião
               </p>
               <TestimonialForm />
             </div>

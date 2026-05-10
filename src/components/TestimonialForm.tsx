@@ -28,7 +28,7 @@ const TestimonialForm = () => {
         </div>
         <p className="font-medium">Testemunho enviado!</p>
         <p className="text-sm text-muted-foreground">
-          Ficará visível no site após aprovação do administrador. Obrigado pelo teu contributo.
+          Ficará visível no site após aprovação do administrador. Obrigado pelo seu contributo.
         </p>
       </div>
     );
@@ -37,8 +37,8 @@ const TestimonialForm = () => {
   const handleSubmit = async () => {
     const q = quote.trim();
     const a = author.trim();
-    if (!q) return toast.error("Escreve o teu testemunho antes de enviar.");
-    if (!a) return toast.error("Indica o teu nome.");
+    if (!q) return toast.error("Escreva o seu testemunho antes de enviar.");
+    if (!a) return toast.error("Indique o seu nome.");
     if (q.length > MAX_QUOTE) return toast.error(`Máximo ${MAX_QUOTE} caracteres.`);
 
     setSubmitting(true);
@@ -55,7 +55,7 @@ const TestimonialForm = () => {
     setSubmitting(false);
 
     if (error) {
-      toast.error("Erro ao enviar testemunho. Tenta novamente.");
+      toast.error("Erro ao enviar testemunho. Tente novamente.");
       return;
     }
     setSubmitted(true);
@@ -66,9 +66,9 @@ const TestimonialForm = () => {
   return (
     <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
       <div>
-        <h3 className="font-medium text-base">Partilha a tua experiência</h3>
+        <h3 className="font-medium text-base">Partilhe a sua experiência</h3>
         <p className="text-sm text-muted-foreground mt-0.5">
-          O teu testemunho ficará visível após aprovação.
+          O seu testemunho ficará visível após aprovação.
         </p>
       </div>
 
@@ -100,7 +100,7 @@ const TestimonialForm = () => {
           onChange={(e) => setQuote(e.target.value)}
           rows={4}
           maxLength={MAX_QUOTE + 20}
-          placeholder="Conta como o Ävatar te ajudou…"
+          placeholder="Conte como o Ävatar o ajudou…"
           className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none focus:outline-none focus:ring-1 focus:ring-primary"
         />
         <p className={`text-xs text-right ${quote.length > MAX_QUOTE ? "text-destructive" : "text-muted-foreground"}`}>
@@ -113,7 +113,7 @@ const TestimonialForm = () => {
         <input
           value={author}
           onChange={(e) => setAuthor(e.target.value)}
-          placeholder="O teu nome (ex.: Mariana S.)"
+          placeholder="O seu nome (ex.: Mariana S.)"
           className="px-3 py-2 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary"
         />
         <input
