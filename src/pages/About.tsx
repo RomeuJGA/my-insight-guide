@@ -9,12 +9,12 @@ const About = () => (
         <h1 className="font-serif text-4xl md:text-5xl tracking-tight text-foreground mb-3">
           Quem está por detrás do Um Ävatar
         </h1>
-        <p className="text-muted-foreground text-sm mb-8">Mónica Dell Rey</p>
+        <p className="text-muted-foreground text-sm mb-8">Mónyca Dell Rey</p>
 
         <div className="mb-12 rounded-2xl overflow-hidden">
           <img
             src="/monica-praia.jpg"
-            alt="Mónica Dell Rey numa praia, de braços abertos"
+            alt="Mónyca Dell Rey numa praia, de braços abertos"
             className="w-full object-cover max-h-[420px]"
           />
         </div>
