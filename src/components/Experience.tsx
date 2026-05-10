@@ -81,7 +81,8 @@ const Experience = () => {
       navigate("/auth");
       return;
     }
-    if ((credits ?? 0) <= 0) {
+    if (creditsLoading) return;
+    if (credits !== null && credits <= 0) {
       track("paywall_view", { metadata: { trigger: "no_credits_pre" } });
       pendingRevealRef.current = n;
       setShowPaywall(true);
