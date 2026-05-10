@@ -10,6 +10,7 @@ import Experience from "@/components/Experience";
 import FreeVsPaid from "@/components/FreeVsPaid";
 import Pricing from "@/components/Pricing";
 import Trust from "@/components/Trust";
+import TestimonialSection from "@/components/TestimonialSection";
 import FinalCta from "@/components/FinalCta";
 import Footer from "@/components/Footer";
 
@@ -52,6 +53,7 @@ const Index = () => {
           <FreeVsPaidA />
           <PricingA />
           <Trust />
+          <TestimonialSection />
           <FinalCtaA />
         </Suspense>
         <Footer />
@@ -72,6 +74,7 @@ const Index = () => {
       <FreeVsPaid />
       <Pricing />
       <Trust />
+      <TestimonialSection />
       <FinalCta />
       <Footer />
     </main>
