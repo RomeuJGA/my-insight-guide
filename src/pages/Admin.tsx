@@ -3,7 +3,7 @@ import { Link, Navigate } from "react-router-dom";
 import {
   AlertTriangle, Loader2,
   ShoppingCart, Package, Ticket, Users, Coins, BarChart2,
-  Star, ArrowLeft, MessageSquare,
+  Star, ArrowLeft, MessageSquare, Mail,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
@@ -15,6 +15,7 @@ import AdminCoupons from "@/components/AdminCoupons";
 import AdminTestimonials from "@/components/AdminTestimonials";
 import AdminOrders from "@/components/AdminOrders";
 import AdminMessages from "@/components/AdminMessages";
+import AdminContacts from "@/components/AdminContacts";
 import Footer from "@/components/Footer";
 
 const Admin = () => {
@@ -31,6 +32,7 @@ const Admin = () => {
     { id: "analytics",   label: "Analytics",     Icon: BarChart2 },
     { id: "testemunhos",  label: "Testemunhos",   Icon: Star },
     { id: "mensagens",    label: "Mensagens",     Icon: MessageSquare },
+    { id: "contactos",    label: "Contactos",     Icon: Mail },
   ] as const;
 
   if (authLoading || roleLoading) {
@@ -139,6 +141,7 @@ const Admin = () => {
           {active === "analytics"    && <AdminAnalytics />}
           {active === "testemunhos"  && <AdminTestimonials />}
           {active === "mensagens"    && <AdminMessages />}
+          {active === "contactos"    && <AdminContacts />}
         </main>
       </div>
     </div>

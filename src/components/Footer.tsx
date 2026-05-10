@@ -18,6 +18,12 @@ const Footer = () => {
             © {new Date().getFullYear()} Um Ävatar · Ver com mais clareza por dentro
           </p>
           <div className="flex gap-6 text-xs text-muted-foreground">
+            <Link to="/contacto" className="hover:text-foreground transition-smooth">
+              Contacto
+            </Link>
+            <Link to="/sobre" className="hover:text-foreground transition-smooth">
+              Sobre
+            </Link>
             <Link to="/legal/termos" className="hover:text-foreground transition-smooth">
               Termos
             </Link>

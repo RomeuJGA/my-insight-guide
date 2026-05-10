@@ -40,6 +40,7 @@ const Terms = lazy(() => import("./pages/legal/Terms.tsx"));
 const Privacy = lazy(() => import("./pages/legal/Privacy.tsx"));
 const Refunds = lazy(() => import("./pages/legal/Refunds.tsx"));
 const About = lazy(() => import("./pages/About.tsx"));
+const Contact = lazy(() => import("./pages/Contact.tsx"));
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,7 @@ const App = () => (
             <Route path="/credits" element={<Credits />} />
             <Route path="/my-messages" element={<MyMessages />} />
             <Route path="/sobre" element={<About />} />
+            <Route path="/contacto" element={<Contact />} />
             <Route path="/legal/termos" element={<Terms />} />
             <Route path="/legal/privacidade" element={<Privacy />} />
             <Route path="/legal/reembolsos" element={<Refunds />} />
