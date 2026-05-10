@@ -11,6 +11,7 @@ import AdminAnalytics from "@/components/AdminAnalytics";
 import AdminPackages from "@/components/AdminPackages";
 import AdminCoupons from "@/components/AdminCoupons";
 import AdminTestimonials from "@/components/AdminTestimonials";
+import AdminOrders from "@/components/AdminOrders";
 import Footer from "@/components/Footer";
 import {
   AlertDialog,
@@ -383,6 +384,10 @@ const Admin = () => {
           >
             Importar mensagens
           </button>
+        </div>
+
+        <div className="mt-12">
+          <AdminOrders />
         </div>
 
         <div className="mt-12">
