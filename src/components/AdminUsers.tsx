@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 type User = {
   id: string;
   email: string;
+  name: string | null;
   credits: number;
   creditsUpdatedAt: string | null;
   createdAt: string;
@@ -56,8 +57,10 @@ const AdminUsers = () => {
     }
   };
 
+  const q = search.toLowerCase();
   const filtered = users.filter((u) =>
-    u.email.toLowerCase().includes(search.toLowerCase())
+    u.email.toLowerCase().includes(q) ||
+    (u.name ?? "").toLowerCase().includes(q)
   );
 
   return (
@@ -82,7 +85,7 @@ const AdminUsers = () => {
 
       <input
         type="text"
-        placeholder="Filtrar por email…"
+        placeholder="Filtrar por nome ou email…"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         className="w-full px-3 py-2 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/40 mb-4"
@@ -105,6 +108,7 @@ const AdminUsers = () => {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-muted/40 text-xs text-muted-foreground uppercase tracking-wide">
+                <th className="px-4 py-2 text-left font-medium">Nome</th>
                 <th className="px-4 py-2 text-left font-medium">Email</th>
                 <th className="px-4 py-2 text-right font-medium">Créditos</th>
                 <th className="px-4 py-2 text-right font-medium sr-only">Ações</th>
@@ -113,6 +117,12 @@ const AdminUsers = () => {
             <tbody>
               {filtered.map((u) => (
                 <tr key={u.id} className="border-t border-border hover:bg-muted/20 transition-colors">
+                  <td className="px-4 py-2.5 max-w-[160px]">
+                    {u.name
+                      ? <span className="text-xs font-medium truncate block">{u.name}</span>
+                      : <span className="text-xs text-muted-foreground/40">—</span>
+                    }
+                  </td>
                   <td className="px-4 py-2.5 truncate max-w-[200px]">
                     <span className="font-mono text-xs text-foreground">{u.email}</span>
                   </td>

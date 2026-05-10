@@ -42,6 +42,7 @@ Deno.serve(async (req) => {
     return {
       id: u.id,
       email: u.email ?? "",
+      name: (u.user_metadata?.full_name as string | undefined) ?? null,
       credits: c?.credits ?? 0,
       creditsUpdatedAt: c?.updatedAt ?? null,
       createdAt: u.created_at,
