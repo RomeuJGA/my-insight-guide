@@ -22,6 +22,7 @@ type Order = {
   status: string;
   billing_name: string | null;
   billing_nif: string | null;
+  billing_address: string | null;
   created_at: string;
   paid_at: string | null;
 };
@@ -49,7 +50,7 @@ function fmtAmount(a: string) {
 }
 
 function exportCsv(orders: Order[], users: UserMap) {
-  const header = ["Data", "Encomenda", "Email", "Pacote", "Montante", "Método", "Estado", "Nome Fatura", "NIF"];
+  const header = ["Data", "Encomenda", "Email", "Pacote", "Montante", "Método", "Estado", "Nome Fatura", "NIF", "Morada"];
   const rows = orders.map((o) => [
     fmtDate(o.created_at),
     o.order_id,
@@ -60,6 +61,7 @@ function exportCsv(orders: Order[], users: UserMap) {
     STATUS_LABEL[o.status]?.label ?? o.status,
     o.billing_name ?? "",
     o.billing_nif ?? "",
+    o.billing_address ?? "",
   ]);
   const csv = [header, ...rows].map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
   const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
@@ -85,7 +87,7 @@ const AdminOrders = () => {
       const [ordersRes, usersRes] = await Promise.all([
         supabase
           .from("payment_orders")
-          .select("id, order_id, user_id, payment_method, package, credits, amount, status, billing_name, billing_nif, created_at, paid_at")
+          .select("id, order_id, user_id, payment_method, package, credits, amount, status, billing_name, billing_nif, billing_address, created_at, paid_at")
           .order("created_at", { ascending: false })
           .limit(200),
         supabase.functions.invoke("admin-list-users"),
@@ -218,7 +220,7 @@ const AdminOrders = () => {
                       {hasBilling ? (
                         <div className="space-y-0.5">
                           {o.billing_name && (
-                            <p className="text-xs font-medium truncate max-w-[160px]">{o.billing_name}</p>
+                            <p className="text-xs font-medium truncate max-w-[180px]">{o.billing_name}</p>
                           )}
                           {o.billing_nif && (
                             <button
@@ -228,6 +230,11 @@ const AdminOrders = () => {
                               <Copy className="w-3 h-3 shrink-0" />
                               {o.billing_nif}
                             </button>
+                          )}
+                          {o.billing_address && (
+                            <p className="text-xs text-muted-foreground truncate max-w-[180px]" title={o.billing_address}>
+                              {o.billing_address}
+                            </p>
                           )}
                         </div>
                       ) : (

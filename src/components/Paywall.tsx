@@ -100,6 +100,7 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
   const [wantInvoice, setWantInvoice] = useState(false);
   const [billingName, setBillingName] = useState("");
   const [billingNif, setBillingNif] = useState("");
+  const [billingAddress, setBillingAddress] = useState("");
   const [billingNifError, setBillingNifError] = useState("");
 
   const [pollingTimedOut, setPollingTimedOut] = useState(false);
@@ -263,6 +264,7 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
             couponCode: coupon?.code ?? null,
             billingName: wantInvoice ? billingName.trim() : null,
             billingNif: wantInvoice ? billingNif.replace(/\D/g, "") : null,
+            billingAddress: wantInvoice && billingAddress.trim() ? billingAddress.trim() : null,
           },
         });
         if (error) {
@@ -284,6 +286,7 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
             phone,
             billingName: wantInvoice ? billingName.trim() : null,
             billingNif: wantInvoice ? billingNif.replace(/\D/g, "") : null,
+            billingAddress: wantInvoice && billingAddress.trim() ? billingAddress.trim() : null,
           },
         });
         if (error) {
@@ -317,6 +320,7 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
     setWantInvoice(false);
     setBillingName("");
     setBillingNif("");
+    setBillingAddress("");
     setBillingNifError("");
   };
 
@@ -559,6 +563,66 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
         </div>
       )}
 
+      {/* Invoice / billing */}
+      {selected && (
+        <div className="mt-5">
+          <button
+            type="button"
+            onClick={() => { setWantInvoice((v) => !v); setBillingNifError(""); }}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Receipt className="w-3.5 h-3.5" />
+            Precisa de fatura com NIF?
+          </button>
+          {wantInvoice && (
+            <div className="mt-3 space-y-3">
+              <div>
+                <label className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5 block">
+                  Nome para a fatura
+                </label>
+                <input
+                  type="text"
+                  value={billingName}
+                  onChange={(e) => setBillingName(e.target.value)}
+                  placeholder="Nome completo ou empresa"
+                  className="w-full px-3 py-2.5 rounded-xl border border-border bg-background text-sm"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5 block">
+                  NIF
+                </label>
+                <input
+                  type="text"
+                  value={billingNif}
+                  onChange={(e) => { setBillingNif(e.target.value.replace(/\D/g, "").slice(0, 9)); setBillingNifError(""); }}
+                  placeholder="123456789"
+                  inputMode="numeric"
+                  maxLength={9}
+                  className={`w-full px-3 py-2.5 rounded-xl border bg-background text-sm tabular-nums ${billingNifError ? "border-destructive" : "border-border"}`}
+                />
+                {billingNifError && (
+                  <p className="mt-1 text-xs text-destructive">{billingNifError}</p>
+                )}
+              </div>
+              <div>
+                <label className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5 block">
+                  Morada <span className="normal-case text-muted-foreground/60">(opcional)</span>
+                </label>
+                <input
+                  type="text"
+                  value={billingAddress}
+                  onChange={(e) => setBillingAddress(e.target.value)}
+                  placeholder="Rua, número, código postal, localidade"
+                  className="w-full px-3 py-2.5 rounded-xl border border-border bg-background text-sm"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Payment method toggle */}
       {selected && (
         <div className="mt-5">
@@ -667,57 +731,6 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
                 </div>
               )}
             </>
-          )}
-        </div>
-      )}
-
-      {/* Invoice / billing */}
-      {selected && (
-        <div className="mt-4">
-          <button
-            type="button"
-            onClick={() => { setWantInvoice((v) => !v); setBillingNifError(""); }}
-            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <Receipt className="w-3.5 h-3.5" />
-            Precisa de fatura com NIF?
-          </button>
-          {wantInvoice && (
-            <div className="mt-3 space-y-3">
-              <div>
-                <label className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5 block">
-                  Nome para a fatura
-                </label>
-                <input
-                  type="text"
-                  value={billingName}
-                  onChange={(e) => setBillingName(e.target.value)}
-                  placeholder="Nome completo ou empresa"
-                  className="w-full px-3 py-2.5 rounded-xl border border-border bg-background text-sm"
-                  autoFocus
-                />
-              </div>
-              <div>
-                <label className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5 block">
-                  NIF
-                </label>
-                <input
-                  type="text"
-                  value={billingNif}
-                  onChange={(e) => { setBillingNif(e.target.value.replace(/\D/g, "").slice(0, 9)); setBillingNifError(""); }}
-                  placeholder="123456789"
-                  inputMode="numeric"
-                  maxLength={9}
-                  className={`w-full px-3 py-2.5 rounded-xl border bg-background text-sm tabular-nums ${billingNifError ? "border-destructive" : "border-border"}`}
-                />
-                {billingNifError && (
-                  <p className="mt-1 text-xs text-destructive">{billingNifError}</p>
-                )}
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Serão emitidos os dados para fatura após confirmação do pagamento.
-                </p>
-              </div>
-            </div>
           )}
         </div>
       )}

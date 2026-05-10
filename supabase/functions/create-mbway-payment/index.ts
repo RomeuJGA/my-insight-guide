@@ -32,6 +32,7 @@ Deno.serve(async (req) => {
   const rawPhone = typeof body?.phone === "string" ? body.phone.trim() : "";
   const billingName = typeof body?.billingName === "string" ? body.billingName.trim() : null;
   const billingNif = typeof body?.billingNif === "string" ? body.billingNif.replace(/\D/g, "") : null;
+  const billingAddress = typeof body?.billingAddress === "string" ? body.billingAddress.trim() : null;
 
   if (!packageId) return jsonResponse({ error: "Pacote inválido." }, 400);
   if (!acceptedTerms) {
@@ -140,6 +141,7 @@ Deno.serve(async (req) => {
     ifthenpay_request_id: mbwayData.IdPedido ?? null,
     billing_name: billingName || null,
     billing_nif: billingNif || null,
+    billing_address: billingAddress || null,
   });
   if (insErr) {
     console.error("payment_orders insert error:", insErr);
