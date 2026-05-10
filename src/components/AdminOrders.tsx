@@ -131,6 +131,27 @@ const AdminOrders = () => {
 
   const hasFilters = Object.values(filters).some(Boolean);
 
+  const visible = useMemo(() => {
+    const search = filters.search.toLowerCase().trim();
+    const from = filters.dateFrom ? new Date(filters.dateFrom + "T00:00:00") : null;
+    const to   = filters.dateTo   ? new Date(filters.dateTo   + "T23:59:59") : null;
+
+    return orders.filter((o) => {
+      if (filters.status && o.status !== filters.status) return false;
+      if (filters.method && o.payment_method !== filters.method) return false;
+      if (filters.billing === "yes" && !o.billing_nif) return false;
+      if (filters.billing === "no"  &&  o.billing_nif) return false;
+      if (from && new Date(o.created_at) < from) return false;
+      if (to   && new Date(o.created_at) > to)   return false;
+      if (search) {
+        const email = (users[o.user_id] ?? "").toLowerCase();
+        const hay = [o.order_id, email, o.billing_name ?? "", o.billing_nif ?? "", o.package].join(" ").toLowerCase();
+        if (!hay.includes(search)) return false;
+      }
+      return true;
+    });
+  }, [orders, users, filters]);
+
   // Selection helpers — only pending orders can be selected
   const pendingVisible = useMemo(() => visible.filter((o) => o.status === "pending"), [visible]);
   const allPendingSelected = pendingVisible.length > 0 && pendingVisible.every((o) => selected.has(o.id));
@@ -162,27 +183,6 @@ const AdminOrders = () => {
       setConfirmDelete(false);
     }
   };
-
-  const visible = useMemo(() => {
-    const search = filters.search.toLowerCase().trim();
-    const from = filters.dateFrom ? new Date(filters.dateFrom + "T00:00:00") : null;
-    const to   = filters.dateTo   ? new Date(filters.dateTo   + "T23:59:59") : null;
-
-    return orders.filter((o) => {
-      if (filters.status && o.status !== filters.status) return false;
-      if (filters.method && o.payment_method !== filters.method) return false;
-      if (filters.billing === "yes" && !o.billing_nif) return false;
-      if (filters.billing === "no"  &&  o.billing_nif) return false;
-      if (from && new Date(o.created_at) < from) return false;
-      if (to   && new Date(o.created_at) > to)   return false;
-      if (search) {
-        const email = (users[o.user_id] ?? "").toLowerCase();
-        const hay = [o.order_id, email, o.billing_name ?? "", o.billing_nif ?? "", o.package].join(" ").toLowerCase();
-        if (!hay.includes(search)) return false;
-      }
-      return true;
-    });
-  }, [orders, users, filters]);
 
   const copy = async (value: string, label: string) => {
     try {

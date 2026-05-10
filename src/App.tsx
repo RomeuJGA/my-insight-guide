@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { Component, lazy, Suspense, type ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -6,6 +6,28 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index.tsx";
 import PrivateGate from "./components/PrivateGate";
+
+class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  state = { error: null };
+  static getDerivedStateFromError(error: Error) { return { error }; }
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="min-h-screen flex items-center justify-center p-8 bg-background">
+          <div className="max-w-lg space-y-3">
+            <p className="font-medium text-destructive">Erro de renderização</p>
+            <pre className="text-xs bg-muted rounded-xl p-4 overflow-auto whitespace-pre-wrap">
+              {(this.state.error as Error).message}
+              {"\n\n"}
+              {(this.state.error as Error).stack}
+            </pre>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 // Heavy pages loaded lazily — users visit one at a time
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
@@ -28,7 +50,8 @@ const App = () => (
       <Sonner />
       <PrivateGate>
       <BrowserRouter>
-        <Suspense>
+        <ErrorBoundary>
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><span className="text-sm text-muted-foreground">A carregar…</span></div>}>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
@@ -43,6 +66,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
+        </ErrorBoundary>
       </BrowserRouter>
       </PrivateGate>
     </TooltipProvider>
