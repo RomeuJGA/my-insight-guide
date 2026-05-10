@@ -27,7 +27,6 @@ const Experience = () => {
   const [revealed, setRevealed] = useState<{ number: number; message: string; alreadyRevealed?: boolean; question?: string } | null>(null);
   const [animating, setAnimating] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
-  const [confirmRepeat, setConfirmRepeat] = useState<number | null>(null);
   const [notes, setNotes] = useState("");
   const [noteSaveState, setNoteSaveState] = useState<"idle" | "saving" | "saved">("idle");
   const pendingRevealRef = useRef<number | null>(null);
@@ -51,7 +50,7 @@ const Experience = () => {
 
   const emailUnverified = !!user && !user.email_confirmed_at;
 
-  const reveal = async (n: number, force = false) => {
+  const reveal = async (n: number) => {
     if (animating) return;
     track("reveal_attempt", { metadata: { number: n, has_user: !!user } });
     if (!Number.isInteger(n) || n < 1 || n > TOTAL_MESSAGES) {
@@ -79,7 +78,7 @@ const Experience = () => {
     setRevealed(null);
     try {
       const { data, error } = await supabase.functions.invoke("get-message", {
-        body: { id: n, force },
+        body: { id: n },
       });
       if (error) {
         const ctxBody = (error as { context?: { body?: unknown } })?.context?.body;
@@ -91,13 +90,6 @@ const Experience = () => {
           return;
         }
         throw error;
-      }
-
-      // Server signals message was previously revealed — ask for confirmation
-      if (data?.code === "ALREADY_REVEALED") {
-        if (typeof data.credits === "number") setLocalCredits(data.credits);
-        setConfirmRepeat(n);
-        return;
       }
 
       if (!data?.content) throw new Error("Sem conteúdo recebido.");
@@ -171,7 +163,6 @@ const Experience = () => {
   const handleReset = (prefillNumber?: number) => {
     if (notesTimerRef.current) clearTimeout(notesTimerRef.current);
     setRevealed(null);
-    setConfirmRepeat(null);
     setShowPaywall(false);
     setInput(prefillNumber ? String(prefillNumber) : "");
     setQuestion("");
@@ -255,35 +246,6 @@ const Experience = () => {
                 }
               }}
             />
-          ) : confirmRepeat !== null ? (
-            <div className="p-8 md:p-10 rounded-3xl bg-card border border-amber-200 shadow-elegant animate-fade-in-up text-center space-y-5">
-              <p className="text-sm font-medium text-amber-700">
-                Já revelou a mensagem {confirmRepeat} anteriormente.
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Revelar novamente gasta <strong>1 crédito</strong>. A mensagem ficará guardada no seu histórico com a questão que escreveu.
-              </p>
-              <div className="flex gap-3 justify-center">
-                <button
-                  type="button"
-                  onClick={() => setConfirmRepeat(null)}
-                  className="px-5 py-2.5 rounded-full border border-border text-sm font-medium hover:bg-muted transition-smooth"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const n = confirmRepeat;
-                    setConfirmRepeat(null);
-                    reveal(n, true);
-                  }}
-                  className="px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-smooth"
-                >
-                  Revelar mesmo assim
-                </button>
-              </div>
-            </div>
           ) : !revealed ? (
             <form onSubmit={handleSubmit} className="p-8 md:p-10 rounded-3xl bg-card border border-border/60 shadow-elegant animate-fade-in-up">
               {/* Optional question field */}
