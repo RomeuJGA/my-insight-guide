@@ -1,6 +1,10 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
-import { Upload, FileText, CheckCircle2, AlertTriangle, Loader2 } from "lucide-react";
+import {
+  Upload, FileText, CheckCircle2, AlertTriangle, Loader2,
+  ShoppingCart, Package, Ticket, Users, Coins, BarChart2,
+  Star, ArrowLeft, MessageSquare,
+} from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -147,6 +151,7 @@ const Admin = () => {
   const { user, loading: authLoading } = useAuth();
   const { isAdmin, loading: roleLoading } = useIsAdmin();
 
+  const [active, setActive] = useState("encomendas");
   const [fileName, setFileName] = useState<string | null>(null);
   const [parseError, setParseError] = useState<string | null>(null);
   const [rows, setRows] = useState<ParsedRow[] | null>(null);
@@ -156,6 +161,17 @@ const Admin = () => {
   const [progress, setProgress] = useState(0);
   const [lastImportCount, setLastImportCount] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const sections = [
+    { id: "encomendas",   label: "Encomendas",   Icon: ShoppingCart },
+    { id: "utilizadores", label: "Utilizadores",  Icon: Users },
+    { id: "creditos",     label: "Créditos",      Icon: Coins },
+    { id: "packs",        label: "Packs",         Icon: Package },
+    { id: "cupoes",       label: "Cupões",        Icon: Ticket },
+    { id: "analytics",   label: "Analytics",     Icon: BarChart2 },
+    { id: "testemunhos",  label: "Testemunhos",   Icon: Star },
+    { id: "mensagens",    label: "Mensagens",     Icon: MessageSquare },
+  ] as const;
 
   const handleFile = useCallback(async (file: File) => {
     setParseError(null);
@@ -265,154 +281,173 @@ const Admin = () => {
     );
   }
 
+  const activeLabel = sections.find((s) => s.id === active)?.label ?? "";
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <div className="flex-1 pt-24 pb-16 px-6">
-      <div className="max-w-3xl mx-auto">
-        <div className="mb-10">
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-2">
-            Administração
-          </p>
-          <h1 className="font-serif text-3xl md:text-4xl tracking-tight">
-            Importar mensagens
-          </h1>
-          <p className="text-muted-foreground mt-3 text-sm leading-relaxed">
-            Carregue um ficheiro CSV com as colunas <code className="px-1.5 py-0.5 rounded bg-muted text-xs">id</code> e{" "}
-            <code className="px-1.5 py-0.5 rounded bg-muted text-xs">content</code>. Esta ação substitui
-            todas as mensagens existentes.
-          </p>
-        </div>
-
-        <label
-          htmlFor="csv-input"
-          onDragOver={(e) => {
-            e.preventDefault();
-            setIsDragging(true);
-          }}
-          onDragLeave={() => setIsDragging(false)}
-          onDrop={onDrop}
-          className={`block cursor-pointer rounded-2xl border-2 border-dashed p-10 text-center transition-smooth ${
-            isDragging
-              ? "border-primary bg-primary/5"
-              : "border-border hover:border-primary/50 hover:bg-muted/30"
-          }`}
+      {/* Top bar */}
+      <header className="fixed top-0 left-0 right-0 z-40 h-14 border-b border-border/60 bg-background/95 backdrop-blur flex items-center px-4 gap-4">
+        <span className="font-serif text-lg text-primary tracking-tight">Ä</span>
+        <span className="text-xs uppercase tracking-widest text-muted-foreground">Admin</span>
+        <span className="text-border/60 select-none">·</span>
+        <span className="text-sm font-medium">{activeLabel}</span>
+        <Link
+          to="/"
+          className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-smooth"
         >
-          <input
-            id="csv-input"
-            ref={inputRef}
-            type="file"
-            accept=".csv,text/csv"
-            className="sr-only"
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) handleFile(f);
-            }}
-          />
-          <div className="w-12 h-12 mx-auto rounded-full bg-muted flex items-center justify-center mb-4">
-            <Upload className="w-5 h-5 text-muted-foreground" />
-          </div>
-          <p className="font-medium">Arraste o CSV ou clique para selecionar</p>
-          <p className="text-xs text-muted-foreground mt-1">
-            Apenas .csv · até 5MB · ids entre {MIN_ID} e {MAX_ID}
-          </p>
-        </label>
+          <ArrowLeft className="w-3.5 h-3.5" />
+          Sair
+        </Link>
+      </header>
 
-        {fileName && (
-          <div className="mt-6 rounded-xl border border-border bg-card p-4 flex items-start gap-3">
-            <FileText className="w-5 h-5 text-muted-foreground mt-0.5" />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{fileName}</p>
-              {rows && (
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {rows.length} linhas validadas · pronto a importar
+      <div className="flex flex-1 pt-14">
+        {/* Sidebar — desktop */}
+        <aside className="hidden md:flex flex-col w-48 shrink-0 border-r border-border/60 fixed left-0 top-14 h-[calc(100vh-3.5rem)] overflow-y-auto py-4 px-2">
+          <nav className="flex flex-col gap-0.5">
+            {sections.map(({ id, label, Icon }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setActive(id)}
+                className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-left transition-smooth ${
+                  active === id
+                    ? "bg-primary/10 text-primary font-medium"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                }`}
+              >
+                <Icon className="w-4 h-4 shrink-0" />
+                {label}
+              </button>
+            ))}
+          </nav>
+        </aside>
+
+        {/* Mobile tab strip */}
+        <div className="md:hidden fixed top-14 left-0 right-0 z-30 bg-background border-b border-border/60 overflow-x-auto">
+          <div className="flex gap-1 px-3 py-2 min-w-max">
+            {sections.map(({ id, label, Icon }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setActive(id)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs whitespace-nowrap transition-smooth ${
+                  active === id
+                    ? "bg-primary text-primary-foreground font-medium"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5 shrink-0" />
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Content */}
+        <main className="flex-1 md:ml-48 px-6 py-8 md:py-10 mt-10 md:mt-0 min-h-[calc(100vh-3.5rem)] max-w-4xl">
+          {active === "encomendas" && <AdminOrders />}
+          {active === "utilizadores" && <AdminUsers />}
+          {active === "creditos" && <AdminCredits />}
+          {active === "packs" && <AdminPackages />}
+          {active === "cupoes" && <AdminCoupons />}
+          {active === "analytics" && <AdminAnalytics />}
+          {active === "testemunhos" && <AdminTestimonials />}
+          {active === "mensagens" && (
+            <div>
+              <div className="mb-8">
+                <h2 className="font-serif text-2xl md:text-3xl tracking-tight mb-1">Importar mensagens</h2>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Carregue um CSV com as colunas{" "}
+                  <code className="px-1.5 py-0.5 rounded bg-muted text-xs">id</code> e{" "}
+                  <code className="px-1.5 py-0.5 rounded bg-muted text-xs">content</code>.{" "}
+                  Esta ação substitui todas as mensagens existentes.
                 </p>
+              </div>
+
+              <label
+                htmlFor="csv-input"
+                onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={onDrop}
+                className={`block cursor-pointer rounded-2xl border-2 border-dashed p-10 text-center transition-smooth ${
+                  isDragging
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-primary/50 hover:bg-muted/30"
+                }`}
+              >
+                <input
+                  id="csv-input"
+                  ref={inputRef}
+                  type="file"
+                  accept=".csv,text/csv"
+                  className="sr-only"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
+                />
+                <div className="w-12 h-12 mx-auto rounded-full bg-muted flex items-center justify-center mb-4">
+                  <Upload className="w-5 h-5 text-muted-foreground" />
+                </div>
+                <p className="font-medium">Arraste o CSV ou clique para selecionar</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Apenas .csv · até 5MB · ids entre {MIN_ID} e {MAX_ID}
+                </p>
+              </label>
+
+              {fileName && (
+                <div className="mt-6 rounded-xl border border-border bg-card p-4 flex items-start gap-3">
+                  <FileText className="w-5 h-5 text-muted-foreground mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{fileName}</p>
+                    {rows && <p className="text-xs text-muted-foreground mt-0.5">{rows.length} linhas validadas · pronto a importar</p>}
+                    {parseError && <p className="text-xs text-destructive mt-1">{parseError}</p>}
+                  </div>
+                </div>
               )}
-              {parseError && (
-                <p className="text-xs text-destructive mt-1">{parseError}</p>
+
+              {rows && previewRows.length > 0 && (
+                <div className="mt-6 rounded-xl border border-border overflow-hidden">
+                  <div className="px-4 py-2 bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground">
+                    Pré-visualização (primeiras {previewRows.length})
+                  </div>
+                  <table className="w-full text-sm">
+                    <tbody>
+                      {previewRows.map((r) => (
+                        <tr key={r.id} className="border-t border-border">
+                          <td className="px-4 py-2 w-16 font-mono text-xs text-muted-foreground">{r.id}</td>
+                          <td className="px-4 py-2 truncate">{r.content}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
+
+              {importing && (
+                <div className="mt-6 space-y-2">
+                  <Progress value={progress} />
+                  <p className="text-xs text-muted-foreground text-center">A importar mensagens…</p>
+                </div>
+              )}
+
+              {lastImportCount !== null && !importing && (
+                <div className="mt-6 rounded-xl border border-border bg-card p-4 flex items-center gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-primary" />
+                  <p className="text-sm"><span className="font-medium">{lastImportCount}</span> mensagens importadas com sucesso.</p>
+                </div>
+              )}
+
+              <div className="mt-8 flex justify-end">
+                <button
+                  type="button"
+                  disabled={!rows || importing}
+                  onClick={() => setConfirmOpen(true)}
+                  className="text-sm font-medium px-5 py-2.5 rounded-full bg-primary text-primary-foreground shadow-soft hover:opacity-90 transition-smooth disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Importar mensagens
+                </button>
+              </div>
             </div>
-          </div>
-        )}
-
-        {rows && previewRows.length > 0 && (
-          <div className="mt-6 rounded-xl border border-border overflow-hidden">
-            <div className="px-4 py-2 bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground">
-              Pré-visualização (primeiras {previewRows.length})
-            </div>
-            <table className="w-full text-sm">
-              <tbody>
-                {previewRows.map((r) => (
-                  <tr key={r.id} className="border-t border-border">
-                    <td className="px-4 py-2 w-16 font-mono text-xs text-muted-foreground">
-                      {r.id}
-                    </td>
-                    <td className="px-4 py-2 truncate">{r.content}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {importing && (
-          <div className="mt-6 space-y-2">
-            <Progress value={progress} />
-            <p className="text-xs text-muted-foreground text-center">
-              A importar mensagens…
-            </p>
-          </div>
-        )}
-
-        {lastImportCount !== null && !importing && (
-          <div className="mt-6 rounded-xl border border-border bg-card p-4 flex items-center gap-3">
-            <CheckCircle2 className="w-5 h-5 text-primary" />
-            <p className="text-sm">
-              <span className="font-medium">{lastImportCount}</span> mensagens importadas com sucesso.
-            </p>
-          </div>
-        )}
-
-        <div className="mt-8 flex items-center justify-between">
-          <Link to="/" className="text-sm text-muted-foreground hover:text-foreground transition-smooth">
-            ← Voltar
-          </Link>
-          <button
-            type="button"
-            disabled={!rows || importing}
-            onClick={() => setConfirmOpen(true)}
-            className="text-sm font-medium px-5 py-2.5 rounded-full bg-primary text-primary-foreground shadow-soft hover:opacity-90 transition-smooth disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            Importar mensagens
-          </button>
-        </div>
-
-        <div className="mt-12">
-          <AdminOrders />
-        </div>
-
-        <div className="mt-12">
-          <AdminPackages />
-        </div>
-
-        <div className="mt-12">
-          <AdminCoupons />
-        </div>
-
-        <div className="mt-12">
-          <AdminTestimonials />
-        </div>
-
-        <div className="mt-12">
-          <AdminAnalytics />
-        </div>
-
-        <div className="mt-12">
-          <AdminUsers />
-        </div>
-
-        <div className="mt-12">
-          <AdminCredits />
-        </div>
+          )}
+        </main>
       </div>
 
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
@@ -431,11 +466,7 @@ const Admin = () => {
           <AlertDialogFooter>
             <AlertDialogCancel disabled={importing}>Cancelar</AlertDialogCancel>
             <AlertDialogAction
-              onClick={(e) => {
-                e.preventDefault();
-                setConfirmOpen(false);
-                runImport();
-              }}
+              onClick={(e) => { e.preventDefault(); setConfirmOpen(false); runImport(); }}
               disabled={importing}
             >
               Sim, substituir
@@ -443,8 +474,6 @@ const Admin = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      </div>
-      <Footer />
     </div>
   );
 };
