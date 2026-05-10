@@ -14,6 +14,7 @@ import {
   Smartphone,
   Phone,
   AlertCircle,
+  Receipt,
 } from "lucide-react";
 import Disclaimer from "./Disclaimer";
 import { supabase } from "@/integrations/supabase/client";
@@ -66,6 +67,16 @@ function isValidPhone(raw: string): boolean {
   return false;
 }
 
+function isValidNIF(raw: string): boolean {
+  const nif = raw.replace(/\D/g, "");
+  if (nif.length !== 9 || !/^[1-9]/.test(nif)) return false;
+  const weights = [9, 8, 7, 6, 5, 4, 3, 2];
+  const sum = weights.reduce((acc, w, i) => acc + w * parseInt(nif[i]), 0);
+  const rem = sum % 11;
+  const check = rem < 2 ? 0 : 11 - rem;
+  return check === parseInt(nif[8]);
+}
+
 const Paywall = ({ onPurchased }: PaywallProps) => {
   const { packages, loading: loadingPkgs } = useCreditPackages({ onlyActive: true });
   const { value: showCouponField } = useAppSetting<boolean>("show_coupon_field", true);
@@ -84,6 +95,12 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
   const [couponLoading, setCouponLoading] = useState(false);
   const [coupon, setCoupon] = useState<AppliedCoupon | null>(null);
   const [showCouponInput, setShowCouponInput] = useState(false);
+
+  // Billing / invoice
+  const [wantInvoice, setWantInvoice] = useState(false);
+  const [billingName, setBillingName] = useState("");
+  const [billingNif, setBillingNif] = useState("");
+  const [billingNifError, setBillingNifError] = useState("");
 
   const [pollingTimedOut, setPollingTimedOut] = useState(false);
   const pollRef = useRef<number | null>(null);
@@ -227,12 +244,26 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
       }
       setPhoneError("");
     }
+    if (wantInvoice) {
+      if (!billingName.trim()) return toast.error("Indique o nome para a fatura.");
+      if (!isValidNIF(billingNif)) {
+        setBillingNifError("NIF inválido. Verifique os 9 dígitos.");
+        return;
+      }
+      setBillingNifError("");
+    }
     track("purchase_attempt", { package: selectedPkg?.name ?? selected, method: paymentMethod });
     setCreating(true);
     try {
       if (paymentMethod === "multibanco") {
         const { data, error } = await supabase.functions.invoke("create-multibanco-payment", {
-          body: { packageId: selected, acceptedTerms: true, couponCode: coupon?.code ?? null },
+          body: {
+            packageId: selected,
+            acceptedTerms: true,
+            couponCode: coupon?.code ?? null,
+            billingName: wantInvoice ? billingName.trim() : null,
+            billingNif: wantInvoice ? billingNif.replace(/\D/g, "") : null,
+          },
         });
         if (error) {
           const ctx = (error as { context?: unknown })?.context;
@@ -246,7 +277,14 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
         startPolling(data.orderId, 10_000, 12); // every 10s, 2min max
       } else {
         const { data, error } = await supabase.functions.invoke("create-mbway-payment", {
-          body: { packageId: selected, acceptedTerms: true, couponCode: coupon?.code ?? null, phone },
+          body: {
+            packageId: selected,
+            acceptedTerms: true,
+            couponCode: coupon?.code ?? null,
+            phone,
+            billingName: wantInvoice ? billingName.trim() : null,
+            billingNif: wantInvoice ? billingNif.replace(/\D/g, "") : null,
+          },
         });
         if (error) {
           const ctx = (error as { context?: unknown })?.context;
@@ -276,6 +314,10 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
     setPhone("");
     setPhoneError("");
     setPollingTimedOut(false);
+    setWantInvoice(false);
+    setBillingName("");
+    setBillingNif("");
+    setBillingNifError("");
   };
 
   // ── Multibanco pending screen ──────────────────────────────────────────────
@@ -625,6 +667,57 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
                 </div>
               )}
             </>
+          )}
+        </div>
+      )}
+
+      {/* Invoice / billing */}
+      {selected && (
+        <div className="mt-4">
+          <button
+            type="button"
+            onClick={() => { setWantInvoice((v) => !v); setBillingNifError(""); }}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Receipt className="w-3.5 h-3.5" />
+            Precisa de fatura com NIF?
+          </button>
+          {wantInvoice && (
+            <div className="mt-3 space-y-3">
+              <div>
+                <label className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5 block">
+                  Nome para a fatura
+                </label>
+                <input
+                  type="text"
+                  value={billingName}
+                  onChange={(e) => setBillingName(e.target.value)}
+                  placeholder="Nome completo ou empresa"
+                  className="w-full px-3 py-2.5 rounded-xl border border-border bg-background text-sm"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5 block">
+                  NIF
+                </label>
+                <input
+                  type="text"
+                  value={billingNif}
+                  onChange={(e) => { setBillingNif(e.target.value.replace(/\D/g, "").slice(0, 9)); setBillingNifError(""); }}
+                  placeholder="123456789"
+                  inputMode="numeric"
+                  maxLength={9}
+                  className={`w-full px-3 py-2.5 rounded-xl border bg-background text-sm tabular-nums ${billingNifError ? "border-destructive" : "border-border"}`}
+                />
+                {billingNifError && (
+                  <p className="mt-1 text-xs text-destructive">{billingNifError}</p>
+                )}
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Serão emitidos os dados para fatura após confirmação do pagamento.
+                </p>
+              </div>
+            </div>
           )}
         </div>
       )}
