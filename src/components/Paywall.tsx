@@ -635,7 +635,7 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
         <div className="mt-5">
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2">Método de pagamento</p>
           <div className="grid grid-cols-2 gap-2">
-            {(["multibanco", "mbway"] as const).map((m) => (
+            {(["mbway", "multibanco"] as const).map((m) => (
               <button
                 key={m}
                 type="button"
