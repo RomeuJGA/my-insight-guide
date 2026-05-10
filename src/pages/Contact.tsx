@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Mail, Calendar, Send, CheckCircle, Loader2, MessageSquare, Clock } from "lucide-react";
+import { Mail, Calendar, Send, CheckCircle, Loader2, MessageSquare } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,29 +7,13 @@ import { toast } from "sonner";
 
 type Subject = "general" | "consultation";
 
-const TIME_SLOTS = [
-  "09:00 – 10:00",
-  "10:00 – 11:00",
-  "11:00 – 12:00",
-  "14:00 – 15:00",
-  "15:00 – 16:00",
-  "16:00 – 17:00",
-  "17:00 – 18:00",
-];
-
 const Contact = () => {
   const [subject, setSubject] = useState<Subject>("general");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
-  const [preferredDate, setPreferredDate] = useState("");
-  const [preferredTime, setPreferredTime] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-
-  const minDate = new Date();
-  minDate.setDate(minDate.getDate() + 1);
-  const minDateStr = minDate.toISOString().slice(0, 10);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,19 +21,12 @@ const Contact = () => {
       toast.error("Preencha todos os campos obrigatórios.");
       return;
     }
-    if (subject === "consultation" && (!preferredDate || !preferredTime)) {
-      toast.error("Indique a data e hora preferidas para a consulta.");
-      return;
-    }
-
     setSubmitting(true);
     const { error } = await supabase.from("contact_requests").insert({
       name: name.trim(),
       email: email.trim(),
       subject,
       message: message.trim(),
-      preferred_date: subject === "consultation" ? preferredDate : null,
-      preferred_time: subject === "consultation" ? preferredTime : null,
     });
     setSubmitting(false);
 
@@ -146,7 +123,7 @@ const Contact = () => {
 
             {subject === "consultation" && (
               <div className="p-4 rounded-2xl bg-primary/5 border border-primary/20 text-sm text-foreground/80 leading-relaxed">
-                <strong className="text-foreground">Consulta de orientação</strong> — sessão individual com Mónyca Dell Rey para reflexão e orientação pessoal. Após submissão, confirmaremos a disponibilidade por email.
+                <strong className="text-foreground">Consulta de orientação</strong> — sessão individual com Mónyca Dell Rey para reflexão e orientação pessoal. Deixe o seu contacto e entraremos em contacto para combinar a data e hora de acordo com a disponibilidade.
               </div>
             )}
 
@@ -178,42 +155,6 @@ const Contact = () => {
                 />
               </div>
             </div>
-
-            {subject === "consultation" && (
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                    <Calendar className="w-3 h-3" />
-                    Data preferida <span className="text-destructive">*</span>
-                  </label>
-                  <input
-                    type="date"
-                    value={preferredDate}
-                    onChange={(e) => setPreferredDate(e.target.value)}
-                    min={minDateStr}
-                    required
-                    className="w-full px-4 py-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/40 transition-smooth"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                    <Clock className="w-3 h-3" />
-                    Horário preferido <span className="text-destructive">*</span>
-                  </label>
-                  <select
-                    value={preferredTime}
-                    onChange={(e) => setPreferredTime(e.target.value)}
-                    required
-                    className="w-full px-4 py-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/40 transition-smooth"
-                  >
-                    <option value="">Escolha um horário</option>
-                    {TIME_SLOTS.map((slot) => (
-                      <option key={slot} value={slot}>{slot}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            )}
 
             <div className="space-y-1.5">
               <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
