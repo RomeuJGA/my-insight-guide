@@ -8,6 +8,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Disclaimer from "@/components/Disclaimer";
 import ReflectionGuide from "@/components/ReflectionGuide";
+import TestimonialForm from "@/components/TestimonialForm";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type Reveal = { messageId: number; revealedAt: string; content: string; question?: string | null; notes?: string | null };
@@ -164,6 +165,15 @@ const MyMessages = () => {
                 </li>
               ))}
             </ul>
+          )}
+          {/* Testimonial form — only show when list is visible and has items */}
+          {!loading && items.length > 0 && !active && (
+            <div className="mt-12 pt-8 border-t border-border/60">
+              <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4">
+                A tua opinião
+              </p>
+              <TestimonialForm />
+            </div>
           )}
         </div>
       </section>

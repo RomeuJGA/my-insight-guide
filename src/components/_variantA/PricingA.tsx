@@ -71,6 +71,11 @@ const PricingA = () => {
                       {plan.description}
                     </p>
                   )}
+                  {plan.future_price_eur && (
+                    <p className={`text-sm line-through mb-1 ${highlight ? "opacity-50" : "text-muted-foreground/60"}`}>
+                      {formatEur(plan.future_price_eur)}
+                    </p>
+                  )}
                   <div className="flex items-baseline gap-1 mb-1">
                     <span className="font-serif text-5xl">{formatEur(plan.price_eur)}</span>
                   </div>
@@ -82,7 +87,7 @@ const PricingA = () => {
                     {[
                       `${plan.credits} mensagem${plan.credits === 1 ? "" : "s"} à sua escolha`,
                       "Histórico guardado",
-                      "Sem validade",
+                      "Créditos sem prazo — usa quando quiser",
                     ].map((f) => (
                       <li key={f} className="flex items-start gap-3 text-sm">
                         <Check
@@ -108,6 +113,10 @@ const PricingA = () => {
             })}
           </div>
         )}
+        <p className="text-center text-xs text-muted-foreground/60 mt-10 max-w-sm mx-auto">
+          Preços de lançamento — disponíveis por tempo limitado.<br />
+          Os créditos não expiram. Ficam na sua conta até os usar.
+        </p>
       </div>
     </section>
   );

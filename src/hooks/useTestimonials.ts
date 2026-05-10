@@ -9,6 +9,8 @@ export type Testimonial = {
   rating: number;
   display_order: number;
   active: boolean;
+  status: "pending" | "approved" | "rejected";
+  user_id: string | null;
 };
 
 export function useTestimonials(opts: { onlyActive?: boolean } = { onlyActive: true }) {
@@ -19,7 +21,9 @@ export function useTestimonials(opts: { onlyActive?: boolean } = { onlyActive: t
   const refetch = async () => {
     setLoading(true);
     let q = supabase.from("testimonials").select("*").order("display_order", { ascending: true });
-    if (opts.onlyActive) q = q.eq("active", true);
+    if (opts.onlyActive) {
+      q = q.eq("active", true).eq("status", "approved");
+    }
     const { data, error } = await q;
     if (error) setError(error.message);
     else {

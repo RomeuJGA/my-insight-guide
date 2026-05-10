@@ -86,7 +86,7 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
   const [payment, setPayment] = useState<ActivePayment | null>(null);
   const [checking, setChecking] = useState(false);
 
-  const [paymentMethod, setPaymentMethod] = useState<"multibanco" | "mbway">("multibanco");
+  const [paymentMethod, setPaymentMethod] = useState<"multibanco" | "mbway">("mbway");
   const [phone, setPhone] = useState("");
   const [phoneError, setPhoneError] = useState("");
 
@@ -544,7 +544,14 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
                 )}
                 <div className="flex items-baseline justify-between mb-1.5">
                   <span className="font-serif text-3xl leading-none">{pkg.credits}</span>
-                  <span className="text-sm font-medium tabular-nums">{formatEur(pkg.price_eur)}</span>
+                  <div className="text-right">
+                    {pkg.future_price_eur && (
+                      <span className="block text-[11px] line-through text-muted-foreground/60 tabular-nums">
+                        {formatEur(pkg.future_price_eur)}
+                      </span>
+                    )}
+                    <span className="text-sm font-medium tabular-nums">{formatEur(pkg.price_eur)}</span>
+                  </div>
                 </div>
                 <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2">
                   {pkg.name}
@@ -738,7 +745,7 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
       <p className="mt-5 flex items-start gap-2 text-xs text-muted-foreground leading-relaxed">
         <Clock className="w-3.5 h-3.5 shrink-0 mt-0.5 text-primary/70" />
         <span>
-          Pode esperar pela mensagem gratuita de amanhã… ou receber já a orientação que procura.
+          Os créditos não têm prazo de validade. Ficam na sua conta até os usar — sem pressão.
         </span>
       </p>
 
@@ -774,7 +781,7 @@ const Paywall = ({ onPurchased }: PaywallProps) => {
         ) : (
           <>
             {paymentMethod === "mbway" ? <Smartphone className="w-4 h-4" /> : <Landmark className="w-4 h-4" />}
-            Receber a minha mensagem agora
+            {paymentMethod === "mbway" ? "Pagar com MB WAY" : "Gerar referência Multibanco"}
             {coupon && selectedPkg && (
               <span className="text-xs opacity-80">· {formatEur(coupon.finalPrice)}</span>
             )}

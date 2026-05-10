@@ -49,6 +49,7 @@ const FreeVsPaid = () => {
                 "Escolhe o número que sentir",
                 "Acesso permanente às mensagens reveladas",
                 "Histórico pessoal guardado",
+                "Créditos sem prazo — usa quando quiser",
               ].map((f) => (
                 <li key={f} className="flex items-start gap-3 text-sm">
                   <Check className="w-4 h-4 mt-0.5 shrink-0 text-primary-foreground" />

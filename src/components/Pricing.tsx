@@ -90,7 +90,7 @@ const Pricing = () => {
                     {[
                       `${plan.credits} mensagem${plan.credits === 1 ? "" : "s"} à sua escolha`,
                       "Histórico guardado",
-                      "Sem validade",
+                      "Créditos sem prazo — usa quando quiser",
                     ].map((f) => (
                       <li key={f} className="flex items-start gap-3 text-sm">
                         <Check
@@ -124,7 +124,8 @@ const Pricing = () => {
         )}
 
         <p className="text-center text-xs text-muted-foreground/60 mt-10 max-w-sm mx-auto">
-          Preços de lançamento — disponíveis por tempo limitado.
+          Preços de lançamento — disponíveis por tempo limitado.<br />
+          Os créditos não expiram. Ficam na sua conta até os usar.
         </p>
       </div>
     </section>
