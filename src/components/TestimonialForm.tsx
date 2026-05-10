@@ -28,7 +28,7 @@ const TestimonialForm = () => {
         </div>
         <p className="font-medium">Testemunho enviado!</p>
         <p className="text-sm text-muted-foreground">
-          Ficará visível no site após aprovação do administrador. Obrigado pelo seu contributo.
+          Obrigado pelo seu contributo.
         </p>
       </div>
     );
@@ -67,9 +67,6 @@ const TestimonialForm = () => {
     <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
       <div>
         <h3 className="font-medium text-base">Partilhe a sua experiência</h3>
-        <p className="text-sm text-muted-foreground mt-0.5">
-          O seu testemunho ficará visível após aprovação.
-        </p>
       </div>
 
       {/* Stars */}
