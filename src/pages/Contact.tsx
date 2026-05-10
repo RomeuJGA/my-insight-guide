@@ -205,10 +205,10 @@ const Contact = () => {
             <div>
               <p className="text-sm font-medium">Contacto direto</p>
               <a
-                href="mailto:geral@umavatar.pt"
+                href="mailto:suporte@umavatar.pt"
                 className="text-sm text-muted-foreground hover:text-primary transition-smooth"
               >
-                geral@umavatar.pt
+                suporte@umavatar.pt
               </a>
             </div>
           </div>
