@@ -1,7 +1,13 @@
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { useCredits } from "@/hooks/useCredits";
 
 const FinalCtaA = () => {
+  const { user } = useAuth();
+  const { credits } = useCredits();
+  const hasCredits = !!user && typeof credits === "number" && credits > 0;
+
   return (
     <section className="py-24 md:py-32 ab-a-hero relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
@@ -16,7 +22,7 @@ const FinalCtaA = () => {
             Pause. Respire. Escolha um número.
           </p>
           <Link
-            to="/credits?buy=1"
+            to={hasCredits ? "/#preview" : "/credits?buy=1"}
             className="group inline-flex items-center gap-2 px-8 py-4 rounded-full bg-[hsl(165_35%_28%)] text-[hsl(40_30%_98%)] font-medium shadow-elegant hover:shadow-glow transition-smooth"
           >
             Escolher o meu número
