@@ -13,7 +13,7 @@ Deno.serve(async (req) => {
 
   const { data: reveals, error } = await admin
     .from("message_reveals")
-    .select("message_id, revealed_at, question, notes")
+    .select("id, message_id, revealed_at, question, notes")
     .eq("user_id", user.id)
     .order("revealed_at", { ascending: false });
 
@@ -37,6 +37,7 @@ Deno.serve(async (req) => {
 
   const byId = new Map(messages?.map((m) => [m.id, m.content]) ?? []);
   const items = reveals.map((r) => ({
+    revealId: r.id,
     messageId: r.message_id,
     revealedAt: r.revealed_at,
     content: byId.get(r.message_id) ?? "",

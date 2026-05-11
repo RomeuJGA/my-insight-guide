@@ -23,7 +23,7 @@ const Experience = () => {
   const [input, setInput] = useState<string>("");
   const [question, setQuestion] = useState("");
   const [questionOpen, setQuestionOpen] = useState(false);
-  const [revealed, setRevealed] = useState<{ number: number; message: string; alreadyRevealed?: boolean; question?: string } | null>(null);
+  const [revealed, setRevealed] = useState<{ number: number; message: string; alreadyRevealed?: boolean; question?: string; revealId?: string } | null>(null);
   const [animating, setAnimating] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
   const [notes, setNotes] = useState("");
@@ -116,19 +116,21 @@ const Experience = () => {
       await new Promise((r) => setTimeout(r, 300));
 
       const trimmedQuestion = question.trim();
+      const revealId: string | undefined = data.revealId ?? undefined;
+
       setRevealed({
         number: n,
         message: data.content,
         alreadyRevealed: data.alreadyRevealed === true,
         question: trimmedQuestion || undefined,
+        revealId,
       });
 
-      if (trimmedQuestion) {
+      if (trimmedQuestion && revealId) {
         supabase
           .from("message_reveals")
           .update({ question: trimmedQuestion })
-          .eq("user_id", user.id)
-          .eq("message_id", n)
+          .eq("id", revealId)
           .then(({ error: qErr }) => {
             if (qErr) console.error("Failed to save question:", qErr);
           });
@@ -153,13 +155,14 @@ const Experience = () => {
     setInput(String(n));
   };
 
-  const saveNotes = useCallback(async (text: string, messageId: number) => {
+  const saveNotes = useCallback(async (text: string, messageId: number, revealId?: string) => {
     if (!user) return;
-    await supabase
-      .from("message_reveals")
-      .update({ notes: text })
-      .eq("user_id", user.id)
-      .eq("message_id", messageId);
+    const query = supabase.from("message_reveals").update({ notes: text });
+    if (revealId) {
+      await query.eq("id", revealId);
+    } else {
+      await query.eq("user_id", user.id).eq("message_id", messageId);
+    }
     setNoteSaveState("saved");
   }, [user]);
 
@@ -168,7 +171,7 @@ const Experience = () => {
     if (notesTimerRef.current) clearTimeout(notesTimerRef.current);
     setNoteSaveState("saving");
     notesTimerRef.current = setTimeout(() => {
-      saveNotes(notes, revealed.number);
+      saveNotes(notes, revealed.number, revealed.revealId);
     }, 1500);
     return () => { if (notesTimerRef.current) clearTimeout(notesTimerRef.current); };
   // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -71,5 +71,6 @@ Deno.serve(async (req) => {
     content,
     credits: row.credits,
     alreadyRevealed: row.already_revealed === true,
+    revealId: row.reveal_id ?? null,
   });
 });

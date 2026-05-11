@@ -10,7 +10,7 @@ import Disclaimer from "@/components/Disclaimer";
 import ReflectionGuide from "@/components/ReflectionGuide";
 import { Skeleton } from "@/components/ui/skeleton";
 
-type Reveal = { messageId: number; revealedAt: string; content: string; question?: string | null; notes?: string | null };
+type Reveal = { revealId: string; messageId: number; revealedAt: string; content: string; question?: string | null; notes?: string | null };
 
 const MyMessages = () => {
   const navigate = useNavigate();
@@ -59,7 +59,7 @@ const MyMessages = () => {
             </p>
             <h1 className="font-serif text-3xl md:text-5xl mb-3">As minhas mensagens</h1>
             <p className="text-muted-foreground">
-              Pode reabrir qualquer mensagem revelada anteriormente sem gastar créditos.
+              Cada vez que escolhe um número fica aqui registado — incluindo revisitas ao mesmo número.
             </p>
           </header>
 
