@@ -67,7 +67,8 @@ const AdminUsers = () => {
   const q = search.toLowerCase();
   const filtered = users.filter((u) =>
     u.email.toLowerCase().includes(q) ||
-    (u.name ?? "").toLowerCase().includes(q)
+    (u.name ?? "").toLowerCase().includes(q) ||
+    u.id.toLowerCase().includes(q)
   );
 
   return (
