@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Loader2, Users, RefreshCw, Plus, Minus } from "lucide-react";
+import { Loader2, Users, RefreshCw, Plus, Minus, Copy, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 type User = {
@@ -18,6 +18,13 @@ const AdminUsers = () => {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [adjusting, setAdjusting] = useState<string | null>(null);
+  const [copied, setCopied] = useState<string | null>(null);
+
+  const copyId = (id: string) => {
+    navigator.clipboard.writeText(id);
+    setCopied(id);
+    setTimeout(() => setCopied(null), 1500);
+  };
 
   const load = async () => {
     setLoading(true);
@@ -110,6 +117,7 @@ const AdminUsers = () => {
               <tr className="bg-muted/40 text-xs text-muted-foreground uppercase tracking-wide">
                 <th className="px-4 py-2 text-left font-medium">Nome</th>
                 <th className="px-4 py-2 text-left font-medium">Email</th>
+                <th className="px-4 py-2 text-left font-medium">UUID</th>
                 <th className="px-4 py-2 text-right font-medium">Créditos</th>
                 <th className="px-4 py-2 text-right font-medium sr-only">Ações</th>
               </tr>
@@ -125,6 +133,19 @@ const AdminUsers = () => {
                   </td>
                   <td className="px-4 py-2.5 truncate max-w-[200px]">
                     <span className="font-mono text-xs text-foreground">{u.email}</span>
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <button
+                      onClick={() => copyId(u.id)}
+                      title={u.id}
+                      className="inline-flex items-center gap-1 font-mono text-xs text-muted-foreground hover:text-foreground transition-colors group"
+                    >
+                      <span>{u.id.slice(0, 8)}…</span>
+                      {copied === u.id
+                        ? <Check className="w-3 h-3 text-primary" />
+                        : <Copy className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      }
+                    </button>
                   </td>
                   <td className="px-4 py-2.5 text-right">
                     <span className={`font-medium tabular-nums ${u.credits > 0 ? "text-primary" : "text-muted-foreground"}`}>
